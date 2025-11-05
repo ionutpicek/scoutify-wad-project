@@ -1,0 +1,66 @@
+import React from 'react';
+import Photo from '../assets/ScoutifyBackground.png';
+
+const Register = () => {
+    return (
+        <div style={{justifyContent:'center', alignItems:'center', height: '100vh', display: 'flex',
+            backgroundImage: `url(${Photo})`,width: '100vw', backgroundSize: 'cover'
+        }}>
+        
+            <div style={{display: 'flex',flexDirection: 'column',justifyContent: 'center',alignItems: 'center',
+                border: '1px solid #000', borderRadius: '15px',backgroundColor: '#fff',height:'95vh',
+                boxShadow: '0px 0px 12px rgba(0, 0, 0, 1)', width: '48vw'}}>
+
+                <p style={{fontSize: 48,color: '#FF681F',fontFamily: 'cursive',marginBottom: 30,}}>
+                    Register
+                </p>
+
+            <div style={{display: 'flex',flexDirection: 'column',alignItems: 'center',gap: 10,}}>
+
+        <input
+            type="text"
+            placeholder="Full Name"
+            style={{padding: 10,width: 250,borderRadius: 4,border: '1px solid #FF681F'
+            }}/>
+
+        <input
+            type="text"
+            placeholder="Username"
+            style={{padding: 10,width: 250,borderRadius: 4,border: '1px solid #FF681F'
+            }}/>
+
+        <input
+            type="text"
+            placeholder="Team Name"
+            style={{padding: 10,width: 250,borderRadius: 4,border: '1px solid #FF681F'
+            }}/>
+
+          <input
+            type="email"
+            placeholder="Email"
+            style={{padding: 10,width: 250,borderRadius: 4,border: '1px solid #FF681F',}}
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            style={{padding: 10,width: 250,borderRadius: 4,border: '1px solid #FF681F',}}/>
+
+            <input
+            type="password"
+            placeholder="Confirm Password"
+            style={{padding: 10,width: 250,borderRadius: 4,border: '1px solid #FF681F',}}/>
+
+          <button style={{marginTop: 15,padding: '10px 20px',backgroundColor: '#FF681F',color: 'white',
+                        border: 'none',borderRadius: 4,cursor: 'pointer',fontWeight: 'bold'}}>
+                    Submit
+            </button>
+
+                </div>
+        </div>
+    </div>   
+    );
+    
+};
+
+export default Register;
