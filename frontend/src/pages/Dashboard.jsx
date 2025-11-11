@@ -79,12 +79,13 @@ const Dashboard = () => {
         }}
       >
         {[
-          { title: 'Teams', desc: 'Manage and view all your teams.' },
-          { title: 'Players', desc: 'Explore player stats and profiles.' },
-          { title: 'Profile', desc: 'View and edit your profile details.' },
+          { title: 'Teams', desc: 'Manage and view all your teams.', onclick: () => navigate('/teams') },
+          { title: 'Players', desc: 'Explore player stats and profiles.', onclick: () => navigate('/players') },
+          { title: 'Compare', desc: 'View the stats and compare players', onclick: () => navigate('/compare') },
         ].map((card) => (
           <div
             key={card.title}
+            onClick={card.onclick}
             style={cardStyle}
             onMouseEnter={(e) => Object.assign(e.currentTarget.style, cardHoverStyle)}
             onMouseLeave={(e) => Object.assign(e.currentTarget.style, cardStyle)}

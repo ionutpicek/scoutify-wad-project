@@ -6,6 +6,7 @@ import RegisterPage from '../pages/Register';
 import TeamsPage from '../pages/Teams';
 import Dashboard from '../pages/Dashboard';
 import PlayersPage from '../pages/Players';
+import ComparePlayers from '../pages/Compare';
 
 const AppRoutes = () => {
   return (
@@ -16,6 +17,9 @@ const AppRoutes = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/teams" element={<TeamsPage />} />
+        <Route path="/players" element={<PlayersPage />} />
+        <Route path="/compare" element={<ComparePlayers />} />
         
         {/* Fallback route */}
         <Route path="*" element={<h2>Page Not Found</h2>} />
