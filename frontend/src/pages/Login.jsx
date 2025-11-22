@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Photo from '../assets/ScoutifyPromo.png';
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { auth, db } from "../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+
 
 const LoginPage = () => {
   const navigate = useNavigate();
 
   const [loginData, setLoginData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
 
@@ -15,13 +19,57 @@ const LoginPage = () => {
     setLoginData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleLogin = () => {
-    // For now, just log the values (replace this with real login logic later)
-    console.log('Logging in with:', loginData);
+  const handleLogin = async () => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      loginData.email,
+      loginData.password
+    );
 
-    // Example redirect to another page after login
-    navigate('/dashboard');
-  };
+    const user = userCredential.user;
+
+    // 🔥 CHECK IF EMAIL IS VERIFIED
+    if (!user.emailVerified) {
+      alert("Please verify your email before logging in. Check your inbox.");
+      return;
+    }
+
+    // 🔥 Load Firestore user
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (!userDoc.exists()) {
+      alert("User record not found in Firestore.");
+      return;
+    }
+
+    const userData = userDoc.data();
+
+    // 🔥 OPTIONAL: if verified in Firebase but Firestore still false, update it
+    if (!userData.verified) {
+      await updateDoc(doc(db, "users", user.uid), {
+        verified: true
+      });
+    }
+
+    // 🔥 Manager rule (only managers must be verified manually later?)
+    if (userData.role === "manager" && !userData.verified) {
+      alert("Your manager account is under verification.");
+      return;
+    }
+
+    navigate("/dashboard");
+  } catch (error) {
+    console.error("Login error:", error.code, error.message);
+    if (error.code === "auth/user-not-found") {
+      alert("No user found with this email.");
+    } else if (error.code === "auth/wrong-password") {
+      alert("Incorrect password.");
+    } else {
+      alert("Login failed: " + error.message);
+    }
+  }
+};
+
 
   const inputStyle = {
     padding: '12px 15px',
@@ -76,10 +124,10 @@ const LoginPage = () => {
           }}
         >
           <input
-            name="username"
-            type="text"
-            placeholder="Username"
-            value={loginData.username}
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={loginData.email}
             onChange={handleChange}
             style={inputStyle}
             onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}

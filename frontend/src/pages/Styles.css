@@ -18,3 +18,16 @@
     padding: 10px;
     margin: 10px;
 }
+
+.header{
+    width: "100%";
+    background-color: "#FF681F";
+    color: "white";
+    height: "15vh";
+    font-size: 28;
+    font-family: "cursive";
+    display: "flex";
+    justify-content: "space-around";
+    align-items: "center";
+    box-shadow: "0 4px 10px rgba(0,0,0,0.2)";
+}

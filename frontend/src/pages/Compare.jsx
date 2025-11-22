@@ -3,26 +3,72 @@ import React, { useEffect, useState } from "react";
 import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
 import { app } from "../firebase.jsx";
 import { useNavigate } from "react-router-dom";
+import profilePhoto from '../assets/download.jpeg';
 
 const db = getFirestore(app);
 
+// 🔄 Spinner Component (Inline styled for simplicity)
+const Spinner = () => (
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "50vh", // Center vertically in a large area
+      width: "100%",
+    }}
+  >
+    <div
+      style={{
+        border: "5px solid #f3f3f3", // Light grey border
+        borderTop: "5px solid #FF681F", // Orange border for the spinning part
+        borderRadius: "50%",
+        width: "50px",
+        height: "50px",
+        animation: "spin 1s linear infinite",
+        marginBottom: "10px",
+      }}
+    />
+    <p style={{ color: "#FF681F" }}>Loading players...</p>
+    <style>
+      {`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}
+    </style>
+  </div>
+);
+
+
 function ComparePlayers() {
-    const navigate = useNavigate();
-    const [players, setPlayers] = useState([]);
-    const [selectedPlayers, setSelectedPlayers] = useState([null, null, null]);
-    const [playerStats, setPlayerStats] = useState([null, null, null]);
-    
+  const navigate = useNavigate();
+  const [players, setPlayers] = useState([]);
+  const [selectedPlayers, setSelectedPlayers] = useState([null, null, null]);
+  const [playerStats, setPlayerStats] = useState([null, null, null]);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchPlayers = async () => {
-      const snapshot = await getDocs(collection(db, "player"));
-      const playerList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setPlayers(playerList);
+      // 🚀 Start loading
+      setIsLoading(true);
+
+      try {
+        const snapshot = await getDocs(collection(db, "player"));
+        const playerList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setPlayers(playerList);
+      } catch (error) {
+        console.error("Error fetching players:", error);
+      } finally {
+        // ✅ Stop loading regardless of success or failure
+        setIsLoading(false);
+      }
     };
     fetchPlayers();
   }, []);
-
-  
 
   const handleSelectPlayer = async (index, playerID) => {
     const player = players.find(p => p.id === playerID);
@@ -31,6 +77,14 @@ function ComparePlayers() {
     setSelectedPlayers(newSelection);
 
     // Fetch stats for this player
+    // Check if playerID is valid before fetching stats
+    if (!playerID) {
+      const newStats = [...playerStats];
+      newStats[index] = null;
+      setPlayerStats(newStats);
+      return;
+    }
+
     const numericplayerID = Number(playerID);
     const statsQuery = query(collection(db, "stats"), where("playerID", "==", numericplayerID));
     const snapshot = await getDocs(statsQuery);
@@ -41,13 +95,26 @@ function ComparePlayers() {
     setPlayerStats(newStats);
   };
 
-  const statFields = ["assists", "dribbles", "goals", "minutes", "passes", "shots"]; // Add your desired stats here
+  const statFieldsPlayer = [ "minutes", "assists", "dribbles", "goals", "passes", "shots"]; // Add your desired stats here
+  const statFieldsGoalkeeper = ["minutes", "xCG", "conceded goals", "saves", "clean sheet","shot against","short goal kicks", "long goal kicks"]; // Add your desired stats here
+  // Determine which set of stats to display based on the selected players
+  const statFields = selectedPlayers.some(p => p?.position === "Goalkeeper") ? statFieldsGoalkeeper : statFieldsPlayer;
 
   // Compute max for each stat to highlight
   const maxValues = statFields.map(field => {
     const values = playerStats.map(ps => ps?.[field] ?? -Infinity);
     return Math.max(...values);
   });
+
+  const maxValues90 = statFields.map(field => {
+    const values = playerStats.map(ps => ps ? (ps[field]*90)/ps["minutes"] : -Infinity);
+    return Math.max(...values);
+  });
+
+  const getPlayerType = (player) => {
+    if (!player) return null;
+    return player.position === "Goalkeeper" ? "goalkeeper" : "outfield";
+  };
 
   const headerStyle = {
     width: "100%",
@@ -66,23 +133,23 @@ function ComparePlayers() {
     navigate("/login");
   };
 
-    return (
+  return (
     <div style={{ backgroundColor: "#ffffff", width: "100vw", minHeight: "100vh", overflowX: "hidden" }}>
-        {/* Header */}
+      {/* Header */}
       <header style={headerStyle}>
         <button
-      onClick={() => navigate(-1)} // 👈 Go back one page
-      style={{
-        backgroundColor: "#FF681F",
-        color: "white",
-        border: "none",
-        padding: "10px 20px",
-        borderRadius: "8px",
-        cursor: "pointer",
-      }}
-    >
-      ⬅ Back
-    </button>
+          onClick={() => navigate(-1)} // 👈 Go back one page
+          style={{
+            backgroundColor: "#FF681F",
+            color: "white",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            cursor: "pointer",
+          }}
+        >
+          ⬅ Back
+        </button>
         <span style={{ padding: "0 5vw" }}>Feelings or facts?</span>
         <button
           style={{
@@ -103,90 +170,119 @@ function ComparePlayers() {
         </button>
       </header>
 
-      {/* Player Selection */}
-      <div style={{ display: "flex", gap: "2vw", marginBottom: "4vh", justifyContent: "center", padding: "4vh 0" }}>
-        {selectedPlayers.map((player, idx) => (
-          <select
-            key={idx}
-            value={player ? player.id : ""}
-            onChange={e => handleSelectPlayer(idx, e.target.value)}
-            style={{
-              padding: "10px 15px",
-              borderRadius: 8,
-              border: "1px solid #FF681F",
-              backgroundColor: "#fff8f0",
-              color: "#000",
-              fontSize: 16,
-            }}
-          >
-            <option value="">Select Player {idx + 1}</option>
-            {players.map(p => (
-              <option key={p.id} value={p.id}>{p.name}</option>
+      {/* Conditional Content Rendering */}
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <>
+          {/* Player Selection */}
+          <div style={{ display: "flex", gap: "2vw", marginBottom: "4vh", justifyContent: "center", padding: "4vh 0" }}>
+            {selectedPlayers.map((player, idx) => (
+              <select
+                key={idx}
+                value={player ? player.id : ""}
+                onChange={e => handleSelectPlayer(idx, e.target.value)}
+                style={{
+                  padding: "10px 15px",
+                  borderRadius: 8,
+                  border: "1px solid #FF681F",
+                  backgroundColor: "#fff8f0",
+                  color: "#000",
+                  fontSize: 16,
+                }}
+              >
+                <option value="">Select Player {idx + 1}</option>
+                {players.filter((p) => {
+                  const firstSelected = selectedPlayers.find(sp => sp);
+                  const selectedType = getPlayerType(firstSelected);
+
+                  if (!selectedType) return true; // no players chosen yet → show all
+                  return getPlayerType(p) === selectedType; // show only same type (goalkeeper/outfield)
+                })
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+              </select>
             ))}
-          </select>
-        ))}
-      </div>
+          </div>
 
-        {/* Comparison Stats */}
-      <div style={{ display: "flex", gap: "2vw", flexWrap: "wrap", justifyContent: "center", padding: "0 2vw 4vh 2vw" }}>
-        {selectedPlayers.map((player, idx) =>
-          player ? (
-            <div
-              key={idx}
-              style={{
-                flex: "1 1 25vw",
-                backgroundColor: "#fff",
-                borderRadius: 12,
-                padding: "2vw",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                minWidth: "200px",
-              }}
-            >
-            <div style={{display:"flex", flexDirection:"row", justifyContent:"space-around", alignContent:"center", height:"15vh"}}>
-              <img src={player.photoURL || "/placeholder.png"} alt={player.name} style={{ width: "8vw", height:"8vw", borderRadius: 12, marginBottom: "1vh", objectFit:"cover" }} />
-              
-              <div style={{textAlign:"start", justifyContent:"center", display:"flex", flexDirection:"column"}}>
-                <p style={{ color: "#FF681F", margin:"-1vh 0" }}>{player.name}</p>
-                <p style={{ color: "#555" }}>{player.position}</p>
-                <p style={{color:"#000", margin:"-1vh 0"}}>Birthdate: {player.birthdate ? player.birthdate.toDate().toLocaleDateString(): "-"}</p>{" "} 
-              </div>
-            </div>
+          {/* Comparison Stats */}
+          <div style={{ display: "flex", gap: "2vw", flexWrap: "wrap", justifyContent: "center", padding: "0 2vw 4vh 2vw" }}>
+            {selectedPlayers.map((player, idx) =>
+              player ? (
+                <div
+                  key={idx}
+                  style={{
+                    flex: "1 1 25vw",
+                    backgroundColor: "#fff",
+                    borderRadius: 12,
+                    padding: "2vw",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    minWidth: "200px",
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-around", alignContent: "center", height: "15vh" }}>
+                    <img src={player.photoURL || profilePhoto} alt={player.name} style={{ width: "8vw", height: "8vw", borderRadius: 12, marginBottom: "1vh", objectFit: "cover" }} />
 
-              {playerStats[idx] ? (
-                statFields.map((field, sIdx) => (
+                    <div style={{ textAlign: "start", justifyContent: "center", display: "flex", flexDirection: "column" }}>
+                      <p style={{ color: "#FF681F", margin: "-1vh 0" }}>{player.name}</p>
+                      <p style={{ color: "#555" }}>{player.position}</p>
+                      <p style={{ color: "#000", margin: "-1vh 0" }}>Birthdate: {player.birthdate ? player.birthdate.toDate().toLocaleDateString() : "-"}</p>{" "}
+                    </div>
+                  </div>
 
-                  <p key={field}>
-                    <span style={{color:"#000000"}}>{field.charAt(0).toUpperCase() + field.slice(1)}:</span>{" "}
-                    <span style={{ color: playerStats[idx][field] === maxValues[sIdx] ? "#FF681F" : "#000" }}>
-                      {playerStats[idx][field] ?? "-"}
-                    </span>
-                  </p>
-                ))
+                  {playerStats[idx] ? (
+                    <>
+                      <div style={{ width:"100%", fontWeight: 'bold', color: '#000',borderBottom: '1px solid #FF681F', display: 'flex', justifyContent: 'space-between', margin: '3vh 0 0 0' }}>
+                        <span style={{ flex:1, textAlign:"left" }}>Stat</span>
+                        <span style={{ flex:1, textAlign:"center" }}>Total</span>
+                        <span style={{ flex:1, textAlign:"right" }}>Per 90</span>
+                      </div>
+                      
+                      {statFields.map((field) => (
+                        field === "minutes" ? (
+                        <div key={field} style={{ display: "flex", justifyContent: "space-between", margin: "0.5vh 0vw", borderBottom: "1px solid #eee" }}>
+                          <span style={{ flex:1, color: "#000", textAlign:"left" }}>{field}:</span>
+                          <span style={{ flex:1, textAlign:"center" ,color: playerStats[idx][field] === maxValues[statFields.indexOf(field)] ? "#FF681F" : "#000" }}>{playerStats[idx][field] ?? "-"}</span>
+                          <span style={{ flex:1, textAlign:"right", color:"#000"}}>-</span>
+                        </div>
+                        ) : (
+                        <div key={field} style={{ display: "flex", justifyContent: "space-between", margin: "0.5vh 0", paddingBottom: "5px", borderBottom: "1px solid #eee", fontSize: '0.95em' }}>
+                          <span style={{ textAlign:"left", color: "#000", flex:1 }}>{field}:</span>
+                          <span style={{ felx:1,textAlign:"center", color: playerStats[idx][field] === maxValues[statFields.indexOf(field)] ? "#FF681F" : "#000" }}>{playerStats[idx][field] ?? "-"}</span>
+                          <span style={{ flex:1,textAlign:"right", color: ((playerStats[idx][field]*90)/playerStats[idx]["minutes"]) === maxValues90[statFields.indexOf(field)] ? "#FF681F" : "#000"}}>{playerStats[idx][field] ? ((playerStats[idx][field]*90)/playerStats[idx]["minutes"]).toFixed(2) : "-"}</span>
+                        </div>
+                        )
+                      ))}
+                    </>
+                  ) : (
+                    <p style={{ color: "#aaa" }}>No stats available</p>
+                  )}
+                  
+                </div>
               ) : (
-                <p style={{ color: "#aaa" }}>No stats available</p>
-              )}
-            </div>
-          ) : (
-            <div
-              key={idx}
-              style={{
-                flex: "1 1 25vw",
-                backgroundColor: "#fff",
-                borderRadius: 12,
-                padding: "2vw",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                minWidth: "200px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                color: "#aaa",
-              }}
-            >
-              Select a player
-            </div>
-          )
-        )}
-      </div>
+                <div
+                  key={idx}
+                  style={{
+                    flex: "1 1 25vw",
+                    backgroundColor: "#fff",
+                    borderRadius: 12,
+                    padding: "2vw",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                    minWidth: "200px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    color: "#aaa",
+                  }}
+                >
+                  Select a player
+                </div>
+              )
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -1,6 +1,12 @@
+/* eslint-disable no-unused-vars */
 import React from 'react';
 import Photo from '../assets/ScoutifyBackground.png';
 import { useNavigate } from 'react-router-dom';
+import { auth, db } from "../firebase";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { doc, setDoc, getDocs, collection } from "firebase/firestore";
+
+
 
 const Register = () => {
     const navigate = useNavigate();
@@ -13,6 +19,7 @@ const Register = () => {
         password: '',
         confirmPassword: '',
     });
+    const [role, setRole] = React.useState("player");
 
     const [showPopup, setShowPopup] = React.useState(false);
 
@@ -25,26 +32,70 @@ const Register = () => {
     };
 
     const areAllFieldsFilled = () => {
-        // Return true only if all fields have non-empty values
-        return Object.values(inputs).every((value) => value.trim() !== '');
+        if(role === "manager") {
+            return Object.values(inputs).every((value) => value.trim() !== '');
+        } else {
+        const { teamName, ...otherFields } = inputs;
+        return Object.values(otherFields).every((value) => value.trim() !== '');
+        }
     };
 
-    const handleRegister = () => {
-        // ✅ Check for empty fields
+    const handleRegister = async () => {
         if (!areAllFieldsFilled()) {
-            alert('Please fill out all fields before submitting.');
+            alert("Please fill out all fields before submitting.");
             return;
         }
 
-        // ✅ Check for password mismatch
         if (!checkPasswordMatch()) {
-            alert('Passwords do not match. Please re-enter your password.');
+            alert("Passwords do not match. Please re-enter your password.");
             return;
         }
 
-        // ✅ If all good, show popup
-        setShowPopup(true);
+        try {
+            const userCredential = await createUserWithEmailAndPassword(
+            auth,
+            inputs.email,
+            inputs.password
+            );
+            const user = userCredential.user;
+
+            // Send email verification link
+            await sendEmailVerification(user);
+
+            // Save registration info in Firestore
+            await setDoc(doc(db, "users", user.uid), {
+            fullName: inputs.fullName,
+            username: inputs.username,
+            teamName: inputs.teamName ? inputs.teamName : "N/A",
+            email: inputs.email,
+            createdAt: new Date(),
+            role: role,       
+            verified: false,   // always false at account creation
+            });
+
+            setShowPopup(true);
+        } catch (error) {
+            console.error("Registration error:", error.message);
+            alert(error.message);
+        }
     };
+
+    const [teamsList, setTeamsList] = React.useState([]);
+
+    React.useEffect(() => {
+        const fetchTeams = async () => {
+            try {
+                const teamsSnapshot = await getDocs(collection(db, "team"));
+                const teamsData = teamsSnapshot.docs.map(doc => doc.data());
+                setTeamsList(teamsData);
+            } catch (error) {
+                console.error("Error fetching teams:", error);
+            }
+        };
+
+        fetchTeams();
+    }, []);
+
 
     const closePopup = () => {
         setShowPopup(false);
@@ -55,7 +106,7 @@ const Register = () => {
         padding: '12px 15px',
         width: 280,
         borderRadius: 8,
-        border: '1px solid #FF681F',
+        border: name === "teamName" ? role === "manager" ? '1px solid #ffffff' : '1px solid #FF681F' : '1px solid #ccc',
         backgroundColor: '#fff8f0',
         boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
         fontSize: 16,
@@ -119,11 +170,11 @@ const Register = () => {
                     {[
                         { name: 'fullName', placeholder: 'Full Name', type: 'text' },
                         { name: 'username', placeholder: 'Username', type: 'text' },
-                        { name: 'teamName', placeholder: 'Team Name', type: 'text' },
                         { name: 'email', placeholder: 'Email', type: 'email' },
                         { name: 'password', placeholder: 'Password', type: 'password' },
                         { name: 'confirmPassword', placeholder: 'Confirm Password', type: 'password' },
                     ].map((field) => (
+                        
                         <input
                             key={field.name}
                             name={field.name}
@@ -136,6 +187,90 @@ const Register = () => {
                             onBlur={(e) => Object.assign(e.target.style, inputStyle)}
                         />
                     ))}
+                    {role === "manager" ? (
+                        <select
+                            name="teamName"
+                            value={inputs.teamName}
+                            onChange={handleChange}
+                            style={{...inputStyle, appearance:"none", width:"312px", cursor:"pointer"}}
+                        >
+                            <option value="">Select a Team</option>
+                            {teamsList.map((team) => (
+                                <option key={team.teamID || team.name} value={team.name}>
+                                    {team.name}
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <input
+                            name="teamName"
+                            type="text"
+                            placeholder="Team Name"
+                            value={inputs.teamName}
+                            onChange={handleChange}
+                            style={{ ...inputStyle, backgroundColor: "#f0f0f0", cursor: "not-allowed" }}
+                            disabled
+                        />
+                    )}
+                    
+                <div style={{ display: "flex", flexDirection:"row", width:"25vw", height:"5vh", justifyContent: "space-between" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            flex: 10,
+                            borderRadius: 8,
+                            border:"1px solid #ccc",
+                            backgroundColor: "#fff",
+                            color: "#000",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            fontSize: 14,
+                            textAlign: "center",
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }}
+                    >
+                        Are you a manager?
+                    </div>
+                    <button
+                        onClick={() => setRole("manager")}
+                        style={{
+                            marginLeft: 10,
+                            display: "flex",
+                            flex: 2,
+                            borderRadius: 8,
+                            border: role === "manager" ? "2px solid #FF681F" : "1px solid #ccc",
+                            backgroundColor: role === "manager" ? "#FFF4E8" : "#fff",
+                            color: "#000",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            transition: "all 0.2s ease",
+                            textAlign: "center",
+                            alignItems: "center",
+                            justifyContent: "center",
+                        }}>
+                        Yes
+                    </button>
+                    <button
+                        onClick={() => setRole("other")}
+                        style={{
+                            marginLeft: 10,
+                            display: "flex",
+                            flex: 2,
+                            borderRadius: 8,
+                            border: role === "other" ? "2px solid #FF681F" : "1px solid #ccc",
+                            backgroundColor: role === "other" ? "#FFF4E8" : "#fff",
+                            color: "#000",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            transition: "all 0.2s ease",
+                            textAlign: "center",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}>
+                        No
+                    </button>
+                </div>
 
                     <button
                         style={{
