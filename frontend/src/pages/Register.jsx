@@ -19,7 +19,8 @@ const Register = () => {
         password: '',
         confirmPassword: '',
     });
-    const [role, setRole] = React.useState("player");
+    const [role, setRole] = React.useState("");
+    const [teamName, setTeamName] = React.useState("");
 
     const [showPopup, setShowPopup] = React.useState(false);
 
@@ -66,7 +67,7 @@ const Register = () => {
             await setDoc(doc(db, "users", user.uid), {
             fullName: inputs.fullName,
             username: inputs.username,
-            teamName: inputs.teamName ? inputs.teamName : "N/A",
+            teamName: inputs.teamName ? inputs.teamName : "Select a Team",
             email: inputs.email,
             createdAt: new Date(),
             role: role,       
@@ -107,7 +108,7 @@ const Register = () => {
         width: 280,
         borderRadius: 8,
         border: name === "teamName" ? role === "manager" ? '1px solid #ffffff' : '1px solid #FF681F' : '1px solid #ccc',
-        backgroundColor: '#fff8f0',
+        backgroundColor: '#fffffa',
         boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
         fontSize: 16,
         outline: 'none',
@@ -191,7 +192,10 @@ const Register = () => {
                         <select
                             name="teamName"
                             value={inputs.teamName}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                setTeamName(e.target.value);
+                                setInputs({ ...inputs, teamName: e.target.value });
+                            }}
                             style={{...inputStyle, appearance:"none", width:"312px", cursor:"pointer"}}
                         >
                             <option value="">Select a Team</option>
@@ -252,7 +256,11 @@ const Register = () => {
                         Yes
                     </button>
                     <button
-                        onClick={() => setRole("other")}
+                        onClick={() => {
+                            setRole("");
+                            setTeamName("Team Name");
+                            setInputs(prev => ({ ...prev, teamName: "Team Name" }));
+                        }}
                         style={{
                             marginLeft: 10,
                             display: "flex",

@@ -1,8 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const userRole = useLocation().state.role;
+  const userTeam = useLocation().state.userTeam;
 
   const handleLogout = () => {
     navigate('/login');
@@ -10,8 +13,9 @@ const Dashboard = () => {
   
   const cardStyle = {
     flex: 1,
-    backgroundColor: '#fff4e8ff',
+    backgroundColor: "#fffffd",
     borderRadius: 16,
+    border: "1px solid #FF681F",
     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
     padding: 30,
     width: '25vw',
@@ -22,6 +26,7 @@ const Dashboard = () => {
     transition: 'transform 0.2s, box-shadow 0.2s',
     cursor: 'pointer',
   };
+
 
   const cardHoverStyle = {
     transform: 'translateY(-5px)',
@@ -40,6 +45,8 @@ const Dashboard = () => {
     alignItems: 'center',
     boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
   };
+  console.log("User Role in Dashboard:", userRole);
+  console.log("User Team in Dashboard:", userTeam);
 
   return (
     <div style={{ height: '100vh', backgroundColor: '#fff', width: '100vw' }}>
@@ -79,9 +86,9 @@ const Dashboard = () => {
         }}
       >
         {[
-          { title: 'Teams', desc: 'Manage and view all your teams.', onclick: () => navigate('/teams') },
+          { title: 'Teams', desc: 'Manage and view all your teams.', onclick: () => navigate('/teams', { state: { userTeam: userTeam, userRole: userRole } }) },
           { title: 'Players', desc: 'Explore player stats and profiles.', onclick: () => navigate('/players') },
-          { title: 'Compare', desc: 'View the stats and compare players', onclick: () => navigate('/compare') },
+          { title: 'Compare', desc: 'View the stats and compare players', onclick: () => navigate('/compare', { state: { userTeam: userTeam, role: userRole } }) },
         ].map((card) => (
           <div
             key={card.title}

@@ -4,44 +4,10 @@ import { getFirestore, collection, getDocs, query, where } from "firebase/firest
 import { app } from "../firebase.jsx";
 import { useNavigate } from "react-router-dom";
 import profilePhoto from '../assets/download.jpeg';
+import Header from "../components/Header.jsx";
+import Spinner from "../components/Spinner.jsx";
 
 const db = getFirestore(app);
-
-// 🔄 Spinner Component (Inline styled for simplicity)
-const Spinner = () => (
-  <div
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "50vh", // Center vertically in a large area
-      width: "100%",
-    }}
-  >
-    <div
-      style={{
-        border: "5px solid #f3f3f3", // Light grey border
-        borderTop: "5px solid #FF681F", // Orange border for the spinning part
-        borderRadius: "50%",
-        width: "50px",
-        height: "50px",
-        animation: "spin 1s linear infinite",
-        marginBottom: "10px",
-      }}
-    />
-    <p style={{ color: "#FF681F" }}>Loading players...</p>
-    <style>
-      {`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}
-    </style>
-  </div>
-);
-
 
 function ComparePlayers() {
   const navigate = useNavigate();
@@ -135,40 +101,11 @@ function ComparePlayers() {
 
   return (
     <div style={{ backgroundColor: "#ffffff", width: "100vw", minHeight: "100vh", overflowX: "hidden" }}>
-      {/* Header */}
-      <header style={headerStyle}>
-        <button
-          onClick={() => navigate(-1)} // 👈 Go back one page
-          style={{
-            backgroundColor: "#FF681F",
-            color: "white",
-            border: "none",
-            padding: "10px 20px",
-            borderRadius: "8px",
-            cursor: "pointer",
-          }}
-        >
-          ⬅ Back
-        </button>
-        <span style={{ padding: "0 5vw" }}>Feelings or facts?</span>
-        <button
-          style={{
-            backgroundColor: "white",
-            color: "#FF681F",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: 8,
-            fontWeight: "bold",
-            cursor: "pointer",
-            marginRight: "5vw",
-          }}
-          onClick={handleLogout}
-          onMouseOver={(e) => (e.target.style.backgroundColor = "#fff2e8")}
-          onMouseOut={(e) => (e.target.style.backgroundColor = "white")}
-        >
-          Logout
-        </button>
-      </header>
+      <Header
+        title="Compare Players"
+        onBack={() => navigate(-1)}
+        onLogout={handleLogout}
+      />
 
       {/* Conditional Content Rendering */}
       {isLoading ? (
@@ -227,7 +164,15 @@ function ComparePlayers() {
                     <div style={{ textAlign: "start", justifyContent: "center", display: "flex", flexDirection: "column" }}>
                       <p style={{ color: "#FF681F", margin: "-1vh 0" }}>{player.name}</p>
                       <p style={{ color: "#555" }}>{player.position}</p>
-                      <p style={{ color: "#000", margin: "-1vh 0" }}>Birthdate: {player.birthdate ? player.birthdate.toDate().toLocaleDateString() : "-"}</p>{" "}
+                      <p style={{ color: "#000", margin: "-1vh 0" }}>
+                        Birthdate: {
+                          player.birthdate
+                            ? typeof player.birthdate.toDate === "function"
+                              ? player.birthdate.toDate().toLocaleDateString() // Firestore Timestamp
+                              : new Date(player.birthdate).toLocaleDateString() // String
+                            : "-"
+                        }
+                      </p>
                     </div>
                   </div>
 

@@ -56,8 +56,8 @@ const LoginPage = () => {
       alert("Your manager account is under verification.");
       return;
     }
-
-    navigate("/dashboard");
+    console.log("Login successful:", userData.teamName);
+    navigate("/dashboard", { state: { userTeam: userData.teamName, role: userData.role } });
   } catch (error) {
     console.error("Login error:", error.code, error.message);
     if (error.code === "auth/user-not-found") {
@@ -76,7 +76,7 @@ const LoginPage = () => {
     width: 280,
     borderRadius: 8,
     border: '1px solid #FF681F',
-    backgroundColor: '#fff8f0',
+    backgroundColor: '#fffffd',
     boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
     fontSize: 16,
     outline: 'none',

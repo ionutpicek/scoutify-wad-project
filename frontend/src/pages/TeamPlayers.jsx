@@ -1,148 +1,365 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
-import { app } from "../firebase.jsx";
-import { query, where } from "firebase/firestore";
-import profilePhoto from '../assets/download.jpeg';
+import { getFirestore, collection, getDocs, deleteDoc, doc, addDoc, setDoc } from "firebase/firestore"; 
+import { app } from "../firebase.jsx"; 
+import { query, where } from "firebase/firestore"; 
+import Header from "../components/Header.jsx"; 
+import Spinner from "../components/Spinner.jsx";
+import PlayerCard from "../components/PlayerCard.jsx";
 
+    const TeamPlayers = () => { 
+        const location = useLocation(); 
+        const { teamID, teamName, teamCoach } = location.state || {}; 
+        const role = location.state.role; 
+        const userTeam = location.state.userTeam; 
+        const navigate = useNavigate(); 
+        const [players, setPlayers] = useState([]); 
+        const [isLoading, setIsLoading] = useState(true); 
+        const [editingPlayer, setEditingPlayer] = useState(null); // player object currently being edited 
+        const [formInputs, setFormInputs] = useState({ name: "", position: "", photoURL: "", birthdate: "", }); 
+                            
+        const db = getFirestore(app); 
+        const [deleteP, setDeletePlayer] = useState(false); 
+        const [playerToDelete, setPlayerToDelete] = useState(null); 
+        const deletePlayer = () => { setDeletePlayer(prev => !prev); }
 
-const TeamPlayers = () => {
-    const location = useLocation();
-    const { teamID, teamName, teamCoach } = location.state || {};
-    const navigate = useNavigate();
-    const [players, setPlayers] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+        const handleDelete = async () => { try { 
+            if (!playerToDelete) return;
 
-    const Spinner = () => (
-        <div
-            style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "50vh", // Center vertically in a large area
-            // gridColumn is not needed here since the parent div is a simple grid, 
-            // but we'll ensure it centers well.
-            }}
-        >
-            <div
-            style={{
-                border: "5px solid #f3f3f3", // Light grey border
-                borderTop: "5px solid #FF681F", // Orange border for the spinning part
-                borderRadius: "50%",
-                width: "50px",
-                height: "50px",
-                animation: "spin 1s linear infinite",
-            }}
-            />
-                <p style={{ color: "#FF681F" }}>Loading players...</p>
-            <style>
-            {`
-                @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-                }
-            `}
-            </style>
-        </div>
-        );
-    const db = getFirestore(app);
-
-    useEffect(() => {
-        if (!teamID) return;
-
-        const fetchPlayers = async () => {
-        setIsLoading(true);
-        try {
-            const q = query(collection(db, "player"), where("teamID", "==", teamID));
-            const snapshot = await getDocs(q);
-            const teamPlayers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setPlayers(teamPlayers);
-        } catch (error) {
-            console.error("Error fetching team players:", error);
-        } finally {
-            setIsLoading(false);
-        }
+            await deleteDoc(doc(db, "player", playerToDelete.id)); 
+            const q = query(collection(db, "stats"), where("playerID", "==", playerToDelete.playerID)); 
+            const snap = await getDocs(q); snap.forEach(docItem => deleteDoc(doc(db, "stats", docItem.id))); 
+            
+            // remove from stats 
+            setPlayers(prevPlayers => prevPlayers.filter(p => p.id !== playerToDelete.id)); 
+            console.log("Player removed successfully!"); setDeletePlayer(false); 
+        } catch (error) { console.error("Error deleting player:", error); } }; 
+        
+        const handleCancel = () => {
+            setPlayerToDelete(null);
+            setDeletePlayer(false);
         };
 
-        fetchPlayers();
-    }, [db, teamID]);
-    
-    const handleLogout = () => {
-        navigate("/login");
-    };
+        const [add, setAdd] = useState(false); 
 
-    const cardStyle = {
-        backgroundColor: "#ffffff",
-        borderRadius: 16,
-        width: "17vw",
-        border: "1px solid #FF681F",
-        boxShadow: "0 6px 18px rgba(0,0,0,0.1)",
-        padding: "2vw",
-        color: "#333333",
-        textAlign: "center",
-        transition: "transform 0.3s ease, box-shadow 0.3s ease",
-        cursor: "pointer",
-    };
+        const startAdd = () => { 
+            setAdd(prev => !prev); 
+        }
 
-    const headerStyle = {
-        width: "100%",
-        backgroundColor: "#FF681F",
-        color: "white",
-        height: "15vh",
-        fontSize: 28,
-        fontFamily: "cursive",
-        display: "flex",
-        justifyContent: "space-around",
-        alignItems: "center",
-        boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-    };
+        const handleAdd = async (info) => {
+            try {
+                const playerID = Date.now();
 
+                const playerRef = await addDoc(collection(db, "player"), {
+                    name: info.name,
+                    teamID: info.teamID,
+                    position: info.position,
+                    photoURL: info.photoURL || "",
+                    teamName: info.teamName,
+                    birthdate: info.birthdate || "",
+                    playerID: playerID,
+                });
+
+                await addDoc(
+                    collection(db, "stats"),
+                    info.position !== "Goalkeeper"
+                        ? { playerID: playerID, minutes: 0, goals: 0, assists: 0, shots: 0, passes: 0, dribbles: 0 }
+                        : { playerID: playerID, minutes: 0, xCG: 0, concededGoals: 0, saves: 0, cleanSheet: 0, shotAgainst: 0, shortGoalKicks: 0, longGoalKicks: 0 }
+                );
+
+                // update local state immediately
+                setPlayers((prevPlayers) => [
+                    ...prevPlayers,
+                    {
+                        id: playerRef.id,   
+                        name: info.name,
+                        teamID: info.teamID,
+                        position: info.position,
+                        photoURL: info.photoURL || "",
+                        teamName: info.teamName,
+                        birthdate: info.birthdate || "",
+                        playerID: playerID,
+                    },
+                ]);
+
+            } catch (error) {
+                console.error("Error adding player:", error);
+            }
+        };
+            
+        const editPlayer = async (playerID, updatedInfo) => { 
+            const playerRef = doc(db, "player", playerID); 
+            await setDoc(playerRef, updatedInfo, { merge: true }); 
+        } 
+        
+        const [edit, setEdit] = useState(false); 
+        const changeEdit = () => { setEdit(prev => !prev); } 
+        useEffect(() => { if (!teamID) return; 
+        
+        const fetchPlayers = async () => { 
+            setIsLoading(true); 
+            try { 
+                const q = query(collection(db, "player"), where("teamID", "==", teamID));
+                const snapshot = await getDocs(q); 
+                const teamPlayers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
+                setPlayers(teamPlayers); 
+            } catch (error) { 
+                console.error("Error fetching team players:", error); 
+            } finally {
+                setIsLoading(false); 
+            } }; 
+            fetchPlayers(); 
+        }, [db, teamID]); 
+        
+        const handleLogout = () => { navigate("/login"); }; 
+       
     return (
         <div style={{ backgroundColor: "#fff", width: "100vw", minHeight:"100vh" }}>
-            <header style={headerStyle}>
-                <button
-                    onClick={() => navigate(-1)} // 👈 Go back one page
-                    style={{
-                        backgroundColor: "#FF681F",
-                        color: "white",
-                        border: "none",
-                        padding: "10px 20px",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                    }}
-                >
-                    ⬅ Back
-                </button>
-
-                <span style={{ padding: "0 5vw" }}>{teamName}</span>
-                
-                <button
-                style={{
-                    backgroundColor: "white",
-                    color: "#FF681F",
-                    border: "none",
-                    padding: "8px 16px",
-                    borderRadius: 8,
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    marginRight: "5vw",
-                }}
-                onClick={handleLogout}
-                onMouseOver={(e) => (e.target.style.backgroundColor = "#fff2e8")}
-                onMouseOut={(e) => (e.target.style.backgroundColor = "white")}
-                >
-                Logout
-                </button>
-            </header>
+            <Header
+                title={teamName}
+                onBack={() => navigate(-1)}
+                onLogout={handleLogout}
+            />
 
             <div style={{display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center", padding:"2vh 6vw", fontSize:20}}>
                 <p style={{color:"#000", flex:1, textAlign:"left"}}>Coach : {teamCoach}</p>
-                <p style={{color:"#000", flex:1, textAlign:"center"}}>Position this season : 1</p>
-                <p style={{color:"#000", flex:1, textAlign:"right"}}>Number of players : {players.length}</p>
+                <p style={{color:"#000", flex:1}}>Number of players : {players.length}</p>
+                {(role === "manager" && teamName === userTeam) ? (
+                    <div style={{textAlign:"right"}}>
+                    <button onClick={changeEdit} style={{ }}>
+                        Edit Players
+                    </button>
+                    <button onClick={startAdd} style={{ marginLeft:10}}>
+                        Add Player
+                    </button>
+                    </div>    
+                ) : 
+                null}
             </div>
             
+            {add && (
+               <div style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100vw",
+                    height: "100vh",
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    zIndex: 1000,
+                }}>
+                    <div style={{
+                        backgroundColor: "white",
+                        borderRadius: 16,
+                        padding: 30,
+                        width: "60vw",
+                        display: "flex",
+                        flexDirection: "column",
+                        borderColor: "3px solid #FF681F",
+                        gap: 10,
+                    }}>
+                        <h2 style={{ color: "#FF681F" }}>Add Player</h2>
+                    
+                    <input 
+                        type="text" 
+                        placeholder="Name"
+                        value={formInputs.name}
+                        style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
+                        onChange={(e) => setFormInputs({...formInputs, name: e.target.value})}
+                    />
+                    <select
+                        value={formInputs.position}
+                        style={{
+                            height: "4vh",
+                            borderRadius: 8,
+                            color: "#000",
+                            backgroundColor: "#fff",
+                            borderColor: "#FF681F",
+                            paddingLeft: 10,
+                        }}
+                        onChange={(e) => setFormInputs({ ...formInputs, position: e.target.value })}
+                    >
+                        <option value="">Select Position</option>
+                        <option value="Striker">Striker</option>
+                        <option value="Midfielder">Midfielder</option>
+                        <option value="Defender">Defender</option>
+                        <option value="Goalkeeper">Goalkeeper</option>
+                    </select>
+
+                    <input 
+                        type="text" 
+                        placeholder="Photo URL"
+                        value={formInputs.photoURL}
+                        style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
+                        onChange={(e) => setFormInputs({...formInputs, photoURL: e.target.value})}
+                    />
+                    <input 
+                        type="date" 
+                        placeholder="Birth Date"
+                        value={formInputs.birthdate}
+                        style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
+                        onChange={(e) => setFormInputs({...formInputs, birthdate: e.target.value})}
+                    />
+
+                    <button onClick={() => {
+                        setAdd(false);
+                        setFormInputs({ name: "", position: "", photoURL: "", birthdate: "" });}}>
+                        Cancel
+                    </button>
+                    <button
+                        onClick={async () => {
+                            if (!formInputs.name || !formInputs.position || !formInputs.birthdate) {
+                            alert("Please fill in Name, Position, and Birthdate");
+                            return; 
+                            }
+
+                            await handleAdd({
+                            name: formInputs.name,
+                            teamID: teamID,
+                            position: formInputs.position,
+                            photoURL: formInputs.photoURL,
+                            teamName: teamName,
+                            birthdate: formInputs.birthdate,
+                            });
+
+                            setAdd(false);
+                            setFormInputs({ name: "", position: "", photoURL: "", birthdate: "" });
+                        }}
+                        >
+                        Add
+                        </button>
+
+
+
+                    </div>
+                </div>)
+            }
+
+            {deleteP && (
+                <div style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100vw",
+                    height: "100vh",
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    zIndex: 1000,
+                }}>
+                    <div style={{
+                        backgroundColor: "white",
+                        borderRadius: 16,
+                        padding: 30,
+                        width: "25vw",
+                        display: "flex",
+                        flexDirection: "column",
+                        borderColor: "3px solid #FF681F",
+                        gap: 10,
+                    }}>
+                        <p style={{color:"#000"}}>Are you sure you want to delete this player?</p>
+                        <button onClick={handleCancel} style={{backgroundColor:"#000"}}>Cancel</button>
+                        <button onClick={handleDelete} style={{backgroundColor:"red"}}>Delete</button>
+                    </div>
+                </div>)
+            }
+
+            {editingPlayer && (
+            <div style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 1000,
+            }}>
+                <div style={{
+                    backgroundColor: "white",
+                    borderRadius: 16,
+                    padding: 30,
+                    width: "40vw",
+                    display: "flex",
+                    flexDirection: "column",
+                    borderColor: "3px solid #FF681F",
+                    gap: 10,
+                }}>
+                    <h2 style={{ color: "#FF681F" }}>Edit Player</h2>
+                    
+                    <input 
+                        type="text" 
+                        placeholder="Name"
+                        value={formInputs.name}
+                        style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
+                        onChange={(e) => setFormInputs({...formInputs, name: e.target.value})}
+                    />
+                    <select
+                        value={formInputs.position}
+                        style={{
+                            height: "4vh",
+                            borderRadius: 8,
+                            color: "#000",
+                            backgroundColor: "#fff",
+                            borderColor: "#FF681F",
+                            paddingLeft: 10,
+                        }}
+                        onChange={(e) => setFormInputs({ ...formInputs, position: e.target.value })}
+                    >
+                        <option value="">Select Position</option>
+                        <option value="Striker">Striker</option>
+                        <option value="Midfielder">Midfielder</option>
+                        <option value="Defender">Defender</option>
+                        <option value="Goalkeeper">Goalkeeper</option>
+                    </select>
+
+                    <input 
+                        type="text" 
+                        placeholder="Photo URL"
+                        value={formInputs.photoURL}
+                        style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
+                        onChange={(e) => setFormInputs({...formInputs, photoURL: e.target.value})}
+                    />
+                    <input 
+                        type="date" 
+                        placeholder="Birth Date"
+                        value={formInputs.birthdate}
+                        style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
+                        onChange={(e) => setFormInputs({...formInputs, birthdate: e.target.value})}
+                    />
+
+                    <button onClick={async () => {
+                        const updatedData = {
+                            ...editingPlayer, // keep old data
+                            ...Object.fromEntries(
+                                // eslint-disable-next-line no-unused-vars
+                                Object.entries(formInputs).filter(([key, value]) => value !== "")
+                            )
+                        };
+
+                        await editPlayer(editingPlayer.id, updatedData);
+
+                        setEditingPlayer(null);
+                        setFormInputs({ name: "", position: "", photoURL: "", birthDate: "" });
+
+                        // Refresh player list
+                        const q = query(collection(db, "player"), where("teamID", "==", teamID));
+                        const snapshot = await getDocs(q);
+                        setPlayers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                    }}>
+                        Save
+                    </button>
+
+                    </div>
+                </div>
+            )}
+
             <div
                 style={{
                   display: "grid",
@@ -152,43 +369,25 @@ const TeamPlayers = () => {
                   justifyItems: "center",
                 }}
             >
-                {/* 🆕 Conditional Rendering for Loading State */}
+
                 {isLoading ? (
-                  <Spinner />
+                <Spinner />
                 ) : players.length === 0 ? (
-                  <p style={{ color: "#555", textAlign: "center", gridColumn: "1 / -1" }}>
+                <p style={{ color: "#555", textAlign: "center", gridColumn: "1 / -1" }}>
                     No players in this team.
-                  </p>
+                </p>
                 ) : (
-                  players.map((player) => (
-                    <div
-                      key={player.id}
-                      style={cardStyle}
-                      onClick={() => navigate(`/player-profile`, { state: { playerID: player.id } })}
-                      onMouseEnter={(e) =>
-                          (e.currentTarget.style.transform = "scale(1.05)")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.transform = "scale(1)")
-                      }
-                    >
-                        <img
-                        src={player.photoURL || profilePhoto}
-                        alt={player.name}
-                        style={{
-                          width: 120,
-                          height: 120,
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          marginBottom: 12,
-                            border: "3px solid #FF681F",
-                        }}
-                        />
-                      <h2 style={{ color: "#FF681F", marginBottom: 8 }}>{player.name}</h2>
-                      <p style={{ color: "#333", margin: 0 }}>{player.teamName}</p>
-                      <p style={{ color: "#777", margin: 0 }}>{player.position}</p>
-                    </div>
-                  ))
+                players.map((player) => (
+                    <PlayerCard
+                    key={player.id}
+                    player={player}
+                    onClick={() =>
+                        navigate(`/player-profile`, { state: { playerID: player.id } })
+                    }
+                    onEdit={edit ? (p) => setEditingPlayer(p) : null}
+                    onRemove={edit ? (p) => { setPlayerToDelete(p); deletePlayer(); } : null}
+                    />
+                ))
                 )}
             </div>
         </div>
