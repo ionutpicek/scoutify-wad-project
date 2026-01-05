@@ -1,0 +1,113 @@
+import { db } from "../firebase/firebaseAdmin.js";
+
+/* ---------------- NORMALIZATION ---------------- */
+
+function normalize(str) {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z\s.]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function splitPdfName(pdfName) {
+  // "A. SÇ­nchez" ƒÅ' { initial: "a", surname: "sanchez" }
+  const norm = normalize(pdfName);
+  const [initialPart, ...rest] = norm.split(" ");
+  return {
+    initial: initialPart?.replace(".", "") || null,
+    surname: rest.join(" ")
+  };
+}
+
+/* ---------------- FIRESTORE LOAD ---------------- */
+
+async function loadAllPlayers() {
+  const snap = await db.collection("player").get();
+
+  return snap.docs.map(d => ({
+    id: d.id,
+    ...d.data(),
+    _normName: normalize(d.data().name || ""),
+    _normAbbr: normalize(d.data().abbrName || "")
+  }));
+}
+
+/* ---------------- RESOLVER ---------------- */
+
+export async function resolvePlayers(parsedPlayers) {
+  const allPlayers = await loadAllPlayers();
+  const resolved = [];
+
+  for (const p of parsedPlayers) {
+    let match = null;
+    const normPdf = normalize(p.name);
+
+    if (normPdf == "a bucsa" && p.number) {
+      const bucsaCandidates = allPlayers.filter(pl =>
+        pl._normName.endsWith("bucsa")
+      );
+      const aida = bucsaCandidates.find(pl => pl._normName.startsWith("aida "));
+      const ariana = bucsaCandidates.find(pl =>
+        pl._normName.startsWith("ariana ")
+      );
+
+      if (p.number == 8 && aida) match = aida;
+      if (p.number == 11 && ariana) match = ariana;
+
+      if (!match && p.number == 8 && bucsaCandidates.length) {
+        match = bucsaCandidates[0];
+      }
+      if (!match && p.number == 11 && bucsaCandidates.length > 1) {
+        match = bucsaCandidates[bucsaCandidates.length - 1];
+      }
+    }
+
+    /* ---- 1‹÷?ƒŸœ Exact abbrName match ---- */
+    if (!match) {
+      match = allPlayers.find(pl => pl._normAbbr == normPdf);
+    }
+
+    /* ---- 2‹÷?ƒŸœ Initial + surname match ---- */
+    if (!match) {
+      const { initial, surname } = splitPdfName(p.name);
+      match = allPlayers.find(pl => {
+        const parts = pl._normName.split(" ");
+        const plInitial = parts[0]?.[0];
+        const plSurname = parts.slice(1).join(" ");
+        return plInitial === initial && plSurname === surname;
+      });
+    }
+
+    /* ---- 3‹÷?ƒŸœ Surname-only (strict) ---- */
+    if (!match) {
+      const { surname } = splitPdfName(p.name);
+      const candidates = allPlayers.filter(pl =>
+        pl._normName.endsWith(surname)
+      );
+
+      if (candidates.length === 1) {
+        match = candidates[0];
+      }
+    }
+
+    if (!match) {
+      resolved.push({
+        ...p,
+        unresolved: true
+      });
+      continue;
+    }
+
+    resolved.push({
+      ...p,
+      playerId: match.playerID,
+      teamId: match.teamID,
+      canonicalName: match.name
+    });
+  }
+
+  return resolved;
+}

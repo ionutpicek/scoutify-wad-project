@@ -2,8 +2,14 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from 'firebase/firestore';
+import {
+  getFirestore,
+  getDoc as _getDoc,
+  getDocs as _getDocs,
+  onSnapshot as _onSnapshot
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -23,5 +29,27 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
-export { app, db, auth};
+// DEBUG LOGGING FOR FIRESTORE READS/LISTENERS (remove when done tracing)
+const logFs = (label, args) => {
+  const stack = new Error().stack?.split("\n")[2]?.trim() || "";
+  console.log(`[FS ${label}]`, args, stack);
+};
+
+export const getDocLogged = (...args) => {
+  logFs("getDoc", args);
+  return _getDoc(...args);
+};
+
+export const getDocsLogged = (...args) => {
+  logFs("getDocs", args);
+  return _getDocs(...args);
+};
+
+export const onSnapshotLogged = (...args) => {
+  logFs("onSnapshot", args);
+  return _onSnapshot(...args);
+};
+
+export { app, db, auth, storage};

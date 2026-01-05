@@ -44,7 +44,15 @@ const PlayerCard = ({
         }}
       />
       <h2 style={{ color: "#FF681F", marginBottom: 8 }}>{player.name}</h2>
-      <p style={{ color: "#777", margin: 0 }}>{player.position}</p>
+      
+      <div style={{display:"flex", flexDirection:"row", justifyContent:"center", gap:20}}>
+        <p style={{ color: "#777", margin: 0 }}>{player.position}</p>
+        {player.seasonGradeOverall != null && (
+          <p style={{ color: "#555", margin: 0, fontWeight: 600 }}>
+            {Number(player.seasonGradeOverall).toFixed(1)}
+          </p>
+        )}
+      </div>
 
       {(onEdit || onRemove) && (
         <div

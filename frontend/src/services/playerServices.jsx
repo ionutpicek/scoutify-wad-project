@@ -1,8 +1,7 @@
-import { db } from "../firebase";
+import { db, getDocsLogged as getDocs } from "../firebase";
 import {
   collection,
   addDoc,
-  getDocs,
   query,
   where,
   deleteDoc,

@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
-import { app } from "../firebase.jsx";
+import { collection } from "firebase/firestore";
+import { db, getDocsLogged as getDocs } from "../firebase.jsx";
 import PlayerCard from "../components/PlayerCard.jsx";
 import Spinner from "../components/Spinner.jsx";
 import Header from "../components/Header.jsx";
-
-const db = getFirestore(app);
 
 function PlayersList() {
   const [players, setPlayers] = useState([]);
@@ -86,7 +84,8 @@ function PlayersList() {
   return (
     <div style={{ backgroundColor: "#ffffff", width: "100vw", minHeight: "100vh", overflowX: "hidden", boxSizing: "border-box" }}>
       <Header
-        title="Players"
+        title="👤 Explore Players"
+        subtitle="Browse and manage all players"
         onBack={() => navigate(-1)}
         onLogout={handleLogout}
       />

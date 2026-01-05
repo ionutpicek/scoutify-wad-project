@@ -1,0 +1,6927 @@
+<file>
+ <ALL_INSTANCES>
+  <instance>
+   <ID>1</ID>
+   <start>16</start>
+   <end>27</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+
+  <instance>
+   <ID>2</ID>
+   <start>24</start>
+   <end>35</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  
+  <instance>
+   <ID>3</ID>
+   <start>24</start>
+   <end>35</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>4</ID>
+   <start>46</start>
+   <end>57</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>5</ID>
+   <start>52</start>
+   <end>63</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>6</ID>
+   <start>55</start>
+   <end>66</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>7</ID>
+   <start>61</start>
+   <end>72</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>8</ID>
+   <start>63</start>
+   <end>74</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>9</ID>
+   <start>83</start>
+   <end>94</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>10</ID>
+   <start>97</start>
+   <end>108</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>11</ID>
+   <start>97</start>
+   <end>108</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>12</ID>
+   <start>98</start>
+   <end>109</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>13</ID>
+   <start>116</start>
+   <end>127</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>14</ID>
+   <start>118</start>
+   <end>129</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>15</ID>
+   <start>137</start>
+   <end>148</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>16</ID>
+   <start>139</start>
+   <end>150</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>17</ID>
+   <start>155</start>
+   <end>166</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>18</ID>
+   <start>171</start>
+   <end>189</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>19</ID>
+   <start>177</start>
+   <end>188</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>20</ID>
+   <start>177</start>
+   <end>188</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>21</ID>
+   <start>179</start>
+   <end>190</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Offsides</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>22</ID>
+   <start>212</start>
+   <end>223</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>23</ID>
+   <start>216</start>
+   <end>227</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>24</ID>
+   <start>216</start>
+   <end>227</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>25</ID>
+   <start>219</start>
+   <end>230</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>26</ID>
+   <start>227</start>
+   <end>238</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>27</ID>
+   <start>233</start>
+   <end>244</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>28</ID>
+   <start>239</start>
+   <end>250</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>29</ID>
+   <start>241</start>
+   <end>252</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>30</ID>
+   <start>242</start>
+   <end>253</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>31</ID>
+   <start>245</start>
+   <end>256</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>32</ID>
+   <start>254</start>
+   <end>265</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Shot off target</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>33</ID>
+   <start>284</start>
+   <end>295</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>34</ID>
+   <start>295</start>
+   <end>306</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Shot off target</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>35</ID>
+   <start>314</start>
+   <end>325</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>36</ID>
+   <start>316</start>
+   <end>327</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>37</ID>
+   <start>320</start>
+   <end>331</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>38</ID>
+   <start>323</start>
+   <end>334</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>39</ID>
+   <start>325</start>
+   <end>336</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>40</ID>
+   <start>337</start>
+   <end>348</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>41</ID>
+   <start>339</start>
+   <end>350</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>42</ID>
+   <start>350</start>
+   <end>361</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>43</ID>
+   <start>362</start>
+   <end>373</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>44</ID>
+   <start>363</start>
+   <end>374</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>45</ID>
+   <start>366</start>
+   <end>377</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>46</ID>
+   <start>373</start>
+   <end>384</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>47</ID>
+   <start>385</start>
+   <end>396</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>48</ID>
+   <start>399</start>
+   <end>410</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>49</ID>
+   <start>401</start>
+   <end>415</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>50</ID>
+   <start>404</start>
+   <end>415</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>51</ID>
+   <start>439</start>
+   <end>450</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Corner kick</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>52</ID>
+   <start>446</start>
+   <end>457</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>53</ID>
+   <start>447</start>
+   <end>458</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>54</ID>
+   <start>447</start>
+   <end>458</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>55</ID>
+   <start>464</start>
+   <end>475</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>56</ID>
+   <start>466</start>
+   <end>477</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>57</ID>
+   <start>467</start>
+   <end>478</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>58</ID>
+   <start>469</start>
+   <end>480</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>59</ID>
+   <start>475</start>
+   <end>487</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>60</ID>
+   <start>485</start>
+   <end>496</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>61</ID>
+   <start>487</start>
+   <end>498</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>62</ID>
+   <start>489</start>
+   <end>500</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>63</ID>
+   <start>493</start>
+   <end>504</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>64</ID>
+   <start>496</start>
+   <end>507</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>65</ID>
+   <start>498</start>
+   <end>509</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>66</ID>
+   <start>504</start>
+   <end>515</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>67</ID>
+   <start>507</start>
+   <end>518</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>68</ID>
+   <start>511</start>
+   <end>522</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>69</ID>
+   <start>513</start>
+   <end>524</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>70</ID>
+   <start>518</start>
+   <end>529</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>71</ID>
+   <start>528</start>
+   <end>539</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>72</ID>
+   <start>531</start>
+   <end>542</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>73</ID>
+   <start>531</start>
+   <end>542</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>74</ID>
+   <start>537</start>
+   <end>548</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>75</ID>
+   <start>544</start>
+   <end>555</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>76</ID>
+   <start>546</start>
+   <end>557</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>77</ID>
+   <start>552</start>
+   <end>563</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>78</ID>
+   <start>555</start>
+   <end>566</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>79</ID>
+   <start>560</start>
+   <end>571</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>80</ID>
+   <start>621</start>
+   <end>632</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>81</ID>
+   <start>623</start>
+   <end>637</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>82</ID>
+   <start>627</start>
+   <end>638</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>83</ID>
+   <start>629</start>
+   <end>640</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>84</ID>
+   <start>633</start>
+   <end>644</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>85</ID>
+   <start>634</start>
+   <end>645</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>86</ID>
+   <start>641</start>
+   <end>652</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>87</ID>
+   <start>643</start>
+   <end>654</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>88</ID>
+   <start>649</start>
+   <end>660</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>89</ID>
+   <start>653</start>
+   <end>664</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>90</ID>
+   <start>664</start>
+   <end>675</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>91</ID>
+   <start>665</start>
+   <end>694</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>92</ID>
+   <start>668</start>
+   <end>679</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>93</ID>
+   <start>670</start>
+   <end>681</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>94</ID>
+   <start>677</start>
+   <end>688</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>95</ID>
+   <start>680</start>
+   <end>691</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>96</ID>
+   <start>688</start>
+   <end>699</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Through passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>97</ID>
+   <start>706</start>
+   <end>717</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>98</ID>
+   <start>710</start>
+   <end>721</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>99</ID>
+   <start>711</start>
+   <end>722</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>100</ID>
+   <start>722</start>
+   <end>733</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>101</ID>
+   <start>728</start>
+   <end>739</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>102</ID>
+   <start>733</start>
+   <end>744</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>103</ID>
+   <start>737</start>
+   <end>748</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>104</ID>
+   <start>739</start>
+   <end>750</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Offsides</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>105</ID>
+   <start>769</start>
+   <end>780</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>106</ID>
+   <start>769</start>
+   <end>780</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>107</ID>
+   <start>771</start>
+   <end>782</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>108</ID>
+   <start>771</start>
+   <end>782</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>109</ID>
+   <start>773</start>
+   <end>787</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>110</ID>
+   <start>778</start>
+   <end>789</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Winning fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>111</ID>
+   <start>791</start>
+   <end>838</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Goal - Right Foot</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>112</ID>
+   <start>798</start>
+   <end>809</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Free kick shot</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>113</ID>
+   <start>845</start>
+   <end>856</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>114</ID>
+   <start>863</start>
+   <end>887</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>115</ID>
+   <start>863</start>
+   <end>892</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>116</ID>
+   <start>878</start>
+   <end>889</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>117</ID>
+   <start>879</start>
+   <end>890</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>118</ID>
+   <start>880</start>
+   <end>891</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>119</ID>
+   <start>881</start>
+   <end>892</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>120</ID>
+   <start>883</start>
+   <end>894</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>121</ID>
+   <start>885</start>
+   <end>896</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>122</ID>
+   <start>887</start>
+   <end>898</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>123</ID>
+   <start>889</start>
+   <end>900</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>124</ID>
+   <start>893</start>
+   <end>904</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>125</ID>
+   <start>893</start>
+   <end>904</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>126</ID>
+   <start>935</start>
+   <end>946</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Corner kick</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>127</ID>
+   <start>958</start>
+   <end>969</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>128</ID>
+   <start>961</start>
+   <end>972</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>129</ID>
+   <start>962</start>
+   <end>973</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>130</ID>
+   <start>966</start>
+   <end>977</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>131</ID>
+   <start>975</start>
+   <end>997</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>132</ID>
+   <start>979</start>
+   <end>990</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>133</ID>
+   <start>984</start>
+   <end>998</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>134</ID>
+   <start>993</start>
+   <end>1004</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>135</ID>
+   <start>995</start>
+   <end>1006</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>136</ID>
+   <start>995</start>
+   <end>1006</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>137</ID>
+   <start>1001</start>
+   <end>1012</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Tackles</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>138</ID>
+   <start>1001</start>
+   <end>1012</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>139</ID>
+   <start>1009</start>
+   <end>1027</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>140</ID>
+   <start>1012</start>
+   <end>1023</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>141</ID>
+   <start>1016</start>
+   <end>1027</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>142</ID>
+   <start>1028</start>
+   <end>1039</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>143</ID>
+   <start>1066</start>
+   <end>1077</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>144</ID>
+   <start>1068</start>
+   <end>1079</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>145</ID>
+   <start>1089</start>
+   <end>1100</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>146</ID>
+   <start>1094</start>
+   <end>1105</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>147</ID>
+   <start>1108</start>
+   <end>1119</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>148</ID>
+   <start>1112</start>
+   <end>1123</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>149</ID>
+   <start>1116</start>
+   <end>1127</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Shot off target</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>150</ID>
+   <start>1126</start>
+   <end>1137</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>151</ID>
+   <start>1129</start>
+   <end>1140</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>152</ID>
+   <start>1131</start>
+   <end>1142</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>153</ID>
+   <start>1135</start>
+   <end>1146</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>154</ID>
+   <start>1139</start>
+   <end>1150</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>155</ID>
+   <start>1141</start>
+   <end>1152</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>156</ID>
+   <start>1151</start>
+   <end>1162</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>157</ID>
+   <start>1151</start>
+   <end>1162</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>158</ID>
+   <start>1153</start>
+   <end>1179</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>159</ID>
+   <start>1154</start>
+   <end>1165</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>160</ID>
+   <start>1156</start>
+   <end>1167</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>161</ID>
+   <start>1165</start>
+   <end>1191</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>162</ID>
+   <start>1182</start>
+   <end>1193</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>163</ID>
+   <start>1191</start>
+   <end>1202</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>164</ID>
+   <start>1194</start>
+   <end>1205</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>165</ID>
+   <start>1213</start>
+   <end>1224</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>166</ID>
+   <start>1213</start>
+   <end>1224</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>167</ID>
+   <start>1215</start>
+   <end>1226</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>168</ID>
+   <start>1219</start>
+   <end>1230</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>169</ID>
+   <start>1221</start>
+   <end>1232</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>170</ID>
+   <start>1247</start>
+   <end>1258</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>171</ID>
+   <start>1249</start>
+   <end>1260</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>172</ID>
+   <start>1264</start>
+   <end>1298</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>173</ID>
+   <start>1266</start>
+   <end>1277</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>174</ID>
+   <start>1290</start>
+   <end>1301</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>175</ID>
+   <start>1315</start>
+   <end>1326</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>176</ID>
+   <start>1316</start>
+   <end>1327</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>177</ID>
+   <start>1317</start>
+   <end>1328</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>178</ID>
+   <start>1343</start>
+   <end>1354</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>179</ID>
+   <start>1344</start>
+   <end>1355</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>180</ID>
+   <start>1347</start>
+   <end>1358</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>181</ID>
+   <start>1368</start>
+   <end>1379</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>182</ID>
+   <start>1370</start>
+   <end>1381</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>183</ID>
+   <start>1373</start>
+   <end>1384</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>184</ID>
+   <start>1380</start>
+   <end>1391</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>185</ID>
+   <start>1382</start>
+   <end>1393</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>186</ID>
+   <start>1393</start>
+   <end>1404</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>187</ID>
+   <start>1399</start>
+   <end>1410</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>188</ID>
+   <start>1402</start>
+   <end>1413</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>189</ID>
+   <start>1410</start>
+   <end>1457</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Goal - Right Foot</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>190</ID>
+   <start>1413</start>
+   <end>1424</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>191</ID>
+   <start>1416</start>
+   <end>1427</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>192</ID>
+   <start>1417</start>
+   <end>1428</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>193</ID>
+   <start>1479</start>
+   <end>1490</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>194</ID>
+   <start>1481</start>
+   <end>1492</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>195</ID>
+   <start>1485</start>
+   <end>1496</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>196</ID>
+   <start>1489</start>
+   <end>1500</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>197</ID>
+   <start>1494</start>
+   <end>1505</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>198</ID>
+   <start>1494</start>
+   <end>1505</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>199</ID>
+   <start>1495</start>
+   <end>1506</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>200</ID>
+   <start>1500</start>
+   <end>1511</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>201</ID>
+   <start>1500</start>
+   <end>1511</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Counterattack</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>202</ID>
+   <start>1502</start>
+   <end>1513</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Counterattack</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>203</ID>
+   <start>1502</start>
+   <end>1513</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>204</ID>
+   <start>1505</start>
+   <end>1516</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Counterattack</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>205</ID>
+   <start>1505</start>
+   <end>1516</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>206</ID>
+   <start>1509</start>
+   <end>1523</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Counterattack</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>207</ID>
+   <start>1512</start>
+   <end>1523</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>208</ID>
+   <start>1512</start>
+   <end>1523</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>209</ID>
+   <start>1547</start>
+   <end>1558</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>210</ID>
+   <start>1547</start>
+   <end>1558</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>211</ID>
+   <start>1586</start>
+   <end>1597</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Corner kick</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>212</ID>
+   <start>1596</start>
+   <end>1607</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>213</ID>
+   <start>1596</start>
+   <end>1607</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>214</ID>
+   <start>1597</start>
+   <end>1608</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>215</ID>
+   <start>1602</start>
+   <end>1613</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>216</ID>
+   <start>1605</start>
+   <end>1616</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>217</ID>
+   <start>1609</start>
+   <end>1620</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>218</ID>
+   <start>1616</start>
+   <end>1627</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>219</ID>
+   <start>1620</start>
+   <end>1631</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>220</ID>
+   <start>1637</start>
+   <end>1648</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>221</ID>
+   <start>1660</start>
+   <end>1690</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>222</ID>
+   <start>1663</start>
+   <end>1698</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>223</ID>
+   <start>1666</start>
+   <end>1677</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>224</ID>
+   <start>1685</start>
+   <end>1696</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>225</ID>
+   <start>1685</start>
+   <end>1696</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>226</ID>
+   <start>1690</start>
+   <end>1701</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>227</ID>
+   <start>1711</start>
+   <end>1722</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>228</ID>
+   <start>1712</start>
+   <end>1723</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>229</ID>
+   <start>1718</start>
+   <end>1729</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>230</ID>
+   <start>1723</start>
+   <end>1734</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>231</ID>
+   <start>1765</start>
+   <end>1776</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>232</ID>
+   <start>1766</start>
+   <end>1777</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>233</ID>
+   <start>1771</start>
+   <end>1782</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>234</ID>
+   <start>1771</start>
+   <end>1782</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>235</ID>
+   <start>1772</start>
+   <end>1783</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>236</ID>
+   <start>1773</start>
+   <end>1784</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>237</ID>
+   <start>1774</start>
+   <end>1785</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>238</ID>
+   <start>1776</start>
+   <end>1787</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>239</ID>
+   <start>1778</start>
+   <end>1789</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>240</ID>
+   <start>1787</start>
+   <end>1798</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>241</ID>
+   <start>1790</start>
+   <end>1801</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>242</ID>
+   <start>1791</start>
+   <end>1802</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>243</ID>
+   <start>1808</start>
+   <end>1819</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>244</ID>
+   <start>1824</start>
+   <end>1835</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>245</ID>
+   <start>1830</start>
+   <end>1841</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>246</ID>
+   <start>1831</start>
+   <end>1842</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>247</ID>
+   <start>1833</start>
+   <end>1844</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>248</ID>
+   <start>1836</start>
+   <end>1847</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>249</ID>
+   <start>1879</start>
+   <end>1890</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>250</ID>
+   <start>1906</start>
+   <end>1917</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>251</ID>
+   <start>1906</start>
+   <end>1917</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>252</ID>
+   <start>1908</start>
+   <end>1919</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>253</ID>
+   <start>1933</start>
+   <end>1944</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>254</ID>
+   <start>1937</start>
+   <end>1948</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>255</ID>
+   <start>1939</start>
+   <end>1950</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>256</ID>
+   <start>1939</start>
+   <end>1950</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>257</ID>
+   <start>1947</start>
+   <end>1958</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>258</ID>
+   <start>1947</start>
+   <end>1958</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>259</ID>
+   <start>1953</start>
+   <end>1964</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>260</ID>
+   <start>1967</start>
+   <end>1978</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>261</ID>
+   <start>1967</start>
+   <end>1978</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>262</ID>
+   <start>1970</start>
+   <end>1981</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>263</ID>
+   <start>1975</start>
+   <end>1986</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>264</ID>
+   <start>1994</start>
+   <end>2005</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>265</ID>
+   <start>1997</start>
+   <end>2008</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>266</ID>
+   <start>1998</start>
+   <end>2009</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Link up play</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>267</ID>
+   <start>2005</start>
+   <end>2031</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>268</ID>
+   <start>2009</start>
+   <end>2020</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>269</ID>
+   <start>2011</start>
+   <end>2022</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>270</ID>
+   <start>2018</start>
+   <end>2029</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>271</ID>
+   <start>2023</start>
+   <end>2034</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>272</ID>
+   <start>2024</start>
+   <end>2048</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>273</ID>
+   <start>2029</start>
+   <end>2040</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>274</ID>
+   <start>2030</start>
+   <end>2041</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>275</ID>
+   <start>2033</start>
+   <end>2044</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>276</ID>
+   <start>2033</start>
+   <end>2044</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>277</ID>
+   <start>2039</start>
+   <end>2050</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>278</ID>
+   <start>2042</start>
+   <end>2053</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>279</ID>
+   <start>2045</start>
+   <end>2056</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>280</ID>
+   <start>2048</start>
+   <end>2059</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>281</ID>
+   <start>2055</start>
+   <end>2066</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>282</ID>
+   <start>2059</start>
+   <end>2070</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>283</ID>
+   <start>2061</start>
+   <end>2072</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>284</ID>
+   <start>2069</start>
+   <end>2080</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>285</ID>
+   <start>2069</start>
+   <end>2080</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>286</ID>
+   <start>2071</start>
+   <end>2098</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>287</ID>
+   <start>2073</start>
+   <end>2084</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>288</ID>
+   <start>2076</start>
+   <end>2098</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>289</ID>
+   <start>2089</start>
+   <end>2100</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>290</ID>
+   <start>2093</start>
+   <end>2104</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>291</ID>
+   <start>2093</start>
+   <end>2104</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>292</ID>
+   <start>2097</start>
+   <end>2108</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>293</ID>
+   <start>2100</start>
+   <end>2111</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>294</ID>
+   <start>2105</start>
+   <end>2116</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>295</ID>
+   <start>2108</start>
+   <end>2122</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>296</ID>
+   <start>2109</start>
+   <end>2120</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>297</ID>
+   <start>2109</start>
+   <end>2120</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>298</ID>
+   <start>2112</start>
+   <end>2123</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>299</ID>
+   <start>2125</start>
+   <end>2136</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Tackles</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>300</ID>
+   <start>2125</start>
+   <end>2136</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>301</ID>
+   <start>2126</start>
+   <end>2137</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>302</ID>
+   <start>2205</start>
+   <end>2216</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Shot off target</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>303</ID>
+   <start>2222</start>
+   <end>2233</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>304</ID>
+   <start>2224</start>
+   <end>2235</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>305</ID>
+   <start>2231</start>
+   <end>2242</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>306</ID>
+   <start>2231</start>
+   <end>2242</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>307</ID>
+   <start>2240</start>
+   <end>2251</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>308</ID>
+   <start>2240</start>
+   <end>2251</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>309</ID>
+   <start>2244</start>
+   <end>2255</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>310</ID>
+   <start>2257</start>
+   <end>2268</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>311</ID>
+   <start>2258</start>
+   <end>2269</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>312</ID>
+   <start>2259</start>
+   <end>2270</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>313</ID>
+   <start>2262</start>
+   <end>2273</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>314</ID>
+   <start>2277</start>
+   <end>2288</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>315</ID>
+   <start>2279</start>
+   <end>2290</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>316</ID>
+   <start>2280</start>
+   <end>2291</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>317</ID>
+   <start>2283</start>
+   <end>2294</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>318</ID>
+   <start>2309</start>
+   <end>2338</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>319</ID>
+   <start>2311</start>
+   <end>2322</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>320</ID>
+   <start>2328</start>
+   <end>2339</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>321</ID>
+   <start>2329</start>
+   <end>2340</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>322</ID>
+   <start>2330</start>
+   <end>2341</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>323</ID>
+   <start>2332</start>
+   <end>2343</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>324</ID>
+   <start>2347</start>
+   <end>2358</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>325</ID>
+   <start>2349</start>
+   <end>2360</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>326</ID>
+   <start>2350</start>
+   <end>2361</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>327</ID>
+   <start>2355</start>
+   <end>2366</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>328</ID>
+   <start>2356</start>
+   <end>2367</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>329</ID>
+   <start>2356</start>
+   <end>2367</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>330</ID>
+   <start>2364</start>
+   <end>2375</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>331</ID>
+   <start>2374</start>
+   <end>2385</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>332</ID>
+   <start>2374</start>
+   <end>2385</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>333</ID>
+   <start>2389</start>
+   <end>2400</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>334</ID>
+   <start>2391</start>
+   <end>2404</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>335</ID>
+   <start>2398</start>
+   <end>2409</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>336</ID>
+   <start>2413</start>
+   <end>2424</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>337</ID>
+   <start>2413</start>
+   <end>2424</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>338</ID>
+   <start>2422</start>
+   <end>2433</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>339</ID>
+   <start>2422</start>
+   <end>2433</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>340</ID>
+   <start>2424</start>
+   <end>2435</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>341</ID>
+   <start>2426</start>
+   <end>2437</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>342</ID>
+   <start>2433</start>
+   <end>2444</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>343</ID>
+   <start>2450</start>
+   <end>2461</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>344</ID>
+   <start>2451</start>
+   <end>2462</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>345</ID>
+   <start>2453</start>
+   <end>2464</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>346</ID>
+   <start>2455</start>
+   <end>2466</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>347</ID>
+   <start>2457</start>
+   <end>2468</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>348</ID>
+   <start>2457</start>
+   <end>2468</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>349</ID>
+   <start>2462</start>
+   <end>2473</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>350</ID>
+   <start>2463</start>
+   <end>2474</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>351</ID>
+   <start>2465</start>
+   <end>2476</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>352</ID>
+   <start>2468</start>
+   <end>2479</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>353</ID>
+   <start>2471</start>
+   <end>2482</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>354</ID>
+   <start>2474</start>
+   <end>2485</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>355</ID>
+   <start>2475</start>
+   <end>2486</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>356</ID>
+   <start>2506</start>
+   <end>2517</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>357</ID>
+   <start>2508</start>
+   <end>2519</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>358</ID>
+   <start>2509</start>
+   <end>2520</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>359</ID>
+   <start>2512</start>
+   <end>2523</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>360</ID>
+   <start>2520</start>
+   <end>2531</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>361</ID>
+   <start>2520</start>
+   <end>2531</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>362</ID>
+   <start>2527</start>
+   <end>2538</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>363</ID>
+   <start>2531</start>
+   <end>2542</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>364</ID>
+   <start>2536</start>
+   <end>2547</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>365</ID>
+   <start>2543</start>
+   <end>2554</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>366</ID>
+   <start>2577</start>
+   <end>2588</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Counterattack</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>367</ID>
+   <start>2577</start>
+   <end>2588</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>368</ID>
+   <start>2581</start>
+   <end>2599</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Counterattack</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>369</ID>
+   <start>2581</start>
+   <end>2628</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Goal - Left Foot</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>370</ID>
+   <start>2585</start>
+   <end>2596</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>371</ID>
+   <start>2588</start>
+   <end>2599</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>372</ID>
+   <start>2648</start>
+   <end>2659</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>373</ID>
+   <start>2651</start>
+   <end>2681</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>374</ID>
+   <start>2657</start>
+   <end>2668</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>375</ID>
+   <start>2670</start>
+   <end>2681</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>376</ID>
+   <start>2692</start>
+   <end>2703</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>377</ID>
+   <start>2692</start>
+   <end>2703</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>378</ID>
+   <start>2694</start>
+   <end>2705</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>379</ID>
+   <start>2698</start>
+   <end>2709</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>380</ID>
+   <start>2701</start>
+   <end>2712</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>381</ID>
+   <start>2705</start>
+   <end>2716</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Winning fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>382</ID>
+   <start>2792</start>
+   <end>2803</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Free kick shot</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>383</ID>
+   <start>2793</start>
+   <end>2804</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>384</ID>
+   <start>2800</start>
+   <end>2811</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>385</ID>
+   <start>2815</start>
+   <end>2826</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>386</ID>
+   <start>2818</start>
+   <end>2829</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>387</ID>
+   <start>2821</start>
+   <end>2832</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>388</ID>
+   <start>2823</start>
+   <end>2834</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>389</ID>
+   <start>2827</start>
+   <end>2838</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>390</ID>
+   <start>2831</start>
+   <end>2842</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Link up play</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>391</ID>
+   <start>2831</start>
+   <end>2842</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>392</ID>
+   <start>2842</start>
+   <end>2853</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>393</ID>
+   <start>2847</start>
+   <end>2858</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>394</ID>
+   <start>2849</start>
+   <end>2860</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>395</ID>
+   <start>2852</start>
+   <end>2863</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>396</ID>
+   <start>2852</start>
+   <end>2863</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>397</ID>
+   <start>2876</start>
+   <end>2887</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>398</ID>
+   <start>2876</start>
+   <end>2887</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>399</ID>
+   <start>2893</start>
+   <end>2909</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>400</ID>
+   <start>2895</start>
+   <end>2906</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Tackles</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>401</ID>
+   <start>2895</start>
+   <end>2906</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>402</ID>
+   <start>2902</start>
+   <end>2913</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>403</ID>
+   <start>2903</start>
+   <end>2924</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>404</ID>
+   <start>2907</start>
+   <end>2918</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>405</ID>
+   <start>2910</start>
+   <end>2921</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>406</ID>
+   <start>2916</start>
+   <end>2927</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>407</ID>
+   <start>2921</start>
+   <end>2932</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>408</ID>
+   <start>2924</start>
+   <end>2935</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>409</ID>
+   <start>2926</start>
+   <end>2937</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>410</ID>
+   <start>2932</start>
+   <end>2943</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>411</ID>
+   <start>2946</start>
+   <end>2957</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>412</ID>
+   <start>2964</start>
+   <end>2975</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>413</ID>
+   <start>2964</start>
+   <end>2975</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>414</ID>
+   <start>2966</start>
+   <end>2979</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>415</ID>
+   <start>2980</start>
+   <end>2991</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>416</ID>
+   <start>2981</start>
+   <end>2992</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>417</ID>
+   <start>2986</start>
+   <end>2997</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>418</ID>
+   <start>2988</start>
+   <end>2999</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>419</ID>
+   <start>2992</start>
+   <end>3003</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>420</ID>
+   <start>2994</start>
+   <end>3005</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>421</ID>
+   <start>2996</start>
+   <end>3007</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Winning fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>422</ID>
+   <start>3014</start>
+   <end>3025</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Free kick</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>423</ID>
+   <start>3016</start>
+   <end>3027</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>424</ID>
+   <start>3024</start>
+   <end>3035</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>425</ID>
+   <start>3044</start>
+   <end>3055</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>426</ID>
+   <start>3047</start>
+   <end>3058</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>427</ID>
+   <start>3049</start>
+   <end>3060</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>428</ID>
+   <start>3057</start>
+   <end>3099</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>429</ID>
+   <start>3058</start>
+   <end>3069</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>430</ID>
+   <start>3062</start>
+   <end>3073</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>431</ID>
+   <start>3075</start>
+   <end>3086</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>432</ID>
+   <start>3079</start>
+   <end>3090</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>433</ID>
+   <start>3080</start>
+   <end>3091</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>434</ID>
+   <start>3087</start>
+   <end>3098</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>435</ID>
+   <start>3093</start>
+   <end>3104</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>436</ID>
+   <start>3099</start>
+   <end>3110</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>437</ID>
+   <start>3100</start>
+   <end>3111</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>438</ID>
+   <start>3104</start>
+   <end>3115</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>439</ID>
+   <start>3107</start>
+   <end>3118</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>440</ID>
+   <start>3112</start>
+   <end>3123</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>441</ID>
+   <start>3144</start>
+   <end>3155</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>442</ID>
+   <start>3147</start>
+   <end>3158</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>443</ID>
+   <start>3149</start>
+   <end>3160</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>444</ID>
+   <start>3151</start>
+   <end>3162</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>445</ID>
+   <start>3178</start>
+   <end>3189</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>446</ID>
+   <start>3178</start>
+   <end>3189</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>447</ID>
+   <start>3181</start>
+   <end>3192</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>448</ID>
+   <start>3182</start>
+   <end>3193</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>449</ID>
+   <start>3191</start>
+   <end>3202</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>450</ID>
+   <start>3191</start>
+   <end>3202</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>451</ID>
+   <start>3197</start>
+   <end>3208</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>452</ID>
+   <start>3199</start>
+   <end>3210</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Winning fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>453</ID>
+   <start>3207</start>
+   <end>3218</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Free kick</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>454</ID>
+   <start>3210</start>
+   <end>3221</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>455</ID>
+   <start>3212</start>
+   <end>3223</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>456</ID>
+   <start>3216</start>
+   <end>3227</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Link up play</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>457</ID>
+   <start>3218</start>
+   <end>3229</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>458</ID>
+   <start>3219</start>
+   <end>3230</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>459</ID>
+   <start>3223</start>
+   <end>3234</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>460</ID>
+   <start>3226</start>
+   <end>3237</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>461</ID>
+   <start>3226</start>
+   <end>3237</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>462</ID>
+   <start>3270</start>
+   <end>3281</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>463</ID>
+   <start>3274</start>
+   <end>3285</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>464</ID>
+   <start>3313</start>
+   <end>3324</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Free kick cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>465</ID>
+   <start>3319</start>
+   <end>3330</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>466</ID>
+   <start>3321</start>
+   <end>3332</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Through passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>467</ID>
+   <start>3334</start>
+   <end>3345</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>468</ID>
+   <start>3334</start>
+   <end>3345</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>469</ID>
+   <start>3353</start>
+   <end>3364</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Aggressiveness</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>470</ID>
+   <start>3354</start>
+   <end>3365</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>471</ID>
+   <start>3364</start>
+   <end>3375</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>472</ID>
+   <start>3364</start>
+   <end>3393</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>473</ID>
+   <start>3369</start>
+   <end>3380</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>474</ID>
+   <start>3377</start>
+   <end>3388</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>475</ID>
+   <start>3377</start>
+   <end>3388</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>476</ID>
+   <start>3379</start>
+   <end>3390</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>477</ID>
+   <start>3380</start>
+   <end>3391</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>478</ID>
+   <start>3393</start>
+   <end>3404</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>479</ID>
+   <start>3395</start>
+   <end>3406</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>480</ID>
+   <start>3400</start>
+   <end>3411</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>481</ID>
+   <start>3402</start>
+   <end>3413</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>482</ID>
+   <start>3411</start>
+   <end>3422</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>483</ID>
+   <start>3416</start>
+   <end>3427</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>484</ID>
+   <start>3417</start>
+   <end>3428</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>485</ID>
+   <start>3430</start>
+   <end>3441</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>486</ID>
+   <start>3431</start>
+   <end>3442</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>487</ID>
+   <start>3432</start>
+   <end>3443</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>488</ID>
+   <start>3445</start>
+   <end>3456</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>489</ID>
+   <start>3449</start>
+   <end>3460</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>490</ID>
+   <start>3452</start>
+   <end>3490</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>491</ID>
+   <start>3456</start>
+   <end>3467</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>492</ID>
+   <start>3474</start>
+   <end>3485</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>493</ID>
+   <start>3482</start>
+   <end>3493</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>494</ID>
+   <start>3486</start>
+   <end>3497</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>495</ID>
+   <start>3523</start>
+   <end>3534</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Corner kick</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>496</ID>
+   <start>3526</start>
+   <end>3537</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>497</ID>
+   <start>3533</start>
+   <end>3544</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>498</ID>
+   <start>3545</start>
+   <end>3556</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>499</ID>
+   <start>3549</start>
+   <end>3560</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>500</ID>
+   <start>3551</start>
+   <end>3562</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>501</ID>
+   <start>3554</start>
+   <end>3565</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>502</ID>
+   <start>3573</start>
+   <end>3584</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>503</ID>
+   <start>3580</start>
+   <end>3591</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>504</ID>
+   <start>3586</start>
+   <end>3597</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>505</ID>
+   <start>3595</start>
+   <end>3606</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>506</ID>
+   <start>3617</start>
+   <end>3628</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>507</ID>
+   <start>3631</start>
+   <end>3642</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>508</ID>
+   <start>3647</start>
+   <end>3658</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>509</ID>
+   <start>3647</start>
+   <end>3658</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>510</ID>
+   <start>3649</start>
+   <end>3660</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>511</ID>
+   <start>3650</start>
+   <end>3661</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>512</ID>
+   <start>3652</start>
+   <end>3663</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>513</ID>
+   <start>3653</start>
+   <end>3664</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>514</ID>
+   <start>3653</start>
+   <end>3664</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>515</ID>
+   <start>3678</start>
+   <end>3689</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Corner kick</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>516</ID>
+   <start>3680</start>
+   <end>3691</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>517</ID>
+   <start>3680</start>
+   <end>3691</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>518</ID>
+   <start>3720</start>
+   <end>3731</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>519</ID>
+   <start>3723</start>
+   <end>3734</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>520</ID>
+   <start>3724</start>
+   <end>3735</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>521</ID>
+   <start>3727</start>
+   <end>3738</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>522</ID>
+   <start>3728</start>
+   <end>3739</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>523</ID>
+   <start>3743</start>
+   <end>3754</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>524</ID>
+   <start>3754</start>
+   <end>3765</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>525</ID>
+   <start>3756</start>
+   <end>3767</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>526</ID>
+   <start>3776</start>
+   <end>3787</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>527</ID>
+   <start>3776</start>
+   <end>3787</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>528</ID>
+   <start>3802</start>
+   <end>3813</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>529</ID>
+   <start>3803</start>
+   <end>3814</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>530</ID>
+   <start>3803</start>
+   <end>3814</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>531</ID>
+   <start>3820</start>
+   <end>3835</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>532</ID>
+   <start>3821</start>
+   <end>3839</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>533</ID>
+   <start>3831</start>
+   <end>3842</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>534</ID>
+   <start>3851</start>
+   <end>3862</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>535</ID>
+   <start>3854</start>
+   <end>3888</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>536</ID>
+   <start>3856</start>
+   <end>3867</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>537</ID>
+   <start>3858</start>
+   <end>3869</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>538</ID>
+   <start>3863</start>
+   <end>3888</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>539</ID>
+   <start>3875</start>
+   <end>3886</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>540</ID>
+   <start>3880</start>
+   <end>3899</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>541</ID>
+   <start>3885</start>
+   <end>3896</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>542</ID>
+   <start>3891</start>
+   <end>3902</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>543</ID>
+   <start>3893</start>
+   <end>3904</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>544</ID>
+   <start>3893</start>
+   <end>3904</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>545</ID>
+   <start>3896</start>
+   <end>3907</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>546</ID>
+   <start>3900</start>
+   <end>3911</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>547</ID>
+   <start>3912</start>
+   <end>3923</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>548</ID>
+   <start>3915</start>
+   <end>3926</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>549</ID>
+   <start>3922</start>
+   <end>3933</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>550</ID>
+   <start>3938</start>
+   <end>3949</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>551</ID>
+   <start>3940</start>
+   <end>3951</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>552</ID>
+   <start>3942</start>
+   <end>3953</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Winning fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>553</ID>
+   <start>3979</start>
+   <end>3990</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Free kick cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>554</ID>
+   <start>3980</start>
+   <end>3991</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>555</ID>
+   <start>3984</start>
+   <end>3995</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>556</ID>
+   <start>3984</start>
+   <end>3995</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>557</ID>
+   <start>3987</start>
+   <end>3998</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>558</ID>
+   <start>3992</start>
+   <end>4003</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>559</ID>
+   <start>3996</start>
+   <end>4007</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>560</ID>
+   <start>3999</start>
+   <end>4010</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>561</ID>
+   <start>4002</start>
+   <end>4013</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>562</ID>
+   <start>4014</start>
+   <end>4025</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>563</ID>
+   <start>4016</start>
+   <end>4027</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>564</ID>
+   <start>4018</start>
+   <end>4029</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>565</ID>
+   <start>4031</start>
+   <end>4042</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>566</ID>
+   <start>4031</start>
+   <end>4042</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>567</ID>
+   <start>4033</start>
+   <end>4044</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Winning fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>568</ID>
+   <start>4049</start>
+   <end>4060</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Free kick</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>569</ID>
+   <start>4054</start>
+   <end>4065</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>570</ID>
+   <start>4059</start>
+   <end>4070</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>571</ID>
+   <start>4066</start>
+   <end>4077</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>572</ID>
+   <start>4066</start>
+   <end>4077</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>573</ID>
+   <start>4067</start>
+   <end>4078</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>574</ID>
+   <start>4068</start>
+   <end>4079</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>575</ID>
+   <start>4078</start>
+   <end>4089</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>576</ID>
+   <start>4081</start>
+   <end>4092</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>577</ID>
+   <start>4082</start>
+   <end>4093</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Winning fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>578</ID>
+   <start>4122</start>
+   <end>4133</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Free kick cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>579</ID>
+   <start>4138</start>
+   <end>4149</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>580</ID>
+   <start>4142</start>
+   <end>4153</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>581</ID>
+   <start>4143</start>
+   <end>4154</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>582</ID>
+   <start>4145</start>
+   <end>4156</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>583</ID>
+   <start>4163</start>
+   <end>4174</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>584</ID>
+   <start>4165</start>
+   <end>4176</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>585</ID>
+   <start>4169</start>
+   <end>4180</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>586</ID>
+   <start>4171</start>
+   <end>4182</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>587</ID>
+   <start>4171</start>
+   <end>4182</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>588</ID>
+   <start>4200</start>
+   <end>4231</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>589</ID>
+   <start>4202</start>
+   <end>4213</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>590</ID>
+   <start>4207</start>
+   <end>4218</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>591</ID>
+   <start>4228</start>
+   <end>4239</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>592</ID>
+   <start>4228</start>
+   <end>4239</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>593</ID>
+   <start>4236</start>
+   <end>4247</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>594</ID>
+   <start>4236</start>
+   <end>4247</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>595</ID>
+   <start>4241</start>
+   <end>4252</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>596</ID>
+   <start>4244</start>
+   <end>4255</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>597</ID>
+   <start>4246</start>
+   <end>4257</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>598</ID>
+   <start>4248</start>
+   <end>4259</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>599</ID>
+   <start>4250</start>
+   <end>4261</end>
+   <code>(16) B. Lenovan</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>600</ID>
+   <start>4272</start>
+   <end>4283</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>601</ID>
+   <start>4272</start>
+   <end>4283</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>602</ID>
+   <start>4274</start>
+   <end>4285</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>603</ID>
+   <start>4291</start>
+   <end>4302</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>604</ID>
+   <start>4295</start>
+   <end>4306</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>605</ID>
+   <start>4300</start>
+   <end>4311</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>606</ID>
+   <start>4302</start>
+   <end>4313</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>607</ID>
+   <start>4314</start>
+   <end>4325</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>608</ID>
+   <start>4314</start>
+   <end>4338</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>609</ID>
+   <start>4316</start>
+   <end>4327</end>
+   <code>(6) T. Noje</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>610</ID>
+   <start>4322</start>
+   <end>4333</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>611</ID>
+   <start>4330</start>
+   <end>4341</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>612</ID>
+   <start>4394</start>
+   <end>4405</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>613</ID>
+   <start>4396</start>
+   <end>4407</end>
+   <code>(25) D. Cioabla</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>614</ID>
+   <start>4399</start>
+   <end>4410</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>615</ID>
+   <start>4405</start>
+   <end>4416</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>616</ID>
+   <start>4408</start>
+   <end>4419</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>617</ID>
+   <start>4409</start>
+   <end>4420</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>618</ID>
+   <start>4418</start>
+   <end>4429</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>619</ID>
+   <start>4422</start>
+   <end>4435</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>620</ID>
+   <start>4425</start>
+   <end>4436</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>621</ID>
+   <start>4433</start>
+   <end>4444</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>622</ID>
+   <start>4433</start>
+   <end>4449</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>623</ID>
+   <start>4436</start>
+   <end>4447</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>624</ID>
+   <start>4467</start>
+   <end>4478</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>625</ID>
+   <start>4468</start>
+   <end>4479</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>626</ID>
+   <start>4469</start>
+   <end>4480</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>627</ID>
+   <start>4471</start>
+   <end>4482</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>628</ID>
+   <start>4492</start>
+   <end>4503</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>629</ID>
+   <start>4498</start>
+   <end>4509</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>630</ID>
+   <start>4501</start>
+   <end>4512</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>631</ID>
+   <start>4504</start>
+   <end>4515</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>632</ID>
+   <start>4507</start>
+   <end>4518</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>633</ID>
+   <start>4532</start>
+   <end>4543</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>634</ID>
+   <start>4534</start>
+   <end>4545</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>635</ID>
+   <start>4538</start>
+   <end>4549</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>636</ID>
+   <start>4538</start>
+   <end>4549</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>637</ID>
+   <start>4561</start>
+   <end>4572</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>638</ID>
+   <start>4563</start>
+   <end>4574</end>
+   <code>(25) D. Cioabla</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>639</ID>
+   <start>4565</start>
+   <end>4576</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>640</ID>
+   <start>4567</start>
+   <end>4595</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>641</ID>
+   <start>4581</start>
+   <end>4592</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>642</ID>
+   <start>4587</start>
+   <end>4598</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>643</ID>
+   <start>4588</start>
+   <end>4599</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>644</ID>
+   <start>4591</start>
+   <end>4602</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>645</ID>
+   <start>4595</start>
+   <end>4606</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>646</ID>
+   <start>4598</start>
+   <end>4609</end>
+   <code>(25) D. Cioabla</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>647</ID>
+   <start>4602</start>
+   <end>4648</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>648</ID>
+   <start>4605</start>
+   <end>4616</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>649</ID>
+   <start>4605</start>
+   <end>4616</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>650</ID>
+   <start>4634</start>
+   <end>4645</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>651</ID>
+   <start>4634</start>
+   <end>4645</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>652</ID>
+   <start>4640</start>
+   <end>4651</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>653</ID>
+   <start>4667</start>
+   <end>4678</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Corner kick</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>654</ID>
+   <start>4671</start>
+   <end>4682</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>655</ID>
+   <start>4673</start>
+   <end>4684</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>656</ID>
+   <start>4673</start>
+   <end>4684</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>657</ID>
+   <start>4696</start>
+   <end>4707</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>658</ID>
+   <start>4696</start>
+   <end>4707</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>659</ID>
+   <start>4698</start>
+   <end>4709</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>660</ID>
+   <start>4701</start>
+   <end>4712</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>661</ID>
+   <start>4708</start>
+   <end>4719</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>662</ID>
+   <start>4708</start>
+   <end>4740</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>663</ID>
+   <start>4710</start>
+   <end>4721</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>664</ID>
+   <start>4714</start>
+   <end>4725</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>665</ID>
+   <start>4715</start>
+   <end>4726</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>666</ID>
+   <start>4716</start>
+   <end>4727</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>667</ID>
+   <start>4726</start>
+   <end>4748</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>668</ID>
+   <start>4728</start>
+   <end>4739</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>669</ID>
+   <start>4729</start>
+   <end>4740</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>670</ID>
+   <start>4731</start>
+   <end>4742</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>671</ID>
+   <start>4744</start>
+   <end>4755</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>672</ID>
+   <start>4749</start>
+   <end>4760</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Reflexes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>673</ID>
+   <start>4752</start>
+   <end>4763</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>674</ID>
+   <start>4775</start>
+   <end>4786</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>675</ID>
+   <start>4777</start>
+   <end>4788</end>
+   <code>(25) D. Cioabla</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>676</ID>
+   <start>4780</start>
+   <end>4791</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>677</ID>
+   <start>4782</start>
+   <end>4793</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>678</ID>
+   <start>4784</start>
+   <end>4795</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>679</ID>
+   <start>4788</start>
+   <end>4799</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>680</ID>
+   <start>4789</start>
+   <end>4800</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>681</ID>
+   <start>4792</start>
+   <end>4803</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>682</ID>
+   <start>4795</start>
+   <end>4806</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>683</ID>
+   <start>4796</start>
+   <end>4807</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>684</ID>
+   <start>4798</start>
+   <end>4809</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Counterattack</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>685</ID>
+   <start>4798</start>
+   <end>4809</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>686</ID>
+   <start>4802</start>
+   <end>4813</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Counterattack</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>687</ID>
+   <start>4802</start>
+   <end>4813</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>688</ID>
+   <start>4805</start>
+   <end>4816</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Opportunity</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>689</ID>
+   <start>4805</start>
+   <end>4816</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Counterattack</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>690</ID>
+   <start>4805</start>
+   <end>4816</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Shots</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>691</ID>
+   <start>4833</start>
+   <end>4844</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>692</ID>
+   <start>4833</start>
+   <end>4844</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>693</ID>
+   <start>4835</start>
+   <end>4846</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>694</ID>
+   <start>4844</start>
+   <end>4855</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>695</ID>
+   <start>4864</start>
+   <end>4875</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>696</ID>
+   <start>4864</start>
+   <end>4875</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>697</ID>
+   <start>4874</start>
+   <end>4885</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>698</ID>
+   <start>4892</start>
+   <end>4903</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>699</ID>
+   <start>4894</start>
+   <end>4905</end>
+   <code>(20) R. Dovincescu</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>700</ID>
+   <start>4901</start>
+   <end>4912</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>701</ID>
+   <start>4903</start>
+   <end>4914</end>
+   <code>(25) D. Cioabla</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>702</ID>
+   <start>4915</start>
+   <end>4926</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>703</ID>
+   <start>4916</start>
+   <end>4927</end>
+   <code>(25) D. Cioabla</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>704</ID>
+   <start>4917</start>
+   <end>4928</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>705</ID>
+   <start>4925</start>
+   <end>4936</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>1VS1 and dribbling</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>706</ID>
+   <start>4927</start>
+   <end>4938</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>707</ID>
+   <start>4929</start>
+   <end>4940</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>708</ID>
+   <start>4940</start>
+   <end>4951</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Recovery</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>709</ID>
+   <start>4940</start>
+   <end>4960</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>710</ID>
+   <start>4944</start>
+   <end>4955</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>711</ID>
+   <start>4945</start>
+   <end>4956</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>712</ID>
+   <start>4979</start>
+   <end>4990</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>713</ID>
+   <start>4987</start>
+   <end>4998</end>
+   <code>(11) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>714</ID>
+   <start>4989</start>
+   <end>5000</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Cross</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>715</ID>
+   <start>5001</start>
+   <end>5012</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>716</ID>
+   <start>5011</start>
+   <end>5022</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>717</ID>
+   <start>5014</start>
+   <end>5025</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>718</ID>
+   <start>5014</start>
+   <end>5036</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>719</ID>
+   <start>5019</start>
+   <end>5030</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>720</ID>
+   <start>5054</start>
+   <end>5065</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Throw-ins</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>721</ID>
+   <start>5056</start>
+   <end>5067</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>722</ID>
+   <start>5056</start>
+   <end>5067</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>723</ID>
+   <start>5057</start>
+   <end>5068</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>724</ID>
+   <start>5057</start>
+   <end>5068</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>725</ID>
+   <start>5064</start>
+   <end>5075</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Loose ball duel</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>726</ID>
+   <start>5066</start>
+   <end>5091</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Attacking duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>727</ID>
+   <start>5067</start>
+   <end>5078</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>728</ID>
+   <start>5076</start>
+   <end>5087</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>729</ID>
+   <start>5082</start>
+   <end>5093</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Winning fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>730</ID>
+   <start>5125</start>
+   <end>5136</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Free kick</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>731</ID>
+   <start>5130</start>
+   <end>5141</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>732</ID>
+   <start>5136</start>
+   <end>5147</end>
+   <code>(23) M. Sodinca</code>
+   <label>
+    <text>Aerial duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>733</ID>
+   <start>5140</start>
+   <end>5151</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>734</ID>
+   <start>5141</start>
+   <end>5152</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>735</ID>
+   <start>5147</start>
+   <end>5158</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>736</ID>
+   <start>5156</start>
+   <end>5167</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>737</ID>
+   <start>5165</start>
+   <end>5176</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>738</ID>
+   <start>5166</start>
+   <end>5177</end>
+   <code>(77) A. Jivan</code>
+   <label>
+    <text>Fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>739</ID>
+   <start>5252</start>
+   <end>5263</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Reflexes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>740</ID>
+   <start>5270</start>
+   <end>5281</end>
+   <code>(4) I. Apostol</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>741</ID>
+   <start>5274</start>
+   <end>5285</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>742</ID>
+   <start>5274</start>
+   <end>5285</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>743</ID>
+   <start>5276</start>
+   <end>5287</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>744</ID>
+   <start>5278</start>
+   <end>5289</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Fouls</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>745</ID>
+   <start>5322</start>
+   <end>5333</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Shot off target</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>746</ID>
+   <start>5348</start>
+   <end>5359</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>747</ID>
+   <start>5350</start>
+   <end>5361</end>
+   <code>(25) D. Cioabla</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>748</ID>
+   <start>5357</start>
+   <end>5368</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>749</ID>
+   <start>5362</start>
+   <end>5373</end>
+   <code>(4) I. Apostol</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>750</ID>
+   <start>5365</start>
+   <end>5376</end>
+   <code>(8) A. Bucsa</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>751</ID>
+   <start>5403</start>
+   <end>5414</end>
+   <code>(30) C. Rosu</code>
+   <label>
+    <text>Distributions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>752</ID>
+   <start>5418</start>
+   <end>5429</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>753</ID>
+   <start>5418</start>
+   <end>5429</end>
+   <code>(10) N. Kurja</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>754</ID>
+   <start>5423</start>
+   <end>5434</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>755</ID>
+   <start>5427</start>
+   <end>5438</end>
+   <code>(27) A. Grecu-Baias</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>756</ID>
+   <start>5432</start>
+   <end>5443</end>
+   <code>(17) N. Colesnicenco</code>
+   <label>
+    <text>Defending duels</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>757</ID>
+   <start>5439</start>
+   <end>5450</end>
+   <code>(25) D. Cioabla</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>758</ID>
+   <start>5440</start>
+   <end>5451</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>759</ID>
+   <start>5442</start>
+   <end>5453</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Under pressure</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>760</ID>
+   <start>5442</start>
+   <end>5453</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>Long-range passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>761</ID>
+   <start>5470</start>
+   <end>5481</end>
+   <code>(3) A. Suba</code>
+   <label>
+    <text>1 vs 1 Defense</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>762</ID>
+   <start>5501</start>
+   <end>5512</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Balls lost</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>763</ID>
+   <start>5502</start>
+   <end>5513</end>
+   <code>(25) D. Cioabla</code>
+   <label>
+    <text>Interceptions</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>764</ID>
+   <start>5502</start>
+   <end>5513</end>
+   <code>(25) D. Cioabla</code>
+   <label>
+    <text>Clearances</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>765</ID>
+   <start>5505</start>
+   <end>5516</end>
+   <code>(26) D. Heisu</code>
+   <label>
+    <text>Passes</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>766</ID>
+   <start>2</start>
+   <end>5</end>
+   <code/>
+   <label>
+    <text>First half start</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>767</ID>
+   <start>2813</start>
+   <end>2816</end>
+   <code/>
+   <label>
+    <text>Second half start</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>768</ID>
+   <start>2811</start>
+   <end>2814</end>
+   <code/>
+   <label>
+    <text>First half end</text>
+   </label>
+  </instance>
+  <instance>
+   <ID>769</ID>
+   <start>5525</start>
+   <end>5528</end>
+   <code/>
+   <label>
+    <text>Second half end</text>
+   </label>
+  </instance>
+ </ALL_INSTANCES>
+</file>

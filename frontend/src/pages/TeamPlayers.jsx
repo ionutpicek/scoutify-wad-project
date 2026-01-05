@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { getFirestore, collection, getDocs, deleteDoc, doc, addDoc, setDoc } from "firebase/firestore"; 
-import { app } from "../firebase.jsx"; 
-import { query, where } from "firebase/firestore"; 
+import { collection, deleteDoc, doc, addDoc, setDoc, query, where } from "firebase/firestore"; 
+import { db, getDocsLogged as getDocs } from "../firebase.jsx"; 
 import Header from "../components/Header.jsx"; 
 import Spinner from "../components/Spinner.jsx";
 import PlayerCard from "../components/PlayerCard.jsx";
@@ -19,7 +18,18 @@ import PlayerCard from "../components/PlayerCard.jsx";
         const [editingPlayer, setEditingPlayer] = useState(null); // player object currently being edited 
         const [formInputs, setFormInputs] = useState({ name: "", position: "", photoURL: "", birthdate: "", }); 
                             
-        const db = getFirestore(app); 
+        useEffect(() => {
+            if (editingPlayer) {
+                setFormInputs({
+                name: editingPlayer.name || "",
+                nationality: editingPlayer.nationality || "",
+                position: editingPlayer.position || "",
+                photoURL: editingPlayer.photoURL || "",
+                birthdate: editingPlayer.birthdate || "",
+                });
+            }
+            }, [editingPlayer]);
+
         const [deleteP, setDeletePlayer] = useState(false); 
         const [playerToDelete, setPlayerToDelete] = useState(null); 
         const deletePlayer = () => { setDeletePlayer(prev => !prev); }
@@ -47,10 +57,17 @@ import PlayerCard from "../components/PlayerCard.jsx";
             setAdd(prev => !prev); 
         }
 
+        const abbr = (fullName) => {
+            const parts = fullName.split(" ");
+            const abbrName = `${parts[0][0]}. ${parts[parts.length - 1]}`;
+            return abbrName;
+        }
+
         const handleAdd = async (info) => {
             try {
                 const playerID = Date.now();
 
+                // add player document
                 const playerRef = await addDoc(collection(db, "player"), {
                     name: info.name,
                     teamID: info.teamID,
@@ -58,9 +75,12 @@ import PlayerCard from "../components/PlayerCard.jsx";
                     photoURL: info.photoURL || "",
                     teamName: info.teamName,
                     birthdate: info.birthdate || "",
+                    nationality: info.nationality, 
                     playerID: playerID,
+                    abbrName: abbr(info.name),
                 });
 
+                // add stats document
                 await addDoc(
                     collection(db, "stats"),
                     info.position !== "Goalkeeper"
@@ -68,17 +88,18 @@ import PlayerCard from "../components/PlayerCard.jsx";
                         : { playerID: playerID, minutes: 0, xCG: 0, concededGoals: 0, saves: 0, cleanSheet: 0, shotAgainst: 0, shortGoalKicks: 0, longGoalKicks: 0 }
                 );
 
-                // update local state immediately
-                setPlayers((prevPlayers) => [
+                // update local state immediately (or you can fetch all players again)
+                setPlayers(prevPlayers => [
                     ...prevPlayers,
                     {
-                        id: playerRef.id,   
+                        id: playerRef.id,  // unique Firestore doc ID
                         name: info.name,
                         teamID: info.teamID,
                         position: info.position,
                         photoURL: info.photoURL || "",
                         teamName: info.teamName,
                         birthdate: info.birthdate || "",
+                        nationality: info.nationality,
                         playerID: playerID,
                     },
                 ]);
@@ -87,6 +108,7 @@ import PlayerCard from "../components/PlayerCard.jsx";
                 console.error("Error adding player:", error);
             }
         };
+
             
         const editPlayer = async (playerID, updatedInfo) => { 
             const playerRef = doc(db, "player", playerID); 
@@ -102,8 +124,30 @@ import PlayerCard from "../components/PlayerCard.jsx";
             try { 
                 const q = query(collection(db, "player"), where("teamID", "==", teamID));
                 const snapshot = await getDocs(q); 
-                const teamPlayers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
-                setPlayers(teamPlayers); 
+                const teamPlayers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // fetch season grades for these players (chunked by 10 for Firestore 'in' constraint)
+                const playerIds = teamPlayers.map(p => p.playerID).filter(Boolean);
+                const statsCol = collection(db, "stats");
+                const gradeByPlayer = new Map();
+                for (let i = 0; i < playerIds.length; i += 10) {
+                    const chunk = playerIds.slice(i, i + 10);
+                    const sq = query(statsCol, where("playerID", "in", chunk));
+                    const ssnap = await getDocs(sq);
+                    ssnap.forEach(d => {
+                        const data = d.data() || {};
+                        const pid = data.playerID;
+                        const sg = data.seasonGrade?.overall10 ?? null;
+                        if (pid != null && sg != null) gradeByPlayer.set(pid, sg);
+                    });
+                }
+
+                const merged = teamPlayers.map(p => ({
+                    ...p,
+                    seasonGradeOverall: gradeByPlayer.get(p.playerID) ?? null,
+                }));
+
+                setPlayers(merged); 
             } catch (error) { 
                 console.error("Error fetching team players:", error); 
             } finally {
@@ -125,7 +169,7 @@ import PlayerCard from "../components/PlayerCard.jsx";
             <div style={{display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center", padding:"2vh 6vw", fontSize:20}}>
                 <p style={{color:"#000", flex:1, textAlign:"left"}}>Coach : {teamCoach}</p>
                 <p style={{color:"#000", flex:1}}>Number of players : {players.length}</p>
-                {(role === "manager" && teamName === userTeam) ? (
+                {((role === "manager" && teamName === userTeam) || role === "admin") ? (
                     <div style={{textAlign:"right"}}>
                     <button onClick={changeEdit} style={{ }}>
                         Edit Players
@@ -166,12 +210,19 @@ import PlayerCard from "../components/PlayerCard.jsx";
                     <input 
                         type="text" 
                         placeholder="Name"
-                        value={formInputs.name}
+                        value={formInputs.name || ""}
                         style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
                         onChange={(e) => setFormInputs({...formInputs, name: e.target.value})}
                     />
+                    <input 
+                        type="text" 
+                        placeholder="Nationality"
+                        value={formInputs.nationality || ""}
+                        style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
+                        onChange={(e) => setFormInputs({...formInputs, nationality: e.target.value})}
+                    />
                     <select
-                        value={formInputs.position}
+                        value={formInputs.position || ""}
                         style={{
                             height: "4vh",
                             borderRadius: 8,
@@ -192,14 +243,14 @@ import PlayerCard from "../components/PlayerCard.jsx";
                     <input 
                         type="text" 
                         placeholder="Photo URL"
-                        value={formInputs.photoURL}
+                        value={formInputs.photoURL || ""}
                         style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
                         onChange={(e) => setFormInputs({...formInputs, photoURL: e.target.value})}
                     />
                     <input 
                         type="date" 
                         placeholder="Birth Date"
-                        value={formInputs.birthdate}
+                        value={formInputs.birthdate || ""}
                         style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
                         onChange={(e) => setFormInputs({...formInputs, birthdate: e.target.value})}
                     />
@@ -211,10 +262,21 @@ import PlayerCard from "../components/PlayerCard.jsx";
                     </button>
                     <button
                         onClick={async () => {
-                            if (!formInputs.name || !formInputs.position || !formInputs.birthdate) {
-                            alert("Please fill in Name, Position, and Birthdate");
-                            return; 
+                            if (!formInputs.name || !formInputs.position || !formInputs.birthdate || !formInputs.nationality) {
+                            alert("Please fill in Name, Position, Birthdate and Nationality");
+                            return;
+                        } else {
+                            const birthYear = new Date(formInputs.birthdate).getFullYear();
+                            const currentYear = new Date().getFullYear();
+                            if (currentYear - birthYear > 50) {
+                                alert("Players older than 50 years are not allowed.");
+                                return;
                             }
+                            if( currentYear - birthYear < 0){
+                                alert("Player not born yet");
+                                return;
+                            }
+                        }
 
                             await handleAdd({
                             name: formInputs.name,
@@ -223,6 +285,7 @@ import PlayerCard from "../components/PlayerCard.jsx";
                             photoURL: formInputs.photoURL,
                             teamName: teamName,
                             birthdate: formInputs.birthdate,
+                            nationality: formInputs.nationality
                             });
 
                             setAdd(false);
@@ -234,36 +297,6 @@ import PlayerCard from "../components/PlayerCard.jsx";
 
 
 
-                    </div>
-                </div>)
-            }
-
-            {deleteP && (
-                <div style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100vw",
-                    height: "100vh",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    zIndex: 1000,
-                }}>
-                    <div style={{
-                        backgroundColor: "white",
-                        borderRadius: 16,
-                        padding: 30,
-                        width: "25vw",
-                        display: "flex",
-                        flexDirection: "column",
-                        borderColor: "3px solid #FF681F",
-                        gap: 10,
-                    }}>
-                        <p style={{color:"#000"}}>Are you sure you want to delete this player?</p>
-                        <button onClick={handleCancel} style={{backgroundColor:"#000"}}>Cancel</button>
-                        <button onClick={handleDelete} style={{backgroundColor:"red"}}>Delete</button>
                     </div>
                 </div>)
             }
@@ -296,12 +329,21 @@ import PlayerCard from "../components/PlayerCard.jsx";
                     <input 
                         type="text" 
                         placeholder="Name"
-                        value={formInputs.name}
+                        value={formInputs.name || ""}
                         style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
                         onChange={(e) => setFormInputs({...formInputs, name: e.target.value})}
                     />
+
+                    <input 
+                        type="text" 
+                        placeholder="Nationality"
+                        value={formInputs.nationality || ""}
+                        style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
+                        onChange={(e) => setFormInputs({...formInputs, nationality: e.target.value})}
+                    />
+
                     <select
-                        value={formInputs.position}
+                        value={formInputs.position || ""}
                         style={{
                             height: "4vh",
                             borderRadius: 8,
@@ -322,17 +364,19 @@ import PlayerCard from "../components/PlayerCard.jsx";
                     <input 
                         type="text" 
                         placeholder="Photo URL"
-                        value={formInputs.photoURL}
+                        value={formInputs.photoURL || ""}
                         style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
                         onChange={(e) => setFormInputs({...formInputs, photoURL: e.target.value})}
                     />
+
                     <input 
                         type="date" 
                         placeholder="Birth Date"
-                        value={formInputs.birthdate}
+                        value={formInputs.birthdate || ""}
                         style={{height:"4vh", borderRadius:8, color:"#000", backgroundColor:"#fff", borderColor:"#FF681F", paddingLeft:10}}
                         onChange={(e) => setFormInputs({...formInputs, birthdate: e.target.value})}
                     />
+
 
                     <button onClick={async () => {
                         const updatedData = {
@@ -346,7 +390,7 @@ import PlayerCard from "../components/PlayerCard.jsx";
                         await editPlayer(editingPlayer.id, updatedData);
 
                         setEditingPlayer(null);
-                        setFormInputs({ name: "", position: "", photoURL: "", birthDate: "" });
+                        setFormInputs({ name: "", position: "", photoURL: "", birthDate: "", nationality:"" });
 
                         // Refresh player list
                         const q = query(collection(db, "player"), where("teamID", "==", teamID));
@@ -359,6 +403,36 @@ import PlayerCard from "../components/PlayerCard.jsx";
                     </div>
                 </div>
             )}
+
+            {deleteP && (
+                <div style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100vw",
+                    height: "100vh",
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    zIndex: 1000,
+                }}>
+                    <div style={{
+                        backgroundColor: "white",
+                        borderRadius: 16,
+                        padding: 30,
+                        width: "25vw",
+                        display: "flex",
+                        flexDirection: "column",
+                        borderColor: "3px solid #FF681F",
+                        gap: 10,
+                    }}>
+                        <p style={{color:"#000"}}>Are you sure you want to delete this player?</p>
+                        <button onClick={handleCancel} style={{backgroundColor:"#000"}}>Cancel</button>
+                        <button onClick={handleDelete} style={{backgroundColor:"red"}}>Delete</button>
+                    </div>
+                </div>)
+            }
 
             <div
                 style={{
