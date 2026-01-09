@@ -6,6 +6,9 @@ const clamp = (x, a = 0, b = 100) => Math.max(a, Math.min(b, x));
 // Attackers still evaluate the metric even at 0 goals (so it's visible); other
 // roles only score when they actually net a goal.
 const GOAL_BONUS_RULE = { key: "goalBonus_p90", weight: 2, target: [0, 0.2, 0.7, 1.2] };
+const ACTION_SUCCESS_RULE = { key: "actionSuccessRate", weight: 1.2, target: [0.2, 0.35, 0.5, 0.65] };
+const ACTION_VOLUME_RULE = { key: "actions_p90", weight: 0.8, target: [15, 30, 45, 65] };
+const CARD_PENALTIES = { yellow: 5, red: 25 }; // points on 0-100 scale
 
 const ROLE_RULES = {
   CB: [
@@ -13,6 +16,8 @@ const ROLE_RULES = {
     { key: "duelWinPct", weight: 3, target: [0.3, 0.45, 0.6, 0.8] },
     { key: "aerialDuelWinPct", weight: 1.5, target: [0.25, 0.4, 0.55, 0.7] },
     { key: "passAccuracy", weight: 2, target: [0.55, 0.7, 0.82, 0.9] },
+    ACTION_SUCCESS_RULE,
+    ACTION_VOLUME_RULE,
     { key: "lossesOwnHalf_p90", weight: 2, target: [12, 8, 5, 2], inverted: true },
     { key: "fouls_p90", weight: 1.5, target: [7, 5, 3, 1.5], inverted: true },
     { key: "shots_p90", weight: 1, target: [0, 0.5, 1, 2] },
@@ -26,6 +31,8 @@ const ROLE_RULES = {
     { key: "duelWinPct", weight: 2.5, target: [0.3, 0.45, 0.65, 0.82] },
     { key: "aerialDuelWinPct", weight: 0.8, target: [0.2, 0.35, 0.5, 0.65] },
     { key: "passAccuracy", weight: 1.5, target: [0.58, 0.72, 0.84, 0.9] },
+    ACTION_SUCCESS_RULE,
+    ACTION_VOLUME_RULE,
     { key: "crossesAccurate_p90", weight: 2, target: [0, 0.4, 1.2, 2.5] },
     { key: "lossesOwnHalf_p90", weight: 2, target: [12, 8, 5, 2], inverted: true },
     { key: "fouls_p90", weight: 0.8, target: [7, 5, 3, 1.5], inverted: true },
@@ -39,6 +46,8 @@ const ROLE_RULES = {
     // Bonuses; skipped when zero
     { key: "midAssistBonus_p90", weight: 1.5, target: [0, 0.04, 0.18, 0.5] },
     { key: "passAccuracy", weight: 2.5, target: [0.6, 0.75, 0.86, 0.92] },
+    ACTION_SUCCESS_RULE,
+    ACTION_VOLUME_RULE,
     { key: "duelWinPct", weight: 1.5, target: [0.32, 0.47, 0.64, 0.78] },
     { key: "recoveries_p90", weight: 1.5, target: [0.8, 3, 6, 10] },
     { key: "lossesOwnHalf_p90", weight: 2, target: [12, 8, 5, 2], inverted: true },
@@ -52,6 +61,8 @@ const ROLE_RULES = {
     { key: "xG_p90", weight: 1.5, target: [0.04, 0.18, 0.6, 1.0] },
     { key: "duelWinPct", weight: 1.2, target: [0.28, 0.45, 0.62, 0.78] },
     { key: "passAccuracy", weight: 1, target: [0.55, 0.7, 0.83, 0.9] },
+    ACTION_SUCCESS_RULE,
+    ACTION_VOLUME_RULE,
     { key: "crossesAccurate_p90", weight: 0.8, target: [0, 0.4, 1.2, 2.2] },
     { key: "wingCreation_p90", weight: 1.5, target: [0, 0.6, 1.2, 2.0] },
     { key: "wingPassVolume_p90", weight: 1.2, target: [12, 22, 32, 42] }
@@ -64,6 +75,8 @@ const ROLE_RULES = {
     { key: "shotsOnTarget_p90", weight: 1.5, target: [0.25, 0.8, 1.6, 3] },
     { key: "duelWinPct", weight: 1, target: [0.25, 0.45, 0.63, 0.78] },
     { key: "passAccuracy", weight: 0.8, target: [0.55, 0.7, 0.83, 0.9] },
+    ACTION_SUCCESS_RULE,
+    ACTION_VOLUME_RULE,
     { key: "attCreation_p90", weight: 1.5, target: [0, 0.4, 1.0, 1.8] },
     { key: "attPassVolume_p90", weight: 0.6, target: [8, 12, 18, 26] }
   ]
@@ -72,6 +85,8 @@ const ROLE_RULES = {
 const DEFAULT_RULES = [
   { key: "passAccuracy", weight: 2, target: [0.55, 0.7, 0.83, 0.9] },
   { key: "duelWinPct", weight: 2, target: [0.3, 0.45, 0.63, 0.78] },
+  ACTION_SUCCESS_RULE,
+  ACTION_VOLUME_RULE,
   { key: "lossesOwnHalf_p90", weight: 1, target: [12, 8, 5, 2], inverted: true },
   { key: "fouls_p90", weight: 0.5, target: [7, 5, 3, 1.5], inverted: true }
 ];
@@ -95,6 +110,8 @@ function resolveMetric({ key, raw, minutes, role }) {
   const lossesOwnHalf = raw.lossesSuccess ?? raw.lossesOwnHalf;
   const goals = raw.goals != null ? Number(raw.goals) : null;
   const assists = raw.assists != null ? Number(raw.assists) : null;
+  const totalActions = raw.totalActions != null ? Number(raw.totalActions) : null;
+  const successfulActions = raw.successfulActions != null ? Number(raw.successfulActions) : null;
 
   switch (key) {
     case "passAccuracy":
@@ -127,6 +144,11 @@ function resolveMetric({ key, raw, minutes, role }) {
       return raw.xG != null ? per90(raw.xG, minutes) : null;
     case "xA_p90":
       return raw.xA != null ? per90(raw.xA, minutes) : null;
+    case "actions_p90":
+      return totalActions != null ? per90(totalActions, minutes) : null;
+    case "actionSuccessRate":
+      if (totalActions == null || successfulActions == null || totalActions <= 0) return null;
+      return successfulActions / totalActions;
     case "goalBonus_p90": {
       const isAttacker = role === "ATTACKER";
       if (!isAttacker && (goals == null || goals <= 0)) return null;
@@ -203,16 +225,26 @@ export function gradeGame({ role, rawStats = {}, minutes = 0 }) {
     weightSum += w;
   }
 
+  let overall100 = null;
   if (!weightSum) {
     const hasAnyStat = rawStats && Object.keys(rawStats).length > 0;
     if (!hasAnyStat) {
       return { overall10: null, overall100: null, breakdown: {} };
     }
     // Fallback neutral grade when stats are present but none matched rules
-    return { overall10: 5, overall100: 50, breakdown };
+    overall100 = 50;
+  } else {
+    overall100 = clamp(total / weightSum);
   }
 
-  const overall100 = clamp(total / weightSum);
+  const yellowCards = Number(rawStats.yellowCards || 0);
+  const redCards = Number(rawStats.redCards || 0);
+  const cardPenalty = (yellowCards * CARD_PENALTIES.yellow) + (redCards * CARD_PENALTIES.red);
+  if (cardPenalty > 0) {
+    breakdown.cardPenalty = -cardPenalty;
+    overall100 = clamp(overall100 - cardPenalty);
+  }
+
   const overall10 = Math.max(1, Math.round(overall100) / 10); // floor to 1.0
 
   return { overall10, overall100: Math.round(overall100), breakdown };

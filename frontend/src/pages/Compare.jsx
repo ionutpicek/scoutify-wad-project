@@ -129,6 +129,7 @@ function ComparePlayers() {
       <Header
         title={`⚖️ Compare Players`}
         subtitle="Compare two players side-by-side for decisions."
+        onBack={() => navigate(-1)}
         onLogout={handleLogout}
       />
 

@@ -21,6 +21,8 @@ const headerInner = {
   gap: 16,
 };
 
+const leftGroup = { display: "flex", alignItems: "center", gap: 12 };
+
 const leftWrap = { display: "flex", flexDirection: "column", gap: 6 };
 
 const titleStyle = { fontSize: 26, fontWeight: 800, letterSpacing: 0.3 };
@@ -28,6 +30,25 @@ const titleStyle = { fontSize: 26, fontWeight: 800, letterSpacing: 0.3 };
 const subtitleStyle = { fontSize: 14, opacity: 0.9 };
 
 const rightWrap = { display: "flex", alignItems: "center", gap: 12 };
+
+const backButton = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 46,
+  height: 46,
+  borderRadius: 12,
+  background: "rgba(255,255,255,0.18)",
+  border: "1px solid rgba(255,255,255,0.45)",
+  color: "white",
+  fontWeight: 800,
+  cursor: "pointer",
+  lineHeight: "1",
+  outline: "none",
+  WebkitTapHighlightColor: "transparent",
+};
+
+const backIcon = { width: 32, height: 32, display: "block", transform: "scale(3)" };
 
 const pill = {
   background: "rgba(255,255,255,0.18)",
@@ -55,13 +76,38 @@ export function Header({
   role,
   team,
   onLogout,
+  onBack,
 }) {
   return (
     <header style={headerStyle}>
       <div style={headerInner}>
-        <div style={leftWrap}>
-          <div style={titleStyle}>{title}</div>
-          {subtitle ? <div style={subtitleStyle}>{subtitle}</div> : null}
+        <div style={leftGroup}>
+          {onBack ? (
+            <button
+              type="button"
+              style={backButton}
+              onClick={onBack}
+              aria-label="Go back"
+              title="Go back"
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "rgba(255,255,255,0.3)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "rgba(255,255,255,0.18)")
+              }
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style={backIcon}>
+                <path
+                  d="M14.7 5.3a1 1 0 0 1 0 1.4L9.4 12l5.3 5.3a1 1 0 1 1-1.4 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.4 0Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          ) : null}
+          <div style={leftWrap}>
+            <div style={titleStyle}>{title}</div>
+            {subtitle ? <div style={subtitleStyle}>{subtitle}</div> : null}
+          </div>
         </div>
 
         <div style={rightWrap}>
