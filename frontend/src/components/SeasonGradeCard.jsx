@@ -30,7 +30,7 @@ console.log("AI statsDocId:", statsDocId);
       setLoadingAI(true);
 
       const res = await fetch(
-        `http://localhost:3001/ai/scout-verdict/${statsDocId}`,
+        `https://scoutify-2yhu.onrender.com/ai/scout-verdict/${statsDocId}`,
         { method: "POST" }
       );
 

@@ -7,7 +7,7 @@ const ORANGE_SOFT = "#FFF2E8";
 const BG = "#FAFAFA";
 const TEXT = "#111827";
 const MUTED = "#6B7280";
-const API_BASE = "http://localhost:3001";
+const API_BASE = "https://scoutify-2yhu.onrender.com";
 
 const Dashboard = () => {
   const navigate = useNavigate();

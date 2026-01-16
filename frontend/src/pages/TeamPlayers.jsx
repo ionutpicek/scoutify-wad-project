@@ -158,7 +158,7 @@ import PlayerCard from "../components/PlayerCard.jsx";
                 } 
             }; 
             fetchPlayers(); 
-        }, [db, teamID]); 
+        }, [ teamID]); 
 
         useEffect(() => {
             const fetchTeams = async () => {

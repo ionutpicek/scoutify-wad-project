@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3001";
+const API_URL = "https://scoutify-2yhu.onrender.com";
 
 export async function getAllMatches() {
   const res = await fetch(`${API_URL}/matches`);

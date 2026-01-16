@@ -57,7 +57,7 @@ const UploadPDF = () => {
       formData.append("gameDate", inputs.gameDate);
 
       // Send PDF to backend for processing
-      const res = await fetch("http://localhost:5000/process-pdf", {
+      const res = await fetch("https://scoutify-2yhu.onrender.com/process-pdf", {
         method: "POST",
         body: formData,
       });

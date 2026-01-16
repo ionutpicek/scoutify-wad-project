@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["http://localhost:5173", "https://your-production-domain.com"],
+    "origin": ["http://localhost:5173", "https://scoutify-2yhu.onrender.com"],
     "method": ["GET", "POST", "PUT", "HEAD", "OPTIONS"],
     "maxAgeSeconds": 3600,
     "responseHeader": ["Content-Type", "Authorization"]
