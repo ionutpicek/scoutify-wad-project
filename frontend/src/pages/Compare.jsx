@@ -198,17 +198,28 @@ function ComparePlayers() {
                       gap: "0.4vh",
                     }}
                   >
-                    <p
+                    <button
                       style={{
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        margin: 0,
+                        cursor: "pointer",
+                        textAlign: "left",
+                      }}
+                      onClick={() => navigate(`/player-profile`, { state: { playerID: player.id } })}
+                    >
+                      <p  style={{
                         color: "#FF681F",
                         fontWeight: 600,
                         fontSize: "1.05rem",
                         margin: 0,
                         whiteSpace:"nowrap"
                       }}
-                    >
-                      {player.name}
-                    </p>
+                      >
+                        {player.name}
+                      </p>
+                    </button>
 
                     <p style={{ color: "#555", margin: 0, fontSize: "0.95rem" }}>
                       {player.nationality}

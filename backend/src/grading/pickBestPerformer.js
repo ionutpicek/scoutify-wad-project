@@ -65,7 +65,7 @@ export function computeImpactScore(player) {
         v(player, "assists") * 2.5 +
         v(player, "xA") * 1.5 +
         v(player, "shotAssists") * 1.5 +
-        v(player, "passesFinalThirdAccurate") * 1.2 +
+        v(player, "passesFinalThirdSuccess") * 1.2 +
         v(player, "recoveriesOppHalf") * 1.0 +
         v(player, "interceptions") * 1.0 +
         v(player, "duelsWon") * 0.8 -

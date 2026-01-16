@@ -73,7 +73,7 @@ const Register = () => {
     let ok = true;
 
     const required = ["fullName", "username", "email", "password", "confirmPassword"];
-    if (role === "manager") required.push("teamName");
+    if (role === "manager" || role === "player") required.push("teamName");
 
     for (const f of required) {
       if (!String(inputs[f] || "").trim()) {
@@ -98,7 +98,7 @@ const Register = () => {
     }
 
     if (!role) {
-      setGeneralError("Please select if you are a manager (Yes/No).");
+      setGeneralError("Please select whether you're registering as a player or manager.");
       ok = false;
     }
 
@@ -128,18 +128,26 @@ const Register = () => {
       const user = userCredential.user;
 
       // Send email verification link
-      await sendEmailVerification(user);
-
       // Save registration info in Firestore
+      const wantsTeam = role === "manager" || role === "player";
+      const teamNameToSave = wantsTeam && inputs.teamName ? inputs.teamName : "Select a Team";
+      const roleValue = role === "manager" ? "manager" : "player";
       await setDoc(doc(db, "users", user.uid), {
         fullName: inputs.fullName,
         username: inputs.username,
-        teamName: role === "manager" ? inputs.teamName : "Select a Team",
+        teamName: teamNameToSave,
         email: inputs.email,
         createdAt: new Date(),
-        role: role === "manager" ? "manager" : "other",
-        verified: false,
+        role: roleValue,
+        verifyUser: false,
+        verifyEmail: false,
       });
+
+      try {
+        await sendEmailVerification(user);
+      } catch (emailError) {
+        console.error("Failed to send verification email:", emailError);
+      }
 
       setDidSucceed(true);
 
@@ -274,6 +282,8 @@ const Register = () => {
     ...(focused === fieldName ? styles.focusInput : {}),
     ...(errors[fieldName] ? styles.errorInput : {}),
   });
+
+  const shouldSelectTeam = role === "manager" || role === "player";
 
   return (
     <div
@@ -439,61 +449,97 @@ const Register = () => {
         )}
 
 
-          {/* Team selection */}
-          {role === "manager" ? (
-            <>
-              <select
-                name="teamName"
-                value={inputs.teamName}
-                onChange={(e) => setInputs((prev) => ({ ...prev, teamName: e.target.value }))}
-                style={{
-                  ...inputStyleFor("teamName"),
-                  width: "100%",
-                  cursor: "pointer",
-                  appearance: "none",
-                }}
-                onFocus={() => setFocused("teamName")}
-                onBlur={() => setFocused(null)}
-              >
-                <option value="">Select a Team</option>
-                {teamsList.map((team) => (
-                  <option key={team.teamID || team.name} value={team.name}>
-                    {team.name}
-                  </option>
-                ))}
-              </select>
-              {errors.teamName ? <div style={styles.fieldErrorText}>{errors.teamName}</div> : null}
-            </>
-          ) : (
-            <input
+        {/* Team selection */}
+        {shouldSelectTeam ? (
+          <>
+            <select
               name="teamName"
-              type="text"
-              placeholder="Team Name"
-              value={"Team Name"}
-              style={{ ...styles.baseInput, backgroundColor: "#f3f4f6", cursor: "not-allowed" }}
-              disabled
-            />
-          )}
-
-          {/* Manager toggle */}
-          <div style={{ display: "flex", flexDirection: "row", width: "100%", height: 46, justifyContent: "space-between" }}>
-            <div style={styles.managerLabel}>Are you a manager?</div>
-
-            <button type="button" onClick={() => setRole("manager")} style={styles.roleBtn(role === "manager")}>
-              Yes
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setRole("other");
-                setInputs((prev) => ({ ...prev, teamName: "" }));
+              value={inputs.teamName}
+              onChange={handleChange}
+              style={{
+                ...inputStyleFor("teamName"),
+                width: "100%",
+                cursor: "pointer",
+                appearance: "none",
               }}
-              style={styles.roleBtn(role === "other")}
+              onFocus={() => setFocused("teamName")}
+              onBlur={() => setFocused(null)}
             >
-              No
-            </button>
-          </div>
+              <option value="">Select a Team</option>
+              {teamsList.map((team) => (
+                <option key={team.teamID || team.name} value={team.name}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+            {errors.teamName ? <div style={styles.fieldErrorText}>{errors.teamName}</div> : null}
+          </>
+        ) : (
+          <input
+            name="teamName"
+            type="text"
+            placeholder="Team Name"
+            value={"Team Name"}
+            style={{ ...styles.baseInput, backgroundColor: "#f3f4f6", cursor: "not-allowed" }}
+            disabled
+          />
+        )}
+
+        {/* Player toggle */}
+        <div style={{ display: "flex", flexDirection: "row", width: "100%", height: 46, justifyContent: "space-between" }}>
+          <div style={styles.managerLabel}>Are you a player?</div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setRole("player");
+              setGeneralError("");
+            }}
+            style={styles.roleBtn(role === "player")}
+          >
+            Yes
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (role === "player") setRole("");
+              setInputs((prev) => ({ ...prev, teamName: "" }));
+              setGeneralError("");
+            }}
+            style={styles.roleBtn(role === "" || role === "other")}
+          >
+            No
+          </button>
+        </div>
+
+        {/* Manager toggle */}
+        <div style={{ display: "flex", flexDirection: "row", width: "100%", height: 46, justifyContent: "space-between" }}>
+          <div style={styles.managerLabel}>Are you a manager?</div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setRole("manager");
+              setGeneralError("");
+            }}
+            style={styles.roleBtn(role === "manager")}
+          >
+            Yes
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (role === "manager") setRole("");
+              setInputs((prev) => ({ ...prev, teamName: "" }));
+              setGeneralError("");
+            }}
+            style={styles.roleBtn(role === "" || role === "player")}
+          >
+            No
+          </button>
+        </div>
 
           <button
             style={styles.submitBtn}

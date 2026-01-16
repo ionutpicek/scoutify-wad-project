@@ -136,20 +136,26 @@ export function processMatch({
       }
 
       matchStatsFlat[key] = attempts;
-      if (val?.success != null) {
-        const successFields = new Set([
-          "passes",
-          "crosses",
-          "dribbles",
-          "duels",
-          "groundDuels",
-          "aerialDuels",
-          "losses"
-        ]);
-        if (successFields.has(key)) {
-          matchStatsFlat[`${key}Success`] = success;
+        if (val?.success != null) {
+          const successFields = new Set([
+            "passes",
+            "crosses",
+            "dribbles",
+            "duels",
+            "groundDuels",
+            "aerialDuels",
+            "losses",
+            "defensiveDuels",
+            "offensiveDuels",
+            "forwardPasses",
+            "progressivePasses",
+            "passesFinalThird",
+            "throughPasses"
+          ]);
+          if (successFields.has(key)) {
+            matchStatsFlat[`${key}Success`] = success;
+          }
         }
-      }
 
       switch (key) {
         case "passes":
@@ -170,6 +176,14 @@ export function processMatch({
           statsForDerived.duels = attempts;
           statsForDerived.duelsWon = success;
           break;
+        case "defensiveDuels":
+          statsForDerived.defensiveDuels = attempts;
+          statsForDerived.defensiveDuelsWon = success;
+          break;
+        case "offensiveDuels":
+          statsForDerived.offensiveDuels = attempts;
+          statsForDerived.offensiveDuelsWon = success;
+          break;
         case "groundDuels":
           statsForDerived.defensiveDuels = attempts;
           statsForDerived.defensiveDuelsWon = success;
@@ -181,6 +195,22 @@ export function processMatch({
         case "aerialDuels":
           statsForDerived.aerialDuels = attempts;
           statsForDerived.aerialDuelsWon = success;
+          break;
+        case "forwardPasses":
+          statsForDerived.forwardPasses = attempts;
+          statsForDerived.forwardPassesAccurate = success;
+          break;
+        case "progressivePasses":
+          statsForDerived.progressivePasses = attempts;
+          statsForDerived.progressivePassesAccurate = success;
+          break;
+        case "passesFinalThird":
+          statsForDerived.passesFinalThird = attempts;
+          statsForDerived.passesFinalThirdAccurate = success;
+          break;
+        case "throughPasses":
+          statsForDerived.throughPasses = attempts;
+          statsForDerived.throughPassesAccurate = success;
           break;
         case "keyPasses":
           statsForDerived.shotAssists = attempts;
@@ -198,6 +228,7 @@ export function processMatch({
           statsForDerived.xA = attempts;
           break;
         case "recoveries":
+          statsForDerived.recoveries = attempts;
           statsForDerived.recoveriesOppHalf = attempts;
           break;
         case "shots":

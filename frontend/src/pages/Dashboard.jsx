@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Header } from "../components/Header";
 
@@ -7,17 +7,74 @@ const ORANGE_SOFT = "#FFF2E8";
 const BG = "#FAFAFA";
 const TEXT = "#111827";
 const MUTED = "#6B7280";
+const API_BASE = "http://localhost:3001";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // safer on refresh
   const { role: userRole, username, userTeam } = location.state || {};
+  const isAdmin = userRole === "admin";
 
   const [hovered, setHovered] = useState(null);
+  const [pendingUsers, setPendingUsers] = useState([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
+  const [pendingError, setPendingError] = useState("");
+  const [sendingUid, setSendingUid] = useState(null);
+  const [lastSentLink, setLastSentLink] = useState("");
+  const [lastSentEmail, setLastSentEmail] = useState("");
 
   const handleLogout = () => navigate("/login");
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetchPendingUsers();
+  }, [isAdmin]);
+
+  const fetchPendingUsers = async () => {
+    setPendingLoading(true);
+    setPendingError("");
+    try {
+      const res = await fetch(`${API_BASE}/admin/pending-verifications`);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Unable to load pending users.");
+      }
+      const body = await res.json();
+      setPendingUsers(body.users || []);
+    } catch (err) {
+      setPendingError(err.message || "Unable to load pending users.");
+    } finally {
+      setPendingLoading(false);
+    }
+  };
+
+  const handleSendVerification = async (user) => {
+    if (!user?.uid) return;
+    setSendingUid(user.uid);
+    setPendingError("");
+    try {
+      const res = await fetch(`${API_BASE}/admin/send-verification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ uid: user.uid }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Failed to send verification.");
+      }
+      const body = await res.json();
+      setLastSentLink(body.link || "");
+      setLastSentEmail(user.email || "");
+      setPendingUsers((prev) => prev.filter((u) => u.uid !== user.uid));
+    } catch (err) {
+      setPendingError(err.message || "Failed to send verification.");
+    } finally {
+      setSendingUid(null);
+    }
+  };
 
   const styles = useMemo(
     () => ({
@@ -189,7 +246,6 @@ const Dashboard = () => {
         fontWeight: 900,
       },
 
-      // Hover
       hovered: {
         transform: "translateY(-4px)",
         boxShadow: "0 16px 34px rgba(0,0,0,0.12)",
@@ -203,7 +259,7 @@ const Dashboard = () => {
       key: "players",
       title: "Players",
       desc: "Browse player profiles and season ratings quickly.",
-      icon: "👤",
+      icon: "🧍",
       badge: "Explore",
       onClick: () => navigate("/players"),
     },
@@ -231,7 +287,7 @@ const Dashboard = () => {
       key: "teams",
       title: "Teams",
       desc: "Manage teams, coaches, and squad context.",
-      icon: "🏟️",
+      icon: "👥",
       badge: "Manage",
       onClick: () =>
         navigate("/teams", { state: { userTeam: userTeam, userRole: userRole } }),
@@ -239,18 +295,20 @@ const Dashboard = () => {
     {
       key: "player-stats",
       title: "Player Stats",
-      desc: "Add or update season stats (minutes, games, metrics).",
+      desc: "Add or update season stats.",
       icon: "📊",
       badge: "Update",
       onClick: () => navigate("/player-stats"),
+      adminOnly: true,
     },
     {
       key: "season-grades",
       title: "Season Grades",
       desc: "Compute grades and generate scouting verdicts.",
-      icon: "✅",
+      icon: "🗂️",
       badge: "Compute",
       onClick: () => navigate("/season-grades"),
+      adminOnly: true,
     },
   ];
 
@@ -261,19 +319,15 @@ const Dashboard = () => {
 
   return (
     <div style={styles.page}>
-      {/* Header (kept as you asked) */}
       <Header
-        title={`Welcome back, ${username}👋`}
+        title={`Welcome back, ${username} 🧠`}
         subtitle="Scoutify · Manager workspace"
         role={userRole}
         team={userTeam}
         onLogout={handleLogout}
       />
 
-
-      {/* Content */}
       <div style={styles.content}>
-        {/* Lightweight manager hint (no DB reads) */}
         <div style={styles.topHint}>
           <div>
             <div style={styles.hintLeft}>
@@ -281,16 +335,12 @@ const Dashboard = () => {
               <span>Manager workspace</span>
             </div>
             <div style={styles.hintSub}>
-              Fast access to decisions: players, matches, comparisons and grades.
+              Fast access to players, matches, comparisons and grades.
             </div>
           </div>
-
-          <div style={styles.hintPill}>
-            Superliga Feminina 2025/2026
-          </div>
+          <div style={styles.hintPill}>Superliga Feminina 2025/2026</div>
         </div>
 
-        {/* Primary */}
         <div style={styles.sectionRow}>
           <div style={styles.sectionTitle}>Daily workflow</div>
           <div style={styles.sectionHint}>Most used actions</div>
@@ -326,40 +376,147 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Management tools */}
         <div style={styles.sectionRow}>
           <div style={styles.sectionTitle}>Management & tools</div>
           <div style={styles.sectionHint}>Setup and computations</div>
         </div>
 
         <div style={styles.grid}>
-          {management.map((c) => (
+          {management.map((c) => {
+            const disabled = !!c.adminOnly && !isAdmin;
+            const cardKey = disabled ? `${c.key}-locked` : c.key;
+            return (
+              <div
+                key={cardKey}
+                style={{ ...cardStyle(c.key), cursor: disabled ? "not-allowed" : "pointer" }}
+                onMouseEnter={() => setHovered(cardKey)}
+                onMouseLeave={() => setHovered(null)}
+                onClick={disabled ? undefined : c.onClick}
+              >
+                <div style={styles.accent} />
+                <div style={styles.cardTop}>
+                  <div style={styles.titleWrap}>
+                    <div style={styles.iconBubble}>{c.icon}</div>
+                    <div style={styles.cardTitle}>{c.title}</div>
+                  </div>
+                  <div style={styles.badge}>{c.badge}</div>
+                </div>
+
+                <div style={styles.cardDesc}>{c.desc}</div>
+
+                <div style={styles.cardFooter}>
+                  <span style={styles.open}>{disabled ? "Admin only" : "Open →"}</span>
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: disabled ? "#9CA3AF" : MUTED,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {disabled ? "Restricted" : "Admin module"}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+
+          {isAdmin && (
             <div
-              key={c.key}
-              style={cardStyle(c.key)}
-              onMouseEnter={() => setHovered(c.key)}
+              key="admin-verification"
+              style={{ ...cardStyle("admin-verification"), cursor: "default" }}
+              onMouseEnter={() => setHovered("admin-verification")}
               onMouseLeave={() => setHovered(null)}
-              onClick={c.onClick}
             >
               <div style={styles.accent} />
               <div style={styles.cardTop}>
                 <div style={styles.titleWrap}>
-                  <div style={styles.iconBubble}>{c.icon}</div>
-                  <div style={styles.cardTitle}>{c.title}</div>
+                  <div style={styles.iconBubble}>!</div>
+                  <div style={styles.cardTitle}>Verification queue</div>
                 </div>
-                <div style={styles.badge}>{c.badge}</div>
+                <div style={styles.badge}>Admin</div>
               </div>
 
-              <div style={styles.cardDesc}>{c.desc}</div>
-
-              <div style={styles.cardFooter}>
-                <span style={styles.open}>Open →</span>
-                <span style={{ fontSize: 12, color: MUTED, fontWeight: 700 }}>
-                  Admin module
-                </span>
+              <div
+                style={{
+                  ...styles.cardDesc,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 700 }}>Pending approvals</div>
+                {pendingLoading && <div>Loading pending users...</div>}
+                {pendingError && (
+                  <div style={{ color: "#EF4444", fontSize: 13 }}>{pendingError}</div>
+                )}
+                {!pendingLoading && !pendingError && pendingUsers.length === 0 && (
+                  <div style={{ color: MUTED, fontSize: 13 }}>No pending users.</div>
+                )}
+                {!pendingLoading && pendingUsers.length > 0 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                      marginTop: 6,
+                    }}
+                  >
+                    {pendingUsers.map((user) => (
+                      <div
+                        key={user.uid}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          gap: 12,
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700 }}>
+                            {user.fullName || user.username || "Unknown user"}
+                          </div>
+                          <div style={{ fontSize: 12, color: MUTED }}>
+                            {user.email}
+                            {user.teamName ? ` · ${user.teamName}` : ""}
+                          </div>
+                        </div>
+                        <button
+                          disabled={sendingUid === user.uid}
+                          onClick={() => handleSendVerification(user)}
+                          style={{
+                            border: "none",
+                            backgroundColor: ORANGE,
+                            color: "white",
+                            borderRadius: 999,
+                            padding: "6px 16px",
+                            fontWeight: 700,
+                            cursor: sendingUid === user.uid ? "progress" : "pointer",
+                            opacity: sendingUid === user.uid ? 0.7 : 1,
+                            boxShadow: "0 8px 18px rgba(255,104,31,0.25)",
+                          }}
+                        >
+                          {sendingUid === user.uid ? "Sending..." : "Send verification"}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {lastSentLink && (
+                  <div style={{ fontSize: 12, color: MUTED, marginTop: 8 }}>
+                    Link for {lastSentEmail || "the last user"}:
+                    <a
+                      href={lastSentLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ marginLeft: 6, color: ORANGE }}
+                    >
+                      Open
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

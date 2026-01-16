@@ -155,13 +155,26 @@ const PlayerProfile = () => {
                     entry.rating ??
                     null;
 
-                  const playerTeamId = player.teamID ?? player.teamId ?? null;
+                  const entryTeamId = entry.teamId ?? entry.teamID ?? null;
+                  const entrySide = entry.team || null;
+                  const playerTeamId = entryTeamId ?? player.teamID ?? player.teamId ?? null;
                   const homeId = data.homeTeamId ?? data.homeTeamID ?? null;
                   const awayId = data.awayTeamId ?? data.awayTeamID ?? null;
-                  const playerTeamName = player.teamName || teamData?.name || "";
+                  const homeTeamName = data.homeTeam ?? "";
+                  const awayTeamName = data.awayTeam ?? "";
+                  const playerTeamName =
+                    entrySide === "home"
+                      ? homeTeamName
+                      : entrySide === "away"
+                        ? awayTeamName
+                        : player.teamName || teamData?.name || "";
 
                   let oppName = "";
-                  if (playerTeamId && (homeId || awayId)) {
+                  if (entrySide === "home") {
+                    oppName = awayTeamName;
+                  } else if (entrySide === "away") {
+                    oppName = homeTeamName;
+                  } else if (playerTeamId && (homeId || awayId)) {
                     if (homeId && String(playerTeamId) === String(homeId)) oppName = data.awayTeam;
                     else if (awayId && String(playerTeamId) === String(awayId)) oppName = data.homeTeam;
                   }
@@ -223,7 +236,7 @@ const PlayerProfile = () => {
         };
 
         fetchData();
-    }, [db, playerID, teamData?.name]);
+    }, [ playerID, teamData?.name]);
 
     if (isLoading) return <div style={{backgroundColor:"#fff", justifyContent:"center", display:"flex", height:"100vh", width:"100vw", alignItems:"center"}}>
                             <Spinner />
@@ -261,9 +274,22 @@ const PlayerProfile = () => {
         };
 
       const dateFormat = (date) => {
-        const [y, m, d] = date.split("-");
+        if (!date) return "N/A";
+        const [y, m, d] = String(date).split("-");
+        if (!y || !m || !d) return date;
         return `${d}/${m}/${y}`;
       }
+
+      const statsAvailable = Boolean(statsData);
+      const statsInfoText = statsAvailable
+        ? `${statsData.minutes ?? 0} minutes played in ${statsData.games ?? 0} games`
+        : "Not available yet";
+      const statsPeriodText =
+        statsAvailable && statsData?.firstGameDate && statsData?.lastGameDate
+          ? `${dateFormat(statsData.firstGameDate)} - ${dateFormat(statsData.lastGameDate)}`
+          : "N/A";
+      const teamName = teamData?.name || "N/A";
+      const teamPhoto = teamData?.photoURL || superligaLogo;
 
     console.log("Matches played:", matchesPlayed);
 
@@ -283,127 +309,128 @@ const PlayerProfile = () => {
                     <p>Name: {playerData.name}</p>
                     <p>Nationality: {playerData.nationality}</p>
                     <p>Age: {getAge()}</p>
-                    <p>Playing for: {teamData.name}</p>
-                    <p>Stats info: {statsData.minutes} minutes played in {statsData.games} games</p>
-                    <p>Stats period: {dateFormat(statsData.firstGameDate)} - {dateFormat(statsData.lastGameDate)}</p>
+                    <p>Playing for: {teamName}</p>
+                    <p>Stats info: {statsInfoText}</p>
+                    <p>Stats period: {statsPeriodText}</p>
                 </div>
-                <img src={teamData.photoURL || superligaLogo}
+                <img src={teamPhoto}
                     style={{width:"15vw", borderRadius:"20px", height:"15vw", objectFit:"cover", marginTop:"2vh"}}>
                 </img>
             </div>
 
-            <SeasonGradeCard
-              seasonGrade={statsData.seasonGrade}
-              statsDocId={statsData._statsDocId}
-              matchesPlayed={matchesPlayed}
-            />
+            {statsAvailable ? (
+              <>
+                <SeasonGradeCard
+                  seasonGrade={statsData.seasonGrade}
+                  statsDocId={statsData._statsDocId}
+                  matchesPlayed={matchesPlayed}
+                />
+                <div style={{
+                  width: "85vw",
+                  margin: "3vh auto",
+                  padding: "20px",
+                  borderRadius: "16px",
+                  backgroundColor: "#fff",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                  border: "2px solid #FF681F",
+                }}>
+                  <h2 style={{
+                    textAlign: "center",
+                    marginBottom: "16px",
+                    color: "#FF681F",
+                    fontSize: "1.6rem",
+                    fontWeight: "600",
+                  }}>Statistics</h2>
 
-            {statsData ? (
-              <div style={{
-                width: "85vw",
-                margin: "3vh auto",
-                padding: "20px",
-                borderRadius: "16px",
-                backgroundColor: "#fff",
-                boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
-                border: "2px solid #FF681F",
-              }}>
-                <h2 style={{
-                  textAlign: "center",
-                  marginBottom: "16px",
-                  color: "#FF681F",
-                  fontSize: "1.6rem",
-                  fontWeight: "600",
-                }}>Statistics</h2>
+                  {playerData.position.toLowerCase() !== "goalkeeper" ? (
+                    <>
+                      {/* Offensive Stats */}
+                      <h3 style={{ color: "#FF681F", marginBottom: "8px" }}>Offensive</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                        {["goals","assists","shots","shotsOnTarget","xG","touchesInPenaltyArea","offsides","progressiveRuns"].map(stat => (
+                          <StatCard key={stat} label={stat} value={statsData[stat]} />
+                        ))}
+                      </div>
 
-                {playerData.position.toLowerCase() !== "goalkeeper" ? (
-                  <>
-                    {/* Offensive Stats */}
-                    <h3 style={{ color: "#FF681F", marginBottom: "8px" }}>Offensive</h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                      {["goals","assists","shots","shotsOnTarget","xG","touchesInPenaltyArea","offsides","progressiveRuns"].map(stat => (
-                        <StatCard key={stat} label={stat} value={statsData[stat]} />
-                      ))}
-                    </div>
+                      {/* Passing Stats */}
+                      <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Passing</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                        {["passes","accuratePasses","longPasses","longPassesAccurate","crosses","crossesAccurate","throughPasses","throughPassesAccurate","xA","secondAssists","passesFinalThird","passesFinalThirdAccurate","passesPenaltyArea","passesPenaltyAreaAccurate","receivedPasses","forwardPasses","forwardPassesAccurate","backPasses","backPassesAccurate"].map(stat => (
+                          <StatCard key={stat} label={stat} value={statsData[stat]} />
+                        ))}
+                      </div>
 
-                    {/* Passing Stats */}
-                    <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Passing</h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                      {["passes","accuratePasses","longPasses","longPassesAccurate","crosses","crossesAccurate","throughPasses","throughPassesAccurate","xA","secondAssists","passesFinalThird","passesFinalThirdAccurate","passesPenaltyArea","passesPenaltyAreaAccurate","receivedPasses","forwardPasses","forwardPassesAccurate","backPasses","backPassesAccurate"].map(stat => (
-                        <StatCard key={stat} label={stat} value={statsData[stat]} />
-                      ))}
-                    </div>
+                      {/* Dribbling */}
+                      <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Dribbling</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                        {["dribbles","dribblesSuccessful","progressiveRuns"].map(stat => (
+                          <StatCard key={stat} label={stat} value={statsData[stat]} />
+                        ))}
+                      </div>
 
-                    {/* Dribbling */}
-                    <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Dribbling</h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                      {["dribbles","dribblesSuccessful","progressiveRuns"].map(stat => (
-                        <StatCard key={stat} label={stat} value={statsData[stat]} />
-                      ))}
-                    </div>
+                      {/* Duels */}
+                      <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Duels</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                        {["duels","duelsWon","aerialDuels","aerialDuelsWon","offensiveDuels","offensiveDuelsWon","defensiveDuels","defensiveDuelsWon","looseBallDuels","looseBallDuelsWon","slidingTackles","slidingTacklesSuccessful"].map(stat => (
+                          <StatCard key={stat} label={stat} value={statsData[stat]} />
+                        ))}
+                      </div>
 
-                    {/* Duels */}
-                    <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Duels</h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                      {["duels","duelsWon","aerialDuels","aerialDuelsWon","offensiveDuels","offensiveDuelsWon","defensiveDuels","defensiveDuelsWon","looseBallDuels","looseBallDuelsWon","slidingTackles","slidingTacklesSuccessful"].map(stat => (
-                        <StatCard key={stat} label={stat} value={statsData[stat]} />
-                      ))}
-                    </div>
+                      {/* Defensive */}
+                      <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Defensive</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                        {["interceptions","lossesOwnHalf","recoveriesOppHalf","clearances","fouls"].map(stat => (
+                          <StatCard key={stat} label={stat} value={statsData[stat]} />
+                        ))}
+                      </div>
 
-                    {/* Defensive */}
-                    <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Defensive</h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                      {["interceptions","lossesOwnHalf","recoveriesOppHalf","clearances","fouls"].map(stat => (
-                        <StatCard key={stat} label={stat} value={statsData[stat]} />
-                      ))}
-                    </div>
+                      {/* Discipline */}
+                      <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Discipline</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                        {["yellowCards","redCards","foulsSuffered"].map(stat => (
+                          <StatCard key={stat} label={stat} value={statsData[stat]} />
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Goalkeeper Stats */}
+                      <h3 style={{ color: "#FF681F", marginBottom: "8px" }}>Goalkeeping</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                        {["saves","reflexSaves","concededGoals","xCG","shotsAgainst"].map(stat => (
+                          <StatCard key={stat} label={stat} value={statsData[stat]} />
+                        ))}
+                      </div>
 
-                    {/* Discipline */}
-                    <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Discipline</h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                      {["yellowCards","redCards","foulsSuffered"].map(stat => (
-                        <StatCard key={stat} label={stat} value={statsData[stat]} />
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* Goalkeeper Stats */}
-                    <h3 style={{ color: "#FF681F", marginBottom: "8px" }}>Goalkeeping</h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                      {["saves","reflexSaves","concededGoals","xCG","shotsAgainst"].map(stat => (
-                        <StatCard key={stat} label={stat} value={statsData[stat]} />
-                      ))}
-                    </div>
+                      <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Distribution</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                        {["passes","accuratePasses","longPasses","longPassesAccurate","goalKicks","shortGoalKicks","longGoalKicks"].map(stat => (
+                          <StatCard key={stat} label={stat} value={statsData[stat]} />
+                        ))}
+                      </div>
 
-                    <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Distribution</h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                      {["passes","accuratePasses","longPasses","longPassesAccurate","goalKicks","shortGoalKicks","longGoalKicks"].map(stat => (
-                        <StatCard key={stat} label={stat} value={statsData[stat]} />
-                      ))}
-                    </div>
+                      <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Other</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                        {["minutes","exits"].map(stat => (
+                          <StatCard key={stat} label={stat} value={statsData[stat]} />
+                        ))}
+                      </div>
+                    </>
+                  )}
 
-                    <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Other</h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                      {["minutes","exits"].map(stat => (
-                        <StatCard key={stat} label={stat} value={statsData[stat]} />
-                      ))}
-                    </div>
-                  </>
-                )}
-
-                {physicalMetrics && (
-                  <>
-                    <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Physical metrics</h3>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                      <StatCard label="Km / 90" value={physicalMetrics.kmPer90 != null ? physicalMetrics.kmPer90.toFixed(2) : "-"} />
-                      <StatCard label="Top speed (km/h)" value={physicalMetrics.topSpeedKmh != null ? physicalMetrics.topSpeedKmh.toFixed(1) : "-"} />
-                      <StatCard label="Avg BPM" value={physicalMetrics.avgBpm != null ? physicalMetrics.avgBpm.toFixed(0) : "-"} />
-                      <StatCard label="Sprints" value={physicalMetrics.avgSprints != null ? physicalMetrics.avgSprints.toFixed(0) : "-"} />
-                    </div>
-                  </>
-                )}
-              </div>
+                  {physicalMetrics && (
+                    <>
+                      <h3 style={{ color: "#FF681F", margin: "16px 0 8px 0" }}>Physical metrics</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                        <StatCard label="Km / 90" value={physicalMetrics.kmPer90 != null ? physicalMetrics.kmPer90.toFixed(2) : "-"} />
+                        <StatCard label="Top speed (km/h)" value={physicalMetrics.topSpeedKmh != null ? physicalMetrics.topSpeedKmh.toFixed(1) : "-"} />
+                        <StatCard label="Avg BPM" value={physicalMetrics.avgBpm != null ? physicalMetrics.avgBpm.toFixed(0) : "-"} />
+                        <StatCard label="Sprints" value={physicalMetrics.avgSprints != null ? physicalMetrics.avgSprints.toFixed(0) : "-"} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>
             ) : (
               <div style={{
                 margin: "3vh 4vw",

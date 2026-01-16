@@ -26,6 +26,13 @@ export function computeDerivedMetrics(t) {
       ? safeDiv(t.forwardPassesAccurate || 0, t.forwardPasses || 0)
       : null,
 
+    progressivePasses_p90: has("progressivePasses")
+      ? per90(t.progressivePasses || 0, m)
+      : null,
+    progressivePassAccuracy: has("progressivePasses")
+      ? safeDiv(t.progressivePassesAccurate || 0, t.progressivePasses || 0)
+      : null,
+
     longPasses_p90: has("longPasses") ? per90(t.longPasses || 0, m) : null,
     longPassAccuracy: has("longPasses")
       ? safeDiv(t.longPassesAccurate || 0, t.longPasses || 0)
@@ -180,8 +187,14 @@ export function computeDerivedMetrics(t) {
     recoveriesOppHalf_p90: has("recoveriesOppHalf")
       ? per90(t.recoveriesOppHalf || 0, m)
       : null,
+    recoveries_p90: has("recoveries")
+      ? per90(t.recoveries || 0, m)
+      : null,
     lossesOwnHalf_p90: has("lossesOwnHalf")
       ? per90(t.lossesOwnHalf || 0, m)
+      : null,
+    losses_p90: has("losses")
+      ? per90(t.losses || 0, m)
       : null,
 
     clearances_p90: has("clearances") ? per90(t.clearances || 0, m) : null,

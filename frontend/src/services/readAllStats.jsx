@@ -64,15 +64,13 @@ const handleStatsUpload = async (file) => {
       "Duels / won": ["duels", "duelsWon"],
       "Aerial duels / won": ["aerialDuels", "aerialDuelsWon"],
       "Interceptions": "interceptions",
-      "Losses / own half": "lossesOwnHalf",
-      "Recoveries / opp. half": "recoveriesOppHalf",
+      "Losses / own half": ["losses", "lossesOwnHalf"],
+      "Recoveries / opp. half": ["recoveries", "recoveriesOppHalf"],
       "Defensive duels / won": ["defensiveDuels", "defensiveDuelsWon"],
       "Loose ball duels / won": ["looseBallDuels", "looseBallDuelsWon"],
       "Sliding tackles / successful": ["slidingTackles", "slidingTacklesSuccessful"],
       "Clearances": "clearances",
       "Fouls": "fouls",
-      "Yellow card": "yellowCards",
-      "Red card": "redCards",
       "Shot assists": "shotAssists",
       "Offensive duels / won": ["offensiveDuels", "offensiveDuelsWon"],
       "Touches in penalty area": "touchesInPenaltyArea",
@@ -86,7 +84,7 @@ const handleStatsUpload = async (file) => {
       "Passes to penalty area / accurate": ["passesPenaltyArea", "passesPenaltyAreaAccurate"],
       "Received passes": "receivedPasses",
       "Forward passes / accurate": ["forwardPasses", "forwardPassesAccurate"],
-      "Back passes / accurate": ["backPasses", "backPassesAccurate"],
+      "Back passes / accurate": ["backPasses", "backPassesAccurate"]
     };
 
     const goalkeeperKeyMap = {
@@ -113,6 +111,8 @@ const handleStatsUpload = async (file) => {
      * -------------------------------- */
     let totals = {};
     Object.values(mapping).flat().forEach(k => (totals[k] = 0));
+    totals.yellowCards = 0;
+    totals.redCards = 0;
 
     totals.positions = [];
     totals.roleMinutes = {};
@@ -129,6 +129,18 @@ const handleStatsUpload = async (file) => {
       }
 
       return [Number(val) || 0, 0];
+    };
+
+    const countCardMinutes = (raw) => {
+      if (raw == null || raw === "") return 0;
+      if (typeof raw === "number") return raw > 0 ? 1 : 0;
+      const str = String(raw).trim();
+      if (!str || str === "0") return 0;
+      const matches = str.match(/\d+(?:\+\d+)?/g);
+      if (!matches || !matches.length) return 0;
+      const bases = matches.map(m => Number(m.split("+")[0]) || 0);
+      if (bases.every(v => v === 0)) return 0;
+      return matches.length;
     };
 
     // Some XLSX exports store "attempts" and "accurate" in two adjacent columns,
@@ -203,6 +215,13 @@ const handleStatsUpload = async (file) => {
           totals[target] += Number(row[excelKey]) || 0;
         }
       }
+
+      const yellowCount = Number(row["Yellow cards"]) || 0;
+      const redCount = Number(row["Red cards"]) || 0;
+      const yellowFallback = yellowCount > 0 ? 0 : countCardMinutes(row["Yellow card"]);
+      const redFallback = redCount > 0 ? 0 : countCardMinutes(row["Red card"]);
+      totals.yellowCards += yellowCount || yellowFallback;
+      totals.redCards += redCount || redFallback;
     }
 
     totals.games = games;

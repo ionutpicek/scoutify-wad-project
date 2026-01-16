@@ -92,7 +92,7 @@ const LoginPage = () => {
 
       const user = userCredential.user;
 
-      // Check email verification
+      // Check Firebase email verification
       if (!user.emailVerified) {
         setGeneralError("Please verify your email before logging in. Check your inbox.");
         triggerShake();
@@ -100,8 +100,8 @@ const LoginPage = () => {
         return;
       }
 
-      // Load Firestore user
-      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userRef);
       if (!userDoc.exists()) {
         setGeneralError("User record not found in Firestore.");
         triggerShake();
@@ -109,20 +109,27 @@ const LoginPage = () => {
         return;
       }
 
-      const userData = userDoc.data();
+      const userData = userDoc.data() || {};
 
-      // If verified in Firebase but Firestore false, update it
-      if (!userData.verified) {
-        await updateDoc(doc(db, "users", user.uid), { verified: true });
-      }
-
-      // Manager rule
-      if (userData.role === "manager" && !userData.verified) {
-        setGeneralError("Your manager account is under verification.");
+      if (!userData.verifyUser) {
+        setGeneralError("Your account is pending approval from an administrator.");
         triggerShake();
         setIsSubmitting(false);
         return;
       }
+
+      if (!userData.verifyEmail && user.emailVerified) {
+        await updateDoc(userRef, { verifyEmail: true });
+        userData.verifyEmail = true;
+      }
+
+      if (!userData.verifyEmail) {
+        setGeneralError("Please verify your email; the confirmation link was sent to you.");
+        triggerShake();
+        setIsSubmitting(false);
+        return;
+      }
+
 
       // Success transition
       setDidSucceed(true);

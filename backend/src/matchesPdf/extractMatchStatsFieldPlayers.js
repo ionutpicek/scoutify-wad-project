@@ -8,6 +8,11 @@ function resolveCanonical(norm, jersey, nameByNorm, nameByNormWithNumber) {
   return nameByNorm?.get(norm);
 }
 
+const ROW_REGEX = new RegExp(
+  "^\\s*(\\d{1,3})?\\s*([A-Z]\\.\\s*\\p{Lu}[\\p{Ll}'\\-]+(?:\\s+\\p{Lu}[\\p{Ll}'\\-]+)*)\\s*(\\d{1,3})'?\\s*(.*)$",
+  "u"
+);
+
 function parseRatioPair(attemptsStr, rightStr, { forceCount = false } = {}) {
   const attempts = Number(attemptsStr) || 0;
   const right = String(rightStr || "").replace(/%/g, "");
@@ -117,6 +122,50 @@ function parseRatioTail(tail, maxTokens = 16) {
   }
 
   return ratios;
+}
+
+function parsePassingTail(tail) {
+  const normalized = String(tail || "")
+    .replace(/(\d{1,3}\/\d{1,3})(\d{2,3}\.\d)/g, "$1 $2");
+  const ratioMatches = [...normalized.matchAll(/\d{1,3}\/\d{1,4}(?:\.\d{1,2})?%?/g)];
+  const ratioCount = Math.min(ratioMatches.length, 8);
+  const ratios = ratioMatches.slice(0, 8).map(match => {
+    const parts = match[0].split("/");
+    return parseRatioPair(parts[0], parts[1], { forceCount: true });
+  });
+
+  while (ratios.length < 8) ratios.push(null);
+
+  const countsRaw = normalized
+    .replace(/\d{1,3}\/\d{1,4}(?:\.\d{1,2})?%?/g, " ")
+    .replace(/%/g, " ")
+    .replace(/-/g, " - ");
+  const counts = [];
+  const tokens = countsRaw.split(/\s+/).filter(Boolean);
+  for (const tok of tokens) {
+    if (tok === "-") {
+      counts.push(null);
+      continue;
+    }
+    if (/^\d+(?:\.\d+)?$/.test(tok)) {
+      counts.push(Number(tok));
+    }
+  }
+
+  for (let i = counts.length - 1; i >= 0; i -= 1) {
+    if (counts[i] == null) continue;
+    counts.splice(i, 1);
+    break;
+  }
+
+  let missingRatios = 8 - ratioCount;
+  while (missingRatios > 0 && counts.length && counts[0] == null) {
+    counts.shift();
+    missingRatios -= 1;
+  }
+
+  while (counts.length < 4) counts.push(null);
+  return { ratios, counts: counts.slice(0, 4) };
 }
 
 function addStat(statsByPlayer, playerName, key, attempts, success = null) {
@@ -249,9 +298,79 @@ function applyTableRatios(statsByPlayer, playerName, ratios, ratioMatches = []) 
   }
 }
 
+function applyDuelsRatios(statsByPlayer, playerName, ratios) {
+  const defensiveTok = ratios?.[0] || null;
+  const offensiveTok = ratios?.[1] || null;
+
+  if (defensiveTok) {
+    const prev = statsByPlayer[playerName]?.stats?.defensiveDuels?.attempts ?? -1;
+    if (defensiveTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "defensiveDuels", defensiveTok.attempts, defensiveTok.success);
+    }
+  }
+
+  if (offensiveTok) {
+    const prev = statsByPlayer[playerName]?.stats?.offensiveDuels?.attempts ?? -1;
+    if (offensiveTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "offensiveDuels", offensiveTok.attempts, offensiveTok.success);
+    }
+  }
+}
+
+function applyPassingRatios(statsByPlayer, playerName, ratios, counts) {
+  const forwardTok = ratios?.[0] || null;
+  const progressiveTok = ratios?.[5] || null;
+  const finalThirdTok = ratios?.[6] || null;
+  const throughTok = ratios?.[7] || null;
+
+  if (forwardTok) {
+    const prev = statsByPlayer[playerName]?.stats?.forwardPasses?.attempts ?? -1;
+    if (forwardTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "forwardPasses", forwardTok.attempts, forwardTok.success);
+    }
+  }
+
+  if (progressiveTok) {
+    const prev = statsByPlayer[playerName]?.stats?.progressivePasses?.attempts ?? -1;
+    if (progressiveTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "progressivePasses", progressiveTok.attempts, progressiveTok.success);
+    }
+  }
+
+  if (finalThirdTok) {
+    const prev = statsByPlayer[playerName]?.stats?.passesFinalThird?.attempts ?? -1;
+    if (finalThirdTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "passesFinalThird", finalThirdTok.attempts, finalThirdTok.success);
+    }
+  }
+
+  if (throughTok) {
+    const prev = statsByPlayer[playerName]?.stats?.throughPasses?.attempts ?? -1;
+    if (throughTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "throughPasses", throughTok.attempts, throughTok.success);
+    }
+  }
+
+  const keyPassCandidate = counts?.[1];
+  const keyPasses = Number.isFinite(keyPassCandidate) && Number.isInteger(keyPassCandidate)
+    ? keyPassCandidate
+    : null;
+
+  if (keyPasses != null) {
+    const prev = statsByPlayer[playerName]?.stats?.keyPasses?.attempts ?? -1;
+    if (keyPasses >= prev) {
+      addStat(statsByPlayer, playerName, "keyPasses", keyPasses, null);
+    }
+  }
+}
+
 const HEADER_ANCHOR_REGEX = /Goals\s*\/\s*xG.*Assists\s*\/\s*xA/i;
 const HEADER_SKIP_REGEX = /^(Player|Minutes|played|Goals|Assists|Actions|Shots|Passes|Crosses|Dribbles|Duels|Losses|Recoveries|Touches|Offsides|Yellow|Red)/i;
 const CONTINUATION_REGEX = /(\d{1,3}\/\d{1,4}|%)/;
+const DUELS_HEADER_REGEXES = [/Defensive duels/i, /Offensive duels/i];
+const PASSING_TITLE_REGEX = /^Passing$/i;
+const DUELS_HEADER_SKIP_REGEX = /^(Player|Minutes|played|Defensive|Offensive|Aerial|Loose|Shots|Interceptions|Clearances|Sliding|Fouls|Free|Set pieces|Direct|Corners|served|Throw-ins)/i;
+const PASSING_HEADER_SKIP_REGEX = /^(Player|Minutes|played|Forward|Back|Lateral|Short|Long|Progressive|Passes|Through|Deep|Key|Second|Shot|Average)/i;
 
 function findHeaderAnchors(lines) {
   const anchors = new Set();
@@ -349,6 +468,141 @@ function collectMainTableBlocks(lines, rowRegex) {
   return blocks;
 }
 
+function findSectionAnchors(lines, regexes, lookahead = 10) {
+  const anchors = new Set();
+  for (let i = 0; i < lines.length; i++) {
+    const window = lines.slice(i, i + lookahead).join(" ");
+    if (regexes.every(re => re.test(window))) {
+      anchors.add(i);
+    }
+  }
+  return Array.from(anchors).sort((a, b) => a - b);
+}
+
+function findPassingAnchors(lines) {
+  const anchors = new Set();
+  for (let i = 0; i < lines.length; i++) {
+    if (PASSING_TITLE_REGEX.test(lines[i])) {
+      anchors.add(i);
+    }
+  }
+  return Array.from(anchors).sort((a, b) => a - b);
+}
+
+function collectSectionBlocks(lines, rowRegex, regexes, prefer = "after") {
+  const blocks = [];
+  const anchors = findSectionAnchors(lines, regexes);
+
+  for (const idx of anchors) {
+    const before = collectRowBlockBeforeHeader(lines, idx, rowRegex);
+    const after = collectRowBlockAfterHeader(lines, idx, rowRegex);
+    let pick = prefer === "before" ? before : after;
+    if (!pick.rowCount) {
+      pick = prefer === "before" ? after : before;
+    }
+    if (pick.rowCount) blocks.push(pick.lines);
+  }
+
+  return blocks;
+}
+
+function collectPassingBlocks(lines, rowRegex) {
+  const blocks = [];
+  const anchors = findPassingAnchors(lines);
+
+  for (const idx of anchors) {
+    const after = collectRowBlockAfterHeader(lines, idx, rowRegex);
+    if (after.rowCount) blocks.push(after.lines);
+  }
+
+  return blocks;
+}
+
+function applyTableBlocks(
+  blocks,
+  statsByPlayer,
+  {
+    nameByNorm,
+    nameByNormWithNumber,
+    resolveJerseyFromPlayers,
+    normalizeName,
+    headerSkipRegex,
+    onRow
+  }
+) {
+  if (!blocks.length) return;
+  const dupCounter = {};
+
+  const parseLines = inputLines => {
+    let currentName = null;
+    let currentTail = "";
+    let pendingJersey = null;
+
+    const resetCurrent = () => {
+      currentName = null;
+      currentTail = "";
+    };
+
+    const flushCurrent = () => {
+      if (!currentName || !currentTail) return;
+      onRow(currentName, currentTail);
+      resetCurrent();
+    };
+
+    for (const line of inputLines) {
+      if (headerSkipRegex?.test(line)) {
+        flushCurrent();
+        continue;
+      }
+
+      if (/^\d{1,3}$/.test(line)) {
+        flushCurrent();
+        pendingJersey = line.trim();
+        continue;
+      }
+
+      const row = line.match(ROW_REGEX);
+      if (row) {
+        flushCurrent();
+        let jersey = row[1] ? row[1].trim() : pendingJersey;
+        const rawName = row[2];
+        const norm = normalizeName(rawName);
+        const canonical = resolveCanonical(norm, jersey, nameByNorm, nameByNormWithNumber);
+        if (!canonical) {
+          resetCurrent();
+          continue;
+        }
+        const minutesTok = row[3] ? row[3].trim() : null;
+        if (!jersey && typeof resolveJerseyFromPlayers === "function") {
+          const resolved = resolveJerseyFromPlayers(canonical, minutesTok);
+          if (resolved != null) jersey = String(resolved);
+        }
+        pendingJersey = null;
+        const baseKey = `${canonical}|m${minutesTok || "?"}${jersey ? `|#${jersey}` : ""}`;
+        let storeKey = baseKey;
+        if (!statsByPlayer[baseKey]) {
+          const count = dupCounter[baseKey] || 0;
+          dupCounter[baseKey] = count + 1;
+          storeKey = count === 0 ? baseKey : `${baseKey}|dup${count}`;
+        }
+        currentName = storeKey;
+        currentTail = row[4] || "";
+        continue;
+      }
+
+      if (currentName) {
+        currentTail = (currentTail + " " + line).trim();
+      }
+    }
+
+    flushCurrent();
+  };
+
+  for (const block of blocks) {
+    parseLines(block);
+  }
+}
+
 function extractPlayerStatsTable(
   blocks,
   nameByNorm,
@@ -358,10 +612,6 @@ function extractPlayerStatsTable(
 ) {
   const statsByPlayer = {};
   const dupCounter = {};
-  const rowRegex = new RegExp(
-    "^\\s*(\\d{1,3})?\\s*([A-Z]\\.\\s*\\p{Lu}[\\p{Ll}'\\-]+(?:\\s+\\p{Lu}[\\p{Ll}'\\-]+)*)\\s*(\\d{1,3})'?\\s*(.*)$",
-    "u"
-  );
 
   const parseLines = inputLines => {
     let currentName = null;
@@ -389,7 +639,7 @@ function extractPlayerStatsTable(
         continue;
       }
 
-      const row = line.match(rowRegex);
+      const row = line.match(ROW_REGEX);
       if (row) {
         flushCurrent();
         let jersey = row[1] ? row[1].trim() : null;
@@ -435,19 +685,42 @@ export function extractFieldPlayerStats(
 ) {
   const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
 
-  const rowRegex = new RegExp(
-    "^\\s*(\\d{1,3})?\\s*([A-Z]\\.\\s*\\p{Lu}[\\p{Ll}'\\-]+(?:\\s+\\p{Lu}[\\p{Ll}'\\-]+)*)\\s*(\\d{1,3})'?\\s*(.*)$",
-    "u"
-  );
-
-  const blocks = collectMainTableBlocks(lines, rowRegex);
+  const blocks = collectMainTableBlocks(lines, ROW_REGEX);
   if (!blocks.length) return {};
 
-  return extractPlayerStatsTable(
+  const statsByPlayer = extractPlayerStatsTable(
     blocks,
     nameByNorm,
     nameByNormWithNumber,
     resolveJerseyFromPlayers,
     normalizeName
   );
+
+  const duelsBlocks = collectSectionBlocks(lines, ROW_REGEX, DUELS_HEADER_REGEXES, "before");
+  applyTableBlocks(duelsBlocks, statsByPlayer, {
+    nameByNorm,
+    nameByNormWithNumber,
+    resolveJerseyFromPlayers,
+    normalizeName,
+    headerSkipRegex: DUELS_HEADER_SKIP_REGEX,
+    onRow: (playerKey, tail) => {
+      const ratios = parseRatioTail(tail, 2);
+      applyDuelsRatios(statsByPlayer, playerKey, ratios);
+    }
+  });
+
+  const passingBlocks = collectPassingBlocks(lines, ROW_REGEX);
+  applyTableBlocks(passingBlocks, statsByPlayer, {
+    nameByNorm,
+    nameByNormWithNumber,
+    resolveJerseyFromPlayers,
+    normalizeName,
+    headerSkipRegex: PASSING_HEADER_SKIP_REGEX,
+    onRow: (playerKey, tail) => {
+      const parsed = parsePassingTail(tail);
+      applyPassingRatios(statsByPlayer, playerKey, parsed.ratios, parsed.counts);
+    }
+  });
+
+  return statsByPlayer;
 }

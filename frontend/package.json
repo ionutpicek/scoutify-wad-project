@@ -10,11 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "expo": "^54.0.31",
     "firebase": "^12.4.0",
     "firebase-admin": "^13.6.0",
     "lucide-react": "^0.548.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-native-web": "^0.21.0",
     "react-router-dom": "^7.9.4",
     "xlsx": "^0.18.5"
   },

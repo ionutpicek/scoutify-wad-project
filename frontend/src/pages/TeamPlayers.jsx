@@ -16,18 +16,20 @@ import PlayerCard from "../components/PlayerCard.jsx";
         const [players, setPlayers] = useState([]); 
         const [isLoading, setIsLoading] = useState(true); 
         const [editingPlayer, setEditingPlayer] = useState(null); // player object currently being edited 
-        const [formInputs, setFormInputs] = useState({ name: "", position: "", photoURL: "", birthdate: "", }); 
+        const [formInputs, setFormInputs] = useState({ name: "", position: "", photoURL: "", birthdate: "", moveTeamID: "", }); 
+        const [teamsList, setTeamsList] = useState([]);
                             
         useEffect(() => {
             if (editingPlayer) {
-                setFormInputs({
+            setFormInputs({
                 name: editingPlayer.name || "",
                 nationality: editingPlayer.nationality || "",
                 position: editingPlayer.position || "",
                 photoURL: editingPlayer.photoURL || "",
                 birthdate: editingPlayer.birthdate || "",
-                });
-            }
+                moveTeamID: "",
+            });
+        }
             }, [editingPlayer]);
 
         const [deleteP, setDeletePlayer] = useState(false); 
@@ -117,7 +119,8 @@ import PlayerCard from "../components/PlayerCard.jsx";
         
         const [edit, setEdit] = useState(false); 
         const changeEdit = () => { setEdit(prev => !prev); } 
-        useEffect(() => { if (!teamID) return; 
+        useEffect(() => { 
+            if (!teamID) return;
         
         const fetchPlayers = async () => { 
             setIsLoading(true); 
@@ -152,9 +155,22 @@ import PlayerCard from "../components/PlayerCard.jsx";
                 console.error("Error fetching team players:", error); 
             } finally {
                 setIsLoading(false); 
-            } }; 
+                } 
+            }; 
             fetchPlayers(); 
         }, [db, teamID]); 
+
+        useEffect(() => {
+            const fetchTeams = async () => {
+                try {
+                    const snapshot = await getDocs(collection(db, "team"));
+                    setTeamsList(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                } catch (error) {
+                    console.error("Error fetching teams:", error);
+                }
+            };
+            fetchTeams();
+        }, []);
         
         const handleLogout = () => { navigate("/login"); }; 
        
@@ -377,20 +393,50 @@ import PlayerCard from "../components/PlayerCard.jsx";
                         onChange={(e) => setFormInputs({...formInputs, birthdate: e.target.value})}
                     />
 
+                    <label style={{ fontSize: "0.9rem", color: "#444", marginTop: "12px" }}>Move to another team</label>
+                    <select
+                        value={formInputs.moveTeamID || ""}
+                        style={{
+                            height: "4vh",
+                            borderRadius: 8,
+                            color: "#000",
+                            backgroundColor: "#fff",
+                            borderColor: "#FF681F",
+                            paddingLeft: 10,
+                        }}
+                        onChange={(e) => setFormInputs({ ...formInputs, moveTeamID: e.target.value })}
+                    >
+                        <option value="">Keep current team</option>
+                        {teamsList.map(team => (
+                            <option key={team.teamID || team.id} value={String(team.teamID ?? team.id)}>
+                                {team.name}
+                            </option>
+                        ))}
+                    </select>
 
                     <button onClick={async () => {
                         const updatedData = {
                             ...editingPlayer, // keep old data
                             ...Object.fromEntries(
-                                // eslint-disable-next-line no-unused-vars
-                                Object.entries(formInputs).filter(([key, value]) => value !== "")
+                                Object.entries(formInputs)
+                                    .filter(([key, value]) => key !== "moveTeamID" && value !== "")
                             )
                         };
+
+                        if (formInputs.moveTeamID) {
+                            const targetTeam = teamsList.find(
+                                team => String(team.teamID ?? team.id) === formInputs.moveTeamID
+                            );
+                            if (targetTeam) {
+                                updatedData.teamID = targetTeam.teamID ?? targetTeam.id;
+                                updatedData.teamName = targetTeam.name;
+                            }
+                        }
 
                         await editPlayer(editingPlayer.id, updatedData);
 
                         setEditingPlayer(null);
-                        setFormInputs({ name: "", position: "", photoURL: "", birthDate: "", nationality:"" });
+                        setFormInputs({ name: "", position: "", photoURL: "", birthdate: "", nationality:"", moveTeamID: "" });
 
                         // Refresh player list
                         const q = query(collection(db, "player"), where("teamID", "==", teamID));
@@ -469,3 +515,4 @@ import PlayerCard from "../components/PlayerCard.jsx";
 };
 
 export default TeamPlayers;
+    

@@ -18,3 +18,4 @@ if (!admin.apps.length) {
 admin.firestore().settings({ ignoreUndefinedProperties: true });
 
 export const db = admin.firestore();
+export const adminAuth = admin.auth();
