@@ -22,7 +22,5 @@ app.get("/", (req, res) => {
   res.json({ ok: true });
 });
 
-const PORT = 3001;
-app.listen(PORT, () =>
-  console.log(`Backend running on http://localhost:${PORT}`)
-);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
