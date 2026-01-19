@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState } from "react";
+import { apiUrl } from "../config/api.js";
 
 export default function SeasonGradeCard({ seasonGrade, statsDocId, matchesPlayed = [] }) {
   if (!seasonGrade) return null;
@@ -29,10 +30,9 @@ console.log("AI statsDocId:", statsDocId);
     try {
       setLoadingAI(true);
 
-      const res = await fetch(
-        `https://scoutify-2yhu.onrender.com/ai/scout-verdict/${statsDocId}`,
-        { method: "POST" }
-      );
+      const res = await fetch(apiUrl(`/ai/scout-verdict/${statsDocId}`), {
+        method: "POST",
+      });
 
       if (!res.ok) throw new Error("Request failed");
 

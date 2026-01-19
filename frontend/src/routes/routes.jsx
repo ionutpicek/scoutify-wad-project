@@ -16,6 +16,7 @@ import SeasonGrades from '../pages/AdminGrades';
 import MatchesPage from '../pages/MachesPage';
 import MatchPage from '../pages/MatchPage';
 import ForgotPassword from '../pages/ForgotPassword';
+import LeaderboardPage from '../pages/Leaderboard';
 
 const AppRoutes = () => {
   return (
@@ -37,6 +38,7 @@ const AppRoutes = () => {
         <Route path='/upload-pdf' element={<UploadMatchReport/>}/>
         <Route path='/season-grades' element={<SeasonGrades/>}/>
         <Route path="/matches" element={<MatchesPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/matches/:id" element={<MatchPage />} />
         
         {/* Fallback route */}

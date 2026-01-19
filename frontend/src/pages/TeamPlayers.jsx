@@ -7,7 +7,7 @@ import Header from "../components/Header.jsx";
 import Spinner from "../components/Spinner.jsx";
 import PlayerCard from "../components/PlayerCard.jsx";
 
-    const TeamPlayers = () => { 
+const TeamPlayers = () => { 
         const location = useLocation(); 
         const { teamID, teamName, teamCoach } = location.state || {}; 
         const role = location.state.role; 
@@ -18,6 +18,7 @@ import PlayerCard from "../components/PlayerCard.jsx";
         const [editingPlayer, setEditingPlayer] = useState(null); // player object currently being edited 
         const [formInputs, setFormInputs] = useState({ name: "", position: "", photoURL: "", birthdate: "", moveTeamID: "", }); 
         const [teamsList, setTeamsList] = useState([]);
+        const [viewMode, setViewMode] = useState("players");
                             
         useEffect(() => {
             if (editingPlayer) {
@@ -182,20 +183,44 @@ import PlayerCard from "../components/PlayerCard.jsx";
                 onLogout={handleLogout}
             />
 
-            <div style={{display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center", padding:"2vh 6vw", fontSize:20}}>
-                <p style={{color:"#000", flex:1, textAlign:"left"}}>Coach : {teamCoach}</p>
-                <p style={{color:"#000", flex:1}}>Number of players : {players.length}</p>
-                {((role === "manager" && teamName === userTeam) || role === "admin") ? (
-                    <div style={{textAlign:"right"}}>
-                    <button onClick={changeEdit} style={{ }}>
-                        Edit Players
-                    </button>
-                    <button onClick={startAdd} style={{ marginLeft:10}}>
-                        Add Player
-                    </button>
-                    </div>    
-                ) : 
-                null}
+            <div style={teamHeaderRow}>
+                <div style={teamHeaderLeft}>
+                    <p style={{ color: "#000", margin: 0, fontSize: 20, fontWeight: 400 }}>Coach: {teamCoach}</p>
+                </div>
+                <div style={teamHeaderCenter}>
+                    {viewMode === "players" &&
+                        ((role === "manager" && teamName === userTeam) || role === "admin") && (
+                            <div style={playerActionButtons}>
+                                <button onClick={changeEdit} style={{ }}>
+                                    Edit Players
+                                </button>
+                                <button onClick={startAdd} style={{ marginLeft: 10 }}>
+                                    Add Player
+                                </button>
+                            </div>
+                        )}
+                    {viewMode === "teamStyle" && (
+                        <p style={teamStyleCountText}>Number of players: {players.length}</p>
+                    )}
+                </div>
+                <div style={teamHeaderRight}>
+                    <div style={viewSwitchContainer}>
+                        <button
+                            type="button"
+                            onClick={() => setViewMode("players")}
+                            style={viewSwitchButton(viewMode === "players")}
+                        >
+                            Players
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setViewMode("teamStyle")}
+                            style={viewSwitchButton(viewMode === "teamStyle")}
+                        >
+                            Team Style of Play
+                        </button>
+                    </div>
+                </div>
             </div>
             
             {add && (
@@ -480,38 +505,126 @@ import PlayerCard from "../components/PlayerCard.jsx";
                 </div>)
             }
 
-            <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                  gap: 20,
-                  padding: "0 5vw 5vh 5vw",
-                  justifyItems: "center",
-                }}
-            >
-
-                {isLoading ? (
-                <Spinner />
-                ) : players.length === 0 ? (
-                <p style={{ color: "#555", textAlign: "center", gridColumn: "1 / -1" }}>
-                    No players in this team.
-                </p>
-                ) : (
-                players.map((player) => (
-                    <PlayerCard
-                    key={player.id}
-                    player={player}
-                    onClick={() =>
-                        navigate(`/player-profile`, { state: { playerID: player.id } })
-                    }
-                    onEdit={edit ? (p) => setEditingPlayer(p) : null}
-                    onRemove={edit ? (p) => { setPlayerToDelete(p); deletePlayer(); } : null}
-                    />
-                ))
-                )}
-            </div>
+            {viewMode === "players" ? (
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                        gap: 20,
+                        padding: "0 5vw 5vh 5vw",
+                        justifyItems: "center",
+                    }}
+                >
+                    {isLoading ? (
+                        <Spinner />
+                    ) : players.length === 0 ? (
+                        <p style={{ color: "#555", textAlign: "center", gridColumn: "1 / -1" }}>
+                            No players in this team.
+                        </p>
+                    ) : (
+                        players.map((player) => (
+                            <PlayerCard
+                                key={player.id}
+                                player={player}
+                                onClick={() =>
+                                    navigate(`/player-profile`, { state: { playerID: player.id } })
+                                }
+                                onEdit={edit ? (p) => setEditingPlayer(p) : null}
+                                onRemove={edit ? (p) => { setPlayerToDelete(p); deletePlayer(); } : null}
+                            />
+                        ))
+                    )}
+                </div>
+            ) : (
+                <div style={teamStylePlaceholder}>
+                    <p style={teamStylePlaceholderText}>
+                        Team style of play view will be configured here.
+                    </p>
+                </div>
+            )}
         </div>
     );
+};
+
+const teamHeaderRow = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "2vh 6vw",
+    gap: 12,
+};
+
+const teamHeaderLeft = {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "flex-start",
+};
+
+const teamHeaderCenter = {
+    flex: 1,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+};
+
+const teamHeaderRight = {
+    flex: 1,
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+};
+
+const playerActionButtons = {
+    display: "flex",
+    gap: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    whitespace: "nowrap",
+};
+
+const viewSwitchContainer = {
+    display: "flex",
+    justifyContent: "center",
+    gap: 10,
+    padding: "1.5vh 0vw 1.5vh 0vw",
+};
+
+const viewSwitchButton = (active) => ({
+    borderRadius: 999,
+    padding: "12px 16px",
+    border: active ? "1px solid #FF681F" : "1px solid #ddd",
+    background: active ? "#fff6ee" : "#fff",
+    color: "#111",
+    fontWeight: 500,
+    cursor: "pointer",
+    boxShadow: active ? "0 5px 14px rgba(255,104,31,0.25)" : "none",
+    transition: "all 0.2s ease",
+});
+
+const teamStylePlaceholder = {
+    minHeight: "60vh",
+    margin: "0 5vw 5vh 5vw",
+    borderRadius: 16,
+    border: "1px dashed rgba(255,104,31,0.7)",
+    background: "#fffaf5",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+};
+
+const teamStylePlaceholderText = {
+    color: "#666",
+    fontSize: 16,
+    fontWeight: 600,
+};
+
+const teamStyleCountText = {
+    margin: 0,
+    color: "#111",
+    fontWeight: 400,
+    fontSize: 20,
 };
 
 export default TeamPlayers;

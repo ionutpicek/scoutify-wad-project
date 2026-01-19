@@ -1,14 +1,13 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Header } from "../components/Header";
+import { apiUrl } from "../config/api.js";
 
 const ORANGE = "#FF681F";
 const ORANGE_SOFT = "#FFF2E8";
 const BG = "#FAFAFA";
 const TEXT = "#111827";
 const MUTED = "#6B7280";
-const API_BASE = "https://scoutify-2yhu.onrender.com";
-
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,7 +34,7 @@ const Dashboard = () => {
     setPendingLoading(true);
     setPendingError("");
     try {
-      const res = await fetch(`${API_BASE}/admin/pending-verifications`);
+      const res = await fetch(apiUrl("/admin/pending-verifications"));
       if (!res.ok) {
         const text = await res.text();
         throw new Error(text || "Unable to load pending users.");
@@ -54,7 +53,7 @@ const Dashboard = () => {
     setSendingUid(user.uid);
     setPendingError("");
     try {
-      const res = await fetch(`${API_BASE}/admin/send-verification`, {
+      const res = await fetch(apiUrl("/admin/send-verification"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -280,9 +279,6 @@ const Dashboard = () => {
       onClick: () =>
         navigate("/compare", { state: { userTeam: userTeam, role: userRole } }),
     },
-  ];
-
-  const management = [
     {
       key: "teams",
       title: "Teams",
@@ -292,6 +288,19 @@ const Dashboard = () => {
       onClick: () =>
         navigate("/teams", { state: { userTeam: userTeam, userRole: userRole } }),
     },
+    {
+      key: "leaderboard",
+      title: "Leaderboard",
+      desc: "View player rankings and performance metrics.",
+      icon: "🏆",
+      badge: "View",
+      onClick: () =>
+        navigate("/leaderboard", { state: { userTeam: userTeam, userRole: userRole } }),
+    },
+  ];
+
+  const management = [
+    
     {
       key: "player-stats",
       title: "Player Stats",

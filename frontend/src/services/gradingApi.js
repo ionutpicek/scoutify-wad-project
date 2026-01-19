@@ -1,7 +1,7 @@
-const API_BASE = "https://scoutify-2yhu.onrender.com";
+import { apiUrl } from "../config/api.js";
 
 export async function recomputeSeasonGrades() {
-  const res = await fetch(`${API_BASE}/grading/recompute`, {
+  const res = await fetch(apiUrl("/grading/recompute"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

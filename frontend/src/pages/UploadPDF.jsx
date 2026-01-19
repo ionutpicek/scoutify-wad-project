@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
+import { apiUrl } from "../config/api.js";
 
 const UploadPDF = () => {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ const UploadPDF = () => {
       formData.append("gameDate", inputs.gameDate);
 
       // Send PDF to backend for processing
-      const res = await fetch("https://scoutify-2yhu.onrender.com/process-pdf", {
+      const res = await fetch(apiUrl("/process-pdf"), {
         method: "POST",
         body: formData,
       });
