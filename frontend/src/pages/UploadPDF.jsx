@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import { apiUrl } from "../config/api.js";
+import { getCurrentUser } from "../services/sessionStorage.js";
 
 const UploadPDF = () => {
   const navigate = useNavigate();
   const handleLogout = () => navigate("/login");
+
+  const storedUser = useMemo(() => getCurrentUser(), []);
+  const canUploadMatches = storedUser?.role !== "player";
 
   const [fileStatus, setFileStatus] = useState(false);
   const [file, setFile] = useState(null);
@@ -100,72 +104,90 @@ const UploadPDF = () => {
         }}>
           <p style={{ color: "#000", fontSize: 24 }}>Match Report PDF</p>
 
-          <input
-            id="pdfInput"
-            type="file"
-            accept=".pdf"
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-          />
-          <div
-            onClick={() => document.getElementById("pdfInput").click()}
-            style={{
-              backgroundColor: fileStatus ? "#FF681F" : "#000",
-              borderRadius: "4px",
-              width: "15vw",
-              height: "6vh",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              cursor: "pointer",
-            }}
-          >
-            <p style={{ color: "#fff", fontSize: 18, margin: 0 }}>
-              {fileStatus ? "File Selected" : "Upload PDF"}
-            </p>
-          </div>
-
-          {fileStatus && (
-            <div style={{ color: "#000", marginTop: 10 }}>
-              <p><strong>Match Name:</strong> {inputs.matchName}</p>
-              <p><strong>Home Team:</strong> {inputs.homeTeam}</p>
-              <p><strong>Away Team:</strong> {inputs.awayTeam}</p>
-              <p><strong>Score:</strong> {inputs.score}</p>
-              <div style={{display:"flex", flexDirection:"row", gap:10, alignItems:"center"}}>
-                <p><strong>Game Date:</strong></p>
-                <input
-                  type="date"
-                  value={inputs.gameDate || ""}
-                  onChange={(e) => setInputs({ ...inputs, gameDate: e.target.value })}
-                  style={{
-                    padding: "8px",
-                    borderRadius: "6px",
-                    border: "1px solid #FF681F",
-                    backgroundColor: "#FFF",
-                    color: "#000",
-                    height:"4vh"
-                  }}
-               />
+          {canUploadMatches ? (
+            <>
+              <input
+                id="pdfInput"
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+              />
+              <div
+                onClick={() => document.getElementById("pdfInput").click()}
+                style={{
+                  backgroundColor: fileStatus ? "#FF681F" : "#000",
+                  borderRadius: "4px",
+                  width: "15vw",
+                  height: "6vh",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <p style={{ color: "#fff", fontSize: 18, margin: 0 }}>
+                  {fileStatus ? "File Selected" : "Upload PDF"}
+                </p>
               </div>
+
+              {fileStatus && (
+                <div style={{ color: "#000", marginTop: 10 }}>
+                  <p><strong>Match Name:</strong> {inputs.matchName}</p>
+                  <p><strong>Home Team:</strong> {inputs.homeTeam}</p>
+                  <p><strong>Away Team:</strong> {inputs.awayTeam}</p>
+                  <p><strong>Score:</strong> {inputs.score}</p>
+                  <div style={{display:"flex", flexDirection:"row", gap:10, alignItems:"center"}}>
+                    <p><strong>Game Date:</strong></p>
+                    <input
+                      type="date"
+                      value={inputs.gameDate || ""}
+                      onChange={(e) => setInputs({ ...inputs, gameDate: e.target.value })}
+                      style={{
+                        padding: "8px",
+                        borderRadius: "6px",
+                        border: "1px solid #FF681F",
+                        backgroundColor: "#FFF",
+                        color: "#000",
+                        height:"4vh"
+                      }}
+                   />
+                  </div>
+                </div>
+              )}
+
+              <button
+                disabled={!fileStatus || !inputs.gameDate || loading}
+                onClick={handleSubmit}
+                style={{
+                  backgroundColor: buttonColor,
+                  color: "#fff",
+                  width: "12vw",
+                  height: "6vh",
+                  borderRadius: "6px",
+                  cursor: !fileStatus || !inputs.gameDate || loading ? "not-allowed" : "pointer",
+                  fontSize: 16,
+                  marginTop: "1rem",
+                }}
+              >
+                {loading ? "Processing..." : "Submit"}
+              </button>
+            </>
+          ) : (
+            <div
+              style={{
+                padding: "20px",
+                borderRadius: 12,
+                backgroundColor: "#fff8f0",
+                color: "#92400e",
+                textAlign: "center",
+                border: "1px solid #fcd34d",
+                width: "100%",
+              }}
+            >
+              Uploading match PDFs is restricted to managers and admins.
             </div>
           )}
-
-          <button
-            disabled={!fileStatus || !inputs.gameDate || loading}
-            onClick={handleSubmit}
-            style={{
-              backgroundColor: buttonColor,
-              color: "#fff",
-              width: "12vw",
-              height: "6vh",
-              borderRadius: "6px",
-              cursor: !fileStatus || !inputs.gameDate || loading ? "not-allowed" : "pointer",
-              fontSize: 16,
-              marginTop: "1rem",
-            }}
-          >
-            {loading ? "Processing..." : "Submit"}
-          </button>
         </div>
       </div>
     </div>

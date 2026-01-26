@@ -5,6 +5,7 @@ import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc, collection } from "firebase/firestore";
 import { getDocsLogged as getDocs } from "../firebase";
+import { findPlayerByNameAndTeam } from "../services/playerServices.jsx";
 
 const ORANGE = "#FF681F";
 const ORANGE_HOVER = "#FF4500";
@@ -132,6 +133,19 @@ const Register = () => {
       const wantsTeam = role === "manager" || role === "player";
       const teamNameToSave = wantsTeam && inputs.teamName ? inputs.teamName : "Select a Team";
       const roleValue = role === "manager" ? "manager" : "player";
+
+      let matchedPlayer = null;
+      if (role === "player") {
+        try {
+          matchedPlayer = await findPlayerByNameAndTeam({
+            fullName: inputs.fullName.trim(),
+            teamName: inputs.teamName,
+          });
+        } catch (matchError) {
+          console.error("Player auto-match failed:", matchError);
+        }
+      }
+
       await setDoc(doc(db, "users", user.uid), {
         fullName: inputs.fullName,
         username: inputs.username,
@@ -141,6 +155,9 @@ const Register = () => {
         role: roleValue,
         verifyUser: false,
         verifyEmail: false,
+        playerDocId: matchedPlayer?.docId ?? null,
+        playerID: matchedPlayer?.playerID ?? null,
+        matchedPlayerName: matchedPlayer?.name ?? null,
       });
 
       try {

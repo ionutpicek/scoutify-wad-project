@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { collection, query, where } from "firebase/firestore";
 import { db, getDocsLogged as getDocs } from "../firebase.jsx";
 import { useNavigate } from "react-router-dom";
 import profilePhoto from '../assets/download.jpeg';
 import Header from "../components/Header.jsx";
 import Spinner from "../components/Spinner.jsx";
+import { getCurrentUser } from "../services/sessionStorage.js";
 
 function ComparePlayers() {
   const navigate = useNavigate();
@@ -108,6 +109,23 @@ function ComparePlayers() {
   };
 
   const handleLogout = () => navigate("/login");
+
+  const storedUser = useMemo(() => getCurrentUser(), []);
+  if (storedUser?.role === "player") {
+    return (
+      <div style={{ backgroundColor: "#ffffff", width: "100vw", minHeight: "100vh" }}>
+        <Header
+          title="Compare Players"
+          subtitle="You do not have access to this feature."
+          onBack={() => navigate(-1)}
+          onLogout={handleLogout}
+        />
+        <div style={{ maxWidth: 700, margin: "60px auto", padding: "30px", borderRadius: 18, border: "1px solid #fcd34d", backgroundColor: "#fffbeb", color: "#92400e" }}>
+          This area is reserved for managers and scouts. If you believe you need access, contact an administrator to link your account to the appropriate role.
+        </div>
+      </div>
+    );
+  }
 
   const filteredPlayers = (index) => {
     const query = searchQueries[index].toLowerCase();

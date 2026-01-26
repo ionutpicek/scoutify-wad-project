@@ -1,4 +1,5 @@
 import React from "react";
+import { clearCurrentUser } from "../services/sessionStorage.js";
 
 const ORANGE = "#FF681F";
 
@@ -78,6 +79,13 @@ export function Header({
   onLogout,
   onBack,
 }) {
+  const handleLogout = () => {
+    clearCurrentUser();
+    if (typeof onLogout === "function") {
+      onLogout();
+    }
+  };
+
   return (
     <header style={headerStyle}>
       <div style={headerInner}>
@@ -121,7 +129,7 @@ export function Header({
           
           <button
             style={logoutBtn}
-            onClick={onLogout}
+            onClick={handleLogout}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#FFF2E8")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "white")}
           >

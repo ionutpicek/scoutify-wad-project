@@ -1,10 +1,9 @@
 import express from "express";
-import { db, adminAuth } from "../firebase/firebaseAdmin.js";
+import { db } from "../firebase/firebaseAdmin.js";
 
 const router = express.Router();
 
 const USERS_COLLECTION = "users";
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173/login";
 
 router.get("/pending-verifications", async (req, res) => {
   try {
@@ -25,7 +24,7 @@ router.get("/pending-verifications", async (req, res) => {
   }
 });
 
-router.post("/send-verification", async (req, res) => {
+router.post("/verify-user", async (req, res) => {
   const { uid } = req.body || {};
   if (!uid) {
     return res.status(400).json({ message: "uid is required." });
@@ -38,29 +37,40 @@ router.post("/send-verification", async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    const userData = docSnapshot.data();
-    const email = userData.email;
-    if (!email) {
-      return res.status(400).json({ message: "User missing email address." });
+    await userRef.update({ verifyUser: true });
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Failed to mark user verified:", error);
+    res.status(500).json({ message: "Unable to verify user." });
+  }
+});
+
+router.post("/link-player", async (req, res) => {
+  const { uid, playerDocId } = req.body || {};
+  if (!uid || !playerDocId) {
+    return res.status(400).json({ message: "uid and playerDocId are required." });
+  }
+
+  try {
+    const playerRef = db.collection("player").doc(playerDocId);
+    const playerSnapshot = await playerRef.get();
+    if (!playerSnapshot.exists) {
+      return res.status(404).json({ message: "Player not found." });
     }
 
-    const actionCodeSettings = {
-      url: `${FRONTEND_URL}?source=verification`,
-      handleCodeInApp: false,
+    const playerData = playerSnapshot.data() || {};
+    const payload = {
+      playerDocId,
+      playerID: playerData.playerID || null,
+      matchedPlayerName: playerData.name || null,
     };
 
-    const link = await adminAuth.generateEmailVerificationLink(email, actionCodeSettings);
-    console.log(`[admin] Generated verification link for ${email}: ${link}`);
+    await db.collection(USERS_COLLECTION).doc(uid).update(payload);
 
-    await userRef.update({
-      verifyUser: true,
-      verifyEmail: false,
-    });
-
-    res.json({ link });
+    res.json({ player: payload });
   } catch (error) {
-    console.error("Failed to send verification mail:", error);
-    res.status(500).json({ message: "Unable to send verification email." });
+    console.error("Failed to link player:", error);
+    res.status(500).json({ message: "Unable to link player to account." });
   }
 });
 

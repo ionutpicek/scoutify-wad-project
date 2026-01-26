@@ -4,6 +4,8 @@ import Photo from '../assets/ScoutifyPromo.png';
 import { doc, updateDoc } from "firebase/firestore";
 import { auth, db, getDocLogged as getDoc } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { setCurrentUser } from "../services/sessionStorage.js";
+import { findPlayerByNameAndTeam } from "../services/playerServices.jsx";
 
 const ORANGE = '#FF681F';
 const ORANGE_HOVER = '#FF4500';
@@ -130,6 +132,37 @@ const LoginPage = () => {
         return;
       }
 
+      if (userData.role === "player" && !userData.playerDocId) {
+        try {
+          const resolvedPlayer = await findPlayerByNameAndTeam({
+            fullName: (userData.fullName || "").trim(),
+            teamName: userData.teamName,
+          });
+          if (resolvedPlayer) {
+            await updateDoc(userRef, {
+              playerDocId: resolvedPlayer.docId,
+              playerID: resolvedPlayer.playerID ?? null,
+            });
+            userData.playerDocId = resolvedPlayer.docId;
+            userData.playerID = resolvedPlayer.playerID;
+          } else {
+            console.warn("No player matched for", userData.username);
+          }
+        } catch (matchError) {
+          console.error("Player auto-link failed:", matchError);
+        }
+      }
+
+
+      // persist session info
+      setCurrentUser({
+        role: userData.role,
+        username: userData.username,
+        teamName: userData.teamName,
+        email: userData.email,
+        playerDocId: userData.playerDocId || null,
+        playerID: userData.playerID || null,
+      });
 
       // Success transition
       setDidSucceed(true);
@@ -141,6 +174,8 @@ const LoginPage = () => {
             userTeam: userData.teamName,
             role: userData.role,
             username: userData.username,
+            playerDocId: userData.playerDocId || null,
+            playerID: userData.playerID || null,
           },
         });
       }, 450);

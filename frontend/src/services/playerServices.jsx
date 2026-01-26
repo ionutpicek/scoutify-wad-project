@@ -9,9 +9,42 @@ import {
   setDoc
 } from "firebase/firestore";
 
-// ⚠ Collection references
+// ⚽ Collection references
 const playersRef = collection(db, "player");
 const statsRef = collection(db, "stats");
+
+const normalizeNameForLookup = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "")
+    .trim();
+
+const nameMatches = (candidate, target) =>
+  Boolean(candidate) && normalizeNameForLookup(candidate) === target;
+
+export const findPlayerByNameAndTeam = async ({ fullName, teamName }) => {
+  if (!fullName) return null;
+  const normalizedTarget = normalizeNameForLookup(fullName);
+  const playerQuery = teamName
+    ? query(playersRef, where("teamName", "==", teamName))
+    : playersRef;
+
+  const snapshot = await getDocs(playerQuery);
+  for (const docSnap of snapshot.docs) {
+    const data = docSnap.data() || {};
+    const candidates = [data.name, data.canonicalName, data.abbrName];
+    if (candidates.some((value) => nameMatches(value, normalizedTarget))) {
+      return {
+        docId: docSnap.id,
+        ...data,
+      };
+    }
+  }
+
+  return null;
+};
 
 /**
  * Get all players of a team

@@ -5,7 +5,11 @@ import LoginPage from './pages/Login.jsx';
 
 
 const App = () => {
-  return <AppRoutes />;
+  return (
+    <div className="app-shell">
+      <AppRoutes />
+    </div>
+  );
 };
 
 export default App;

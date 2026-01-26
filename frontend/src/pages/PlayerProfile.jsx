@@ -1,4 +1,4 @@
-import {React, useEffect, useState} from "react";
+import {React, useEffect, useState, useMemo} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { doc, query, collection, where, orderBy } from "firebase/firestore";
 import { db, getDocLogged as getDoc, getDocsLogged as getDocs } from "../firebase.jsx";
@@ -7,6 +7,7 @@ import Header from "../components/Header.jsx";
 import Spinner from "../components/Spinner.jsx";
 import superligaLogo from '../assets/superligaF.png';
 import SeasonGradeCard from "../components/SeasonGradeCard";
+import { getCurrentUser } from "../services/sessionStorage.js";
 
 
 const PlayerProfile = () => {
@@ -28,7 +29,15 @@ const PlayerProfile = () => {
         .replace(/[^a-z0-9\\s.]/g, "")
         .replace(/\\s+/g, " ")
         .trim();
-    
+
+    const storedUser = useMemo(() => getCurrentUser(), []);
+    const isPlayerRole = storedUser?.role === "player";
+    const isOwnProfile = !isPlayerRole || !storedUser?.playerDocId || storedUser.playerDocId === playerID;
+    const isBlocked = isPlayerRole && !isOwnProfile;
+
+    const handleLogout = () => {
+        navigate("/login");
+    };
     const StatCard = ({ label, value }) => {
         // Keep special stats intact
         const displayLabel = (() => {
@@ -60,7 +69,10 @@ const PlayerProfile = () => {
 
 
     useEffect(() => {
-        if (!playerID) return;
+        if (!playerID || isBlocked) {
+            setIsLoading(false);
+            return;
+        }
 
         const fetchData = async () => {
             setIsLoading(true);
@@ -236,16 +248,28 @@ const PlayerProfile = () => {
         };
 
         fetchData();
-    }, [ playerID, teamData?.name]);
+    }, [playerID, isBlocked, teamData?.name]);
+
+    if (isBlocked) {
+        return (
+            <div style={{backgroundColor:"#fff", minHeight:"100vh"}}>
+                <Header
+                    title="Access denied"
+                    subtitle="You can only view your own profile."
+                    onBack={() => navigate(-1)}
+                    onLogout={handleLogout}
+                />
+                <div style={{maxWidth:"600px", margin:"40px auto", padding:"20px", borderRadius:"14px", border:"1px solid #ffcc80", backgroundColor:"#fff8f0", color:"#994c00"}}>
+                    You are logged in as a player and can only see your own statistics. Contact an admin if you need a different profile linked.
+                </div>
+            </div>
+        );
+    }
 
     if (isLoading) return <div style={{backgroundColor:"#fff", justifyContent:"center", display:"flex", height:"100vh", width:"100vw", alignItems:"center"}}>
                             <Spinner />
                           </div>
     if (!playerData) return <p>No player data found.</p>;
-
-    const handleLogout = () => {
-        navigate("/login");
-    };
 
     const getAge = () => {
         if (!playerData || !playerData.birthdate) return "N/A";

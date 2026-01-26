@@ -14,14 +14,13 @@ const Dashboard = () => {
 
   const { role: userRole, username, userTeam } = location.state || {};
   const isAdmin = userRole === "admin";
+  const isManager = userRole === "manager";
+  const canAccessManagement = isAdmin || isManager;
 
   const [hovered, setHovered] = useState(null);
   const [pendingUsers, setPendingUsers] = useState([]);
   const [pendingLoading, setPendingLoading] = useState(false);
   const [pendingError, setPendingError] = useState("");
-  const [sendingUid, setSendingUid] = useState(null);
-  const [lastSentLink, setLastSentLink] = useState("");
-  const [lastSentEmail, setLastSentEmail] = useState("");
 
   const handleLogout = () => navigate("/login");
 
@@ -45,33 +44,6 @@ const Dashboard = () => {
       setPendingError(err.message || "Unable to load pending users.");
     } finally {
       setPendingLoading(false);
-    }
-  };
-
-  const handleSendVerification = async (user) => {
-    if (!user?.uid) return;
-    setSendingUid(user.uid);
-    setPendingError("");
-    try {
-      const res = await fetch(apiUrl("/admin/send-verification"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ uid: user.uid }),
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Failed to send verification.");
-      }
-      const body = await res.json();
-      setLastSentLink(body.link || "");
-      setLastSentEmail(user.email || "");
-      setPendingUsers((prev) => prev.filter((u) => u.uid !== user.uid));
-    } catch (err) {
-      setPendingError(err.message || "Failed to send verification.");
-    } finally {
-      setSendingUid(null);
     }
   };
 
@@ -265,7 +237,7 @@ const Dashboard = () => {
     {
       key: "matches",
       title: "Matches",
-      desc: "Upload match PDFs and review game performance.",
+      desc: "Review game performance and access uploads (admin/manager only).",
       icon: "⚽",
       badge: "Analyze",
       onClick: () => navigate("/matches"),
@@ -273,11 +245,12 @@ const Dashboard = () => {
     {
       key: "compare",
       title: "Compare",
-      desc: "Compare two players side-by-side for decisions.",
+      desc: "Compare two players side-by-side for decisions. Only for managers.",
       icon: "⚖️",
       badge: "Decide",
       onClick: () =>
         navigate("/compare", { state: { userTeam: userTeam, role: userRole } }),
+      restrictedTo: ["manager", "admin"],
     },
     {
       key: "teams",
@@ -356,51 +329,20 @@ const Dashboard = () => {
         </div>
 
         <div style={styles.grid}>
-          {primary.map((c) => (
-            <div
-              key={c.key}
-              style={cardStyle(c.key)}
-              onMouseEnter={() => setHovered(c.key)}
-              onMouseLeave={() => setHovered(null)}
-              onClick={c.onClick}
-            >
-              <div style={styles.accent} />
-              <div style={styles.cardTop}>
-                <div style={styles.titleWrap}>
-                  <div style={styles.iconBubble}>{c.icon}</div>
-                  <div style={styles.cardTitle}>{c.title}</div>
-                </div>
-                <div style={styles.badge}>{c.badge}</div>
-              </div>
-
-              <div style={styles.cardDesc}>{c.desc}</div>
-
-              <div style={styles.cardFooter}>
-                <span style={styles.open}>Open →</span>
-                <span style={{ fontSize: 12, color: MUTED, fontWeight: 700 }}>
-                  Quick access
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div style={styles.sectionRow}>
-          <div style={styles.sectionTitle}>Management & tools</div>
-          <div style={styles.sectionHint}>Setup and computations</div>
-        </div>
-
-        <div style={styles.grid}>
-          {management.map((c) => {
-            const disabled = !!c.adminOnly && !isAdmin;
-            const cardKey = disabled ? `${c.key}-locked` : c.key;
+          {primary.map((c) => {
+            const restricted = c.restrictedTo && !c.restrictedTo.includes(userRole);
+            const cardKey = restricted ? `${c.key}-restricted` : c.key;
             return (
               <div
                 key={cardKey}
-                style={{ ...cardStyle(c.key), cursor: disabled ? "not-allowed" : "pointer" }}
+                style={{
+                  ...cardStyle(c.key),
+                  cursor: restricted ? "not-allowed" : "pointer",
+                  opacity: restricted ? 0.4 : 1,
+                }}
                 onMouseEnter={() => setHovered(cardKey)}
                 onMouseLeave={() => setHovered(null)}
-                onClick={disabled ? undefined : c.onClick}
+                onClick={restricted ? undefined : c.onClick}
               >
                 <div style={styles.accent} />
                 <div style={styles.cardTop}>
@@ -414,119 +356,109 @@ const Dashboard = () => {
                 <div style={styles.cardDesc}>{c.desc}</div>
 
                 <div style={styles.cardFooter}>
-                  <span style={styles.open}>{disabled ? "Admin only" : "Open →"}</span>
-                  <span
-                    style={{
-                      fontSize: 12,
-                      color: disabled ? "#9CA3AF" : MUTED,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {disabled ? "Restricted" : "Admin module"}
+                  <span style={styles.open}>{restricted ? "Staff only" : "Open →"}</span>
+                  <span style={{ fontSize: 12, color: MUTED, fontWeight: 700 }}>
+                    Quick access
                   </span>
                 </div>
               </div>
             );
           })}
+        </div>
 
-          {isAdmin && (
-            <div
-              key="admin-verification"
-              style={{ ...cardStyle("admin-verification"), cursor: "default" }}
-              onMouseEnter={() => setHovered("admin-verification")}
-              onMouseLeave={() => setHovered(null)}
-            >
-              <div style={styles.accent} />
-              <div style={styles.cardTop}>
-                <div style={styles.titleWrap}>
-                  <div style={styles.iconBubble}>!</div>
-                  <div style={styles.cardTitle}>Verification queue</div>
-                </div>
-                <div style={styles.badge}>Admin</div>
-              </div>
+        {canAccessManagement && (
+          <>
+            <div style={styles.sectionRow}>
+              <div style={styles.sectionTitle}>Management & tools</div>
+              <div style={styles.sectionHint}>Setup and computations</div>
+            </div>
 
-              <div
-                style={{
-                  ...styles.cardDesc,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                }}
-              >
-                <div style={{ fontSize: 14, fontWeight: 700 }}>Pending approvals</div>
-                {pendingLoading && <div>Loading pending users...</div>}
-                {pendingError && (
-                  <div style={{ color: "#EF4444", fontSize: 13 }}>{pendingError}</div>
-                )}
-                {!pendingLoading && !pendingError && pendingUsers.length === 0 && (
-                  <div style={{ color: MUTED, fontSize: 13 }}>No pending users.</div>
-                )}
-                {!pendingLoading && pendingUsers.length > 0 && (
+            <div style={styles.grid}>
+              {management.map((c) => {
+                const disabled = !!c.adminOnly && !isAdmin;
+                const cardKey = disabled ? `${c.key}-locked` : c.key;
+                return (
                   <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 10,
-                      marginTop: 6,
-                    }}
+                    key={cardKey}
+                    style={{ ...cardStyle(c.key), cursor: disabled ? "not-allowed" : "pointer" }}
+                    onMouseEnter={() => setHovered(cardKey)}
+                    onMouseLeave={() => setHovered(null)}
+                    onClick={disabled ? undefined : c.onClick}
                   >
-                    {pendingUsers.map((user) => (
-                      <div
-                        key={user.uid}
+                    <div style={styles.accent} />
+                    <div style={styles.cardTop}>
+                      <div style={styles.titleWrap}>
+                        <div style={styles.iconBubble}>{c.icon}</div>
+                        <div style={styles.cardTitle}>{c.title}</div>
+                      </div>
+                      <div style={styles.badge}>{c.badge}</div>
+                    </div>
+
+                    <div style={styles.cardDesc}>{c.desc}</div>
+
+                    <div style={styles.cardFooter}>
+                      <span style={styles.open}>{disabled ? "Admin only" : "Open →"}</span>
+                      <span
                         style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                          gap: 12,
+                          fontSize: 12,
+                          color: disabled ? "#9CA3AF" : MUTED,
+                          fontWeight: 700,
                         }}
                       >
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 700 }}>
-                            {user.fullName || user.username || "Unknown user"}
-                          </div>
-                          <div style={{ fontSize: 12, color: MUTED }}>
-                            {user.email}
-                            {user.teamName ? ` · ${user.teamName}` : ""}
-                          </div>
-                        </div>
-                        <button
-                          disabled={sendingUid === user.uid}
-                          onClick={() => handleSendVerification(user)}
-                          style={{
-                            border: "none",
-                            backgroundColor: ORANGE,
-                            color: "white",
-                            borderRadius: 999,
-                            padding: "6px 16px",
-                            fontWeight: 700,
-                            cursor: sendingUid === user.uid ? "progress" : "pointer",
-                            opacity: sendingUid === user.uid ? 0.7 : 1,
-                            boxShadow: "0 8px 18px rgba(255,104,31,0.25)",
-                          }}
-                        >
-                          {sendingUid === user.uid ? "Sending..." : "Send verification"}
-                        </button>
+                        {disabled ? "Restricted" : "Admin module"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {isAdmin && (
+                <div
+                  key="admin-verification"
+                  style={{ ...cardStyle("admin-verification"), cursor: "pointer" }}
+                  onMouseEnter={() => setHovered("admin-verification")}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() =>
+                    navigate("/verification-queue", {
+                      state: { role: userRole, username, userTeam },
+                    })
+                  }
+                >
+                  <div style={styles.accent} />
+                  <div style={styles.cardTop}>
+                    <div style={styles.titleWrap}>
+                      <div style={styles.iconBubble}>!</div>
+                      <div style={styles.cardTitle}>Verification queue</div>
+                    </div>
+                    <div style={styles.badge}>Admin</div>
+                  </div>
+                  <div
+                    style={{
+                      ...styles.cardDesc,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6,
+                    }}
+                  >
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>Pending approvals</div>
+                    {pendingLoading ? (
+                      <div>Loading pending users...</div>
+                    ) : pendingError ? (
+                      <div style={{ color: "#EF4444", fontSize: 13 }}>{pendingError}</div>
+                    ) : (
+                      <div style={{ color: MUTED, fontSize: 13 }}>
+                        {pendingUsers.length} account{pendingUsers.length === 1 ? "" : "s"} pending review.
                       </div>
-                    ))}
+                    )}
+                    <div style={{ fontSize: 12, color: MUTED }}>
+                      Click to open the verification queue.
+                    </div>
                   </div>
-                )}
-                {lastSentLink && (
-                  <div style={{ fontSize: 12, color: MUTED, marginTop: 8 }}>
-                    Link for {lastSentEmail || "the last user"}:
-                    <a
-                      href={lastSentLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ marginLeft: 6, color: ORANGE }}
-                    >
-                      Open
-                    </a>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </div>
   );

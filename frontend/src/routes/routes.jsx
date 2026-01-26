@@ -17,13 +17,16 @@ import MatchesPage from '../pages/MachesPage';
 import MatchPage from '../pages/MatchPage';
 import ForgotPassword from '../pages/ForgotPassword';
 import LeaderboardPage from '../pages/Leaderboard';
+import LandingPage from '../pages/LandingPage';
+import VerificationQueue from '../pages/VerificationQueue';
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<Navigate to="/landing" />} />
 
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -40,6 +43,7 @@ const AppRoutes = () => {
         <Route path="/matches" element={<MatchesPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/matches/:id" element={<MatchPage />} />
+        <Route path="/verification-queue" element={<VerificationQueue />} />
         
         {/* Fallback route */}
         <Route path="*" element={<h2>Page Not Found</h2>} />
