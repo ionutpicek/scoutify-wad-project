@@ -666,8 +666,7 @@ const topNav = {
 };
 
 const navInner = {
-  maxWidth: 1200,
-  margin: "0 auto",
+  width: "100%",
   padding: "12px 18px",
   display: "flex",
   justifyContent: "space-between",
@@ -726,8 +725,7 @@ const hero = {
 };
 
 const heroInner = {
-  maxWidth: 1200,
-  margin: "0 auto",
+  width: "100%",
   padding: "60px 18px",
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
@@ -831,9 +829,9 @@ const compareFill = {
 const section = { padding: "64px 0" };
 const sectionAlt = { padding: "64px 0", background: "#fff" };
 
-const container = { maxWidth: 1200, margin: "0 auto", padding: "0 18px" };
+const container = { width: "100%", padding: "0 18px" };
 
-const sectionHead = { maxWidth: 760 };
+const sectionHead = {};
 const sectionTitle = {
   margin: 0,
   fontSize: "clamp(1.9rem, 2.4vw, 2.5rem)",
@@ -1097,8 +1095,7 @@ const footer = {
 };
 
 const footerInner = {
-  maxWidth: 1200,
-  margin: "0 auto",
+  width: "100%",
   padding: "0 18px",
   display: "flex",
   justifyContent: "space-between",

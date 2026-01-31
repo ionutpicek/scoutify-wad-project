@@ -99,7 +99,8 @@ export default function MatchesPage() {
       />
 
       <div style={{ padding: "3vh 4vw", display: "flex", flexDirection: "column"}}>
-        {/* Upload section */}
+      {/* Upload section */}
+      {!isPlayerRole && (
         <div
           style={{
             background: "#fff",
@@ -123,7 +124,7 @@ export default function MatchesPage() {
               <div style={{ position: "relative", display: "inline-block" }}>
                 <button
                 type="button"
-                onClick={() => !isPlayerRole && document.getElementById("match-upload-input")?.click()}
+                onClick={() => document.getElementById("match-upload-input")?.click()}
                 style={{
                   background: "#fff",
                   color: "#FF681F",
@@ -140,7 +141,7 @@ export default function MatchesPage() {
                 id="match-upload-input"
                 type="file"
                 accept="application/pdf"
-                onChange={e => !isPlayerRole && setFile(e.target.files[0])}
+                onChange={e => setFile(e.target.files[0])}
                 style={{
                   position: "absolute",
                   inset: 0,
@@ -149,7 +150,6 @@ export default function MatchesPage() {
                   width: "100%",
                   height: "100%"
                 }}
-                disabled={isPlayerRole}
               />
             </div>
             {file && (
@@ -159,30 +159,24 @@ export default function MatchesPage() {
             )}
           </div>
 
-          
-          {isPlayerRole ? (
-            <span style={{ fontSize: 12, color: "#92400e" }}>
-              Uploads are reserved for managers/admins.
-            </span>
-          ) : (
           <button
             onClick={handleUpload}
-            disabled={!file || uploading || isPlayerRole}
+            disabled={!file || uploading}
             style={{
               marginLeft: 12,
-              background: isPlayerRole ? "#ccc" : "#FF681F",
+              background: "#FF681F",
               color: "#fff",
               border: "none",
               borderRadius: 8,
               padding: "8px 16px",
-              cursor: isPlayerRole ? "not-allowed" : "pointer",
+              cursor: !file || uploading ? "not-allowed" : "pointer",
               minWidth: 96
             }}
           >
-          {uploading ? "Uploading..." : "Submit"}
-          </button>)
-          }
+            {uploading ? "Uploading..." : "Submit"}
+          </button>
         </div>
+      )}
 
         {/* Filters */}
         <div

@@ -191,20 +191,33 @@ const VerificationQueue = () => {
   const playersForUser = (user) => {
     if (!players.length) return [];
     const teamKey = normalizeTeamKey(user.teamName);
-    if (!teamKey) return [];
+    const nameKey = normalizeTeamKey(user.fullName || user.username || "");
 
-    const exactMatch = players.filter(
-      (player) => normalizeTeamKey(player.teamName) === teamKey
-    );
-    if (exactMatch.length) return exactMatch;
-
-    return players.filter((player) => {
+    const scored = players.map((player) => {
+      let score = 0;
       const playerTeamKey = normalizeTeamKey(player.teamName);
-      return (
-        playerTeamKey.includes(teamKey) ||
-        teamKey.includes(playerTeamKey)
-      );
+      if (teamKey) {
+        if (playerTeamKey === teamKey) score += 5;
+        else if (
+          playerTeamKey.includes(teamKey) ||
+          teamKey.includes(playerTeamKey)
+        )
+          score += 2;
+      }
+      if (nameKey) {
+        const playerNameKey = normalizeTeamKey(player.name);
+        if (playerNameKey === nameKey) score += 3;
+        else if (
+          playerNameKey.includes(nameKey) ||
+          nameKey.includes(playerNameKey)
+        )
+          score += 1;
+      }
+      return { player, score };
     });
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored.map(({ player }) => player);
   };
 
   return (
@@ -383,6 +396,7 @@ const VerificationQueue = () => {
                         border: "1px solid rgba(0,0,0,0.08)",
                         background: "white",
                         padding: "10px 14px",
+                        color:"#000",
                         fontWeight: 700,
                         cursor:
                           linkingUid === user.uid || user.playerDocId

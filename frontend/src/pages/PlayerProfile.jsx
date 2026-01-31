@@ -8,6 +8,7 @@ import Spinner from "../components/Spinner.jsx";
 import superligaLogo from '../assets/superligaF.png';
 import SeasonGradeCard from "../components/SeasonGradeCard";
 import { getCurrentUser } from "../services/sessionStorage.js";
+import { apiUrl } from "../config/api.js";
 
 
 const PlayerProfile = () => {
@@ -20,6 +21,9 @@ const PlayerProfile = () => {
     const [teamData, setTeamData] = useState([]);
     const [matchesPlayed, setMatchesPlayed] = useState([]);
     const [physicalMetrics, setPhysicalMetrics] = useState(null);
+    const [generatingSnapshot, setGeneratingSnapshot] = useState(false);
+    const [snapshotMessage, setSnapshotMessage] = useState("");
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const normalize = str =>
       String(str || "")
@@ -32,11 +36,46 @@ const PlayerProfile = () => {
 
     const storedUser = useMemo(() => getCurrentUser(), []);
     const isPlayerRole = storedUser?.role === "player";
+    const isManagerRole = storedUser?.role === "manager";
+    const isAdminUser = storedUser?.role === "admin";
     const isOwnProfile = !isPlayerRole || !storedUser?.playerDocId || storedUser.playerDocId === playerID;
-    const isBlocked = isPlayerRole && !isOwnProfile;
+    const managerTeam = storedUser?.teamName || storedUser?.userTeam || "";
+    const teamKey = managerTeam ? normalize(managerTeam) : "";
+    const playerTeamName = playerData?.teamName || teamData?.name;
+    const playerTeamKey = playerTeamName ? normalize(playerTeamName) : "";
+    const isManagerMismatch =
+      isManagerRole && teamKey && playerTeamKey && teamKey !== playerTeamKey;
+    const isBlocked = (isPlayerRole && !isOwnProfile) || isManagerMismatch;
 
     const handleLogout = () => {
         navigate("/login");
+    };
+    const handleGenerateSnapshot = async () => {
+        if (!statsData?._statsDocId) return;
+        setGeneratingSnapshot(true);
+        setSnapshotMessage("");
+        try {
+            const res = await fetch(apiUrl("/admin/generate-scout-snapshot"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    statsDocId: statsData._statsDocId,
+                playerDocId: playerID,
+              }),
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text || "Snapshot generation failed.");
+            }
+            await res.json();
+            setSnapshotMessage("Snapshot regenerated.");
+            setRefreshKey((prev) => prev + 1);
+        } catch (error) {
+            console.error("Snapshot generation failed:", error);
+            setSnapshotMessage(error.message || "Unable to regenerate snapshot.");
+        } finally {
+            setGeneratingSnapshot(false);
+        }
     };
     const StatCard = ({ label, value }) => {
         // Keep special stats intact
@@ -248,7 +287,11 @@ const PlayerProfile = () => {
         };
 
         fetchData();
-    }, [playerID, isBlocked, teamData?.name]);
+    }, [playerID, isBlocked, teamData?.name, refreshKey]);
+
+    const accessDeniedMessage = isManagerMismatch
+      ? "Managers can only view players from their own team."
+      : "You are logged in as a player and can only see your own statistics. Contact an admin if you need a different profile linked.";
 
     if (isBlocked) {
         return (
@@ -260,7 +303,7 @@ const PlayerProfile = () => {
                     onLogout={handleLogout}
                 />
                 <div style={{maxWidth:"600px", margin:"40px auto", padding:"20px", borderRadius:"14px", border:"1px solid #ffcc80", backgroundColor:"#fff8f0", color:"#994c00"}}>
-                    You are logged in as a player and can only see your own statistics. Contact an admin if you need a different profile linked.
+                    {accessDeniedMessage}
                 </div>
             </div>
         );
@@ -312,8 +355,8 @@ const PlayerProfile = () => {
         statsAvailable && statsData?.firstGameDate && statsData?.lastGameDate
           ? `${dateFormat(statsData.firstGameDate)} - ${dateFormat(statsData.lastGameDate)}`
           : "N/A";
-      const teamName = teamData?.name || "N/A";
-      const teamPhoto = teamData?.photoURL || superligaLogo;
+    const teamName = teamData?.name || "N/A";
+    const teamPhoto = teamData?.photoURL || superligaLogo;
 
     console.log("Matches played:", matchesPlayed);
 
@@ -348,9 +391,15 @@ const PlayerProfile = () => {
                   seasonGrade={statsData.seasonGrade}
                   statsDocId={statsData._statsDocId}
                   matchesPlayed={matchesPlayed}
+                  scoutSnapshot={statsData?.seasonGrade?.scoutSnapshot}
+                  onRegenerateSnapshot={handleGenerateSnapshot}
+                  isAdmin={isAdminUser}
+                  generatingSnapshot={generatingSnapshot}
+                  snapshotMessage={snapshotMessage}
+                  physicalMetrics={physicalMetrics}
                 />
                 <div style={{
-                  width: "85vw",
+                  width: "90vw",
                   margin: "3vh auto",
                   padding: "20px",
                   borderRadius: "16px",

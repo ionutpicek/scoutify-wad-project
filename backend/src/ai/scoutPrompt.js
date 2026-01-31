@@ -1,27 +1,13 @@
-function pickDerivedForPrompt(derived, role) {
+export function pickDerivedForPrompt(derived) {
   if (!derived) return {};
-
-  if (role === "GOALKEEPER") {
-    return {
-      saves_p90: derived.saves_p90,
-      goalsConceded_p90: derived.goalsConceded_p90,
-      saveRate: derived.saveRate,
-      longPassAccuracy: derived.longPassAccuracy,
-    };
-  }
-
-  return {
-    goals_p90: derived.goals_p90,
-    assists_p90: derived.assists_p90,
-    xG_p90: derived.xG_p90,
-    xA_p90: derived.xA_p90,
-    progressiveRuns_p90: derived.progressiveRuns_p90,
-    duelsWonPct: derived.duelsWonPct,
-    passAccuracy: derived.passAccuracy,
-  };
+  return Object.fromEntries(
+    Object.entries(derived)
+      .filter(([, value]) => value != null)
+      .sort(([a], [b]) => a.localeCompare(b))
+  );
 }
 
-function humanizeStat(key) {
+export function humanizeStat(key) {
   return key
     .replace(/_p90/g, " per 90")
     .replace(/Pct/g, " %")
@@ -29,7 +15,7 @@ function humanizeStat(key) {
     .replace(/^./, c => c.toUpperCase());
 }
 
-function formatStat(value) {
+export function formatStat(value) {
   if (value == null) return "N/A";
   if (typeof value === "number") {
     if (value <= 1) return (value * 100).toFixed(0) + "%";
@@ -48,7 +34,7 @@ export function buildScoutPrompt(grade, derived) {
     subGrades
   } = grade;
 
-  const selectedDerived = pickDerivedForPrompt(derived, role);
+  const selectedDerived = pickDerivedForPrompt(derived);
 
   return `
 You are a professional football scout.

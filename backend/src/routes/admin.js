@@ -1,5 +1,7 @@
 import express from "express";
+import admin from "firebase-admin";
 import { db } from "../firebase/firebaseAdmin.js";
+import generatePlayerProfileSummary from "../ai/playerProfileSummary.js";
 
 const router = express.Router();
 
@@ -71,6 +73,54 @@ router.post("/link-player", async (req, res) => {
   } catch (error) {
     console.error("Failed to link player:", error);
     res.status(500).json({ message: "Unable to link player to account." });
+  }
+});
+
+router.post("/generate-scout-snapshot", async (req, res) => {
+  const { statsDocId, playerDocId } = req.body || {};
+  if (!statsDocId) {
+    return res.status(400).json({ message: "statsDocId is required." });
+  }
+
+  try {
+    const statsRef = db.collection("stats").doc(statsDocId);
+    const statsSnap = await statsRef.get();
+    if (!statsSnap.exists) {
+      return res.status(404).json({ message: "Stats document not found." });
+    }
+
+    const stats = statsSnap.data() || {};
+
+    let player = null;
+    const playerIdToFetch = playerDocId || stats.playerDocId;
+    if (playerIdToFetch) {
+      const playerSnap = await db.collection("player").doc(playerIdToFetch).get();
+      player = playerSnap.exists ? playerSnap.data() : null;
+    }
+
+    let team = null;
+    if (player?.teamID) {
+      const teamSnap = await db
+        .collection("team")
+        .where("teamID", "==", player.teamID)
+        .limit(1)
+        .get();
+      if (!teamSnap.empty) {
+        team = teamSnap.docs[0].data();
+      }
+    }
+
+    const summary = await generatePlayerProfileSummary({ player, team, stats });
+
+    await statsRef.update({
+      "seasonGrade.scoutSnapshot": summary,
+      "seasonGrade.scoutSnapshotGeneratedAt": admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    res.json({ summary });
+  } catch (error) {
+    console.error("Failed to generate scout snapshot:", error);
+    res.status(500).json({ message: "Unable to generate scout snapshot." });
   }
 });
 

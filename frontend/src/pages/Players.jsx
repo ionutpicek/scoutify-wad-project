@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection } from "firebase/firestore";
 import { db, getDocsLogged as getDocs } from "../firebase.jsx";
 import PlayerCard from "../components/PlayerCard.jsx";
 import Spinner from "../components/Spinner.jsx";
 import Header from "../components/Header.jsx";
+import { getCurrentUser } from "../services/sessionStorage.js";
 
 function PlayersList() {
   const [players, setPlayers] = useState([]);
@@ -14,6 +15,11 @@ function PlayersList() {
   const [positions, setPositions] = useState([]);
   
   const [isLoading, setIsLoading] = useState(true); 
+  const storedUser = useMemo(() => getCurrentUser(), []);
+  const isPlayerRole = storedUser?.role === "player";
+  const isManagerRole = storedUser?.role === "manager";
+  const playerDocId = storedUser?.playerDocId;
+  const managerTeam = storedUser?.teamName || storedUser?.userTeam || "";
 
   const navigate = useNavigate();
 
@@ -73,11 +79,21 @@ function PlayersList() {
   const [searchTerm, setSearchTerm] = useState("");
 
   // 🔹 Apply filters
-  const filteredPlayers = players.filter(
-    (player) =>
-      (selectedTeam === "" || player.teamName === selectedTeam) &&
-      (selectedPosition === "" || player.position === selectedPosition) &&
-      (searchTerm === "" || player.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  const visiblePlayers = useMemo(() => {
+    if (isPlayerRole && playerDocId) {
+      return players.filter((player) => player.id === playerDocId);
+    }
+    if (isManagerRole && managerTeam) {
+      return players.filter((player) => player.teamName === managerTeam);
+    }
+    return players;
+  }, [players, isPlayerRole, playerDocId]);
+
+  const filteredPlayers = visiblePlayers.filter(
+      (player) =>
+        (selectedTeam === "" || player.teamName === selectedTeam) &&
+        (selectedPosition === "" || player.position === selectedPosition) &&
+        (searchTerm === "" || player.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
   );
 
@@ -89,6 +105,25 @@ function PlayersList() {
         onBack={() => navigate(-1)}
         onLogout={handleLogout}
       />
+
+      {isPlayerRole && (
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "16px auto",
+            padding: "12px",
+            borderRadius: 12,
+            border: "1px solid rgba(255,104,31,0.3)",
+            backgroundColor: "#fff7ed",
+            color: "#92400e",
+            textAlign: "center",
+            fontWeight: 600,
+          }}
+        >
+          You can only browse your linked player profile. Use the search bar and filters to hone in
+          on your own stats and match logs.
+        </div>
+      )}
 
       {/* Filters */}
       <div

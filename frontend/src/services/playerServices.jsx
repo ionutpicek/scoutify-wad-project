@@ -21,26 +21,49 @@ const normalizeNameForLookup = (value) =>
     .replace(/[^a-z0-9]/g, "")
     .trim();
 
+const normalizeTeamKey = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "")
+    .trim();
+
 const nameMatches = (candidate, target) =>
   Boolean(candidate) && normalizeNameForLookup(candidate) === target;
 
 export const findPlayerByNameAndTeam = async ({ fullName, teamName }) => {
   if (!fullName) return null;
   const normalizedTarget = normalizeNameForLookup(fullName);
-  const playerQuery = teamName
-    ? query(playersRef, where("teamName", "==", teamName))
-    : playersRef;
-
-  const snapshot = await getDocs(playerQuery);
+  const normalizedTeam = normalizeTeamKey(teamName);
+  const snapshot = await getDocs(playersRef);
   for (const docSnap of snapshot.docs) {
     const data = docSnap.data() || {};
     const candidates = [data.name, data.canonicalName, data.abbrName];
-    if (candidates.some((value) => nameMatches(value, normalizedTarget))) {
-      return {
-        docId: docSnap.id,
-        ...data,
-      };
+    if (!candidates.some((value) => nameMatches(value, normalizedTarget))) {
+      continue;
     }
+
+    const playerTeamKey = normalizeTeamKey(data.teamName || data.team || "");
+    if (
+      normalizedTeam &&
+      playerTeamKey &&
+      !(
+        playerTeamKey.includes(normalizedTeam) ||
+        normalizedTeam.includes(playerTeamKey)
+      )
+    ) {
+      continue;
+    }
+
+    if (normalizedTeam && !playerTeamKey) {
+      continue;
+    }
+
+    return {
+      docId: docSnap.id,
+      ...data,
+    };
   }
 
   return null;

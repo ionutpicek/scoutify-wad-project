@@ -256,7 +256,7 @@ export const ROLE_WEIGHTS = {
       throughPasses_p90: 0.1,
       crossesAccurate_p90: 0.05,
       recoveries_p90: 0.05,
-      losses_p90: -0.1
+      losses_p90: 0.5
     },
 
     passing: {
