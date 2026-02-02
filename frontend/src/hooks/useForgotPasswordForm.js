@@ -1,8 +1,6 @@
 import { useCallback, useState } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase";
-import { db } from "../firebase";
 
 export function useForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -32,16 +30,6 @@ export function useForgotPasswordForm() {
     setIsSubmitting(true);
 
     try {
-      const q = query(collection(db, "users"), where("email", "==", trimmed));
-      const snap = await getDocs(q);
-
-      if (snap.empty) {
-        setStatus({ type: "error", message: "No account found with this email." });
-        triggerShake();
-        setIsSubmitting(false);
-        return;
-      }
-
       await sendPasswordResetEmail(auth, trimmed);
 
       setStatus({
@@ -50,13 +38,14 @@ export function useForgotPasswordForm() {
       });
 
       setDidSucceed(true);
-      setIsSubmitting(false);
     } catch (err) {
       console.error("Reset error", err);
       let msg = "Something went wrong. Please try again.";
       if (err.code === "auth/invalid-email") msg = "Invalid email address.";
+      if (err.code === "auth/user-not-found") msg = "No account found with this email.";
       setStatus({ type: "error", message: msg });
       triggerShake();
+    } finally {
       setIsSubmitting(false);
     }
   }, [email, isSubmitting, triggerShake]);

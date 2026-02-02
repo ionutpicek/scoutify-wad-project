@@ -3,6 +3,7 @@ import { collection, orderBy, query, limit, where } from "firebase/firestore";
 import { db, getDocsLogged as getDocs } from "../../firebase.jsx";
 import { useNavigate } from "react-router-dom";
 import "./LeaderboardMobile.css";
+import profilePhoto from "../../assets/download.jpeg";
 
 const statOptions = [
   { id: "goals", label: "Goals" },
@@ -102,6 +103,7 @@ export default function LeaderboardMobile() {
 
   const activeStatLabel =
     statOptions.find((option) => option.id === activeStat)?.label || "Stat";
+  const statLabelText = activeStatLabel.toLowerCase();
 
   const metricSuffix = valueType === "per90" ? "per 90" : "total";
 
@@ -159,23 +161,42 @@ export default function LeaderboardMobile() {
         <p className="leaderboard-mobile-loading">Loading leaderboards�...</p>
       ) : (
         <div className="leaderboard-mobile-list">
-          {sortedLeaders.map((player, index) => (
-            <article key={player.playerID || player.id} className="leaderboard-mobile-card">
-              <div className="leaderboard-mobile-row">
-                
-                <strong>
-                  #{index + 1} {player.name}
-                </strong>
-                <span className="leaderboard-mobile-goals">
-                  {computeStatValue(player, activeStat, valueType).toFixed(valueType === "per90" ? 1 : 0)}
-                </span>
-              </div>
-              <div className="leaderboard-mobile-row">
-                <span>{player.team}</span>
-                <span>{player.assists} assists</span>
-              </div>
-            </article>
-          ))}
+          {sortedLeaders.map((player, index) => {
+            const statValue = computeStatValue(player, activeStat, valueType);
+            const statDisplay =
+              valueType === "per90" ? statValue.toFixed(1) : statValue.toFixed(0);
+            const photoSrc = player.photo || player.photoURL || player.profilePhoto || profilePhoto;
+            return (
+              <article key={player.playerID || player.id} className="leaderboard-mobile-card">
+                <div className="leaderboard-mobile-card-main">
+                  <img
+                    src={photoSrc}
+                    alt={player.name}
+                    className="leaderboard-mobile-card-photo"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = profilePhoto;
+                    }}
+                  />
+                  <div className="leaderboard-mobile-card-meta">
+                    <strong>
+                      #{index + 1} {player.name}
+                    </strong>
+                    <span className="leaderboard-mobile-team">{player.team}</span>
+                  </div>
+                  <div className="leaderboard-mobile-stat-field">
+                    <span className="leaderboard-mobile-stat-value">
+                      {statDisplay}
+                      {valueType === "per90" && (
+                        <span className="leaderboard-mobile-stat-suffix"> / 90</span>
+                      )}
+                    </span>
+                    <span className="leaderboard-mobile-stat-label">{statLabelText}</span>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </div>
