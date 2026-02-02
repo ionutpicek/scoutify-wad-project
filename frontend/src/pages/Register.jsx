@@ -556,7 +556,7 @@ const Register = () => {
           >
             No
           </button>
-        </div>
+          </div>
 
           <button
             style={styles.submitBtn}
@@ -574,6 +574,24 @@ const Register = () => {
             }}
           >
             {isSubmitting ? "Creating account…" : didSucceed ? "Created ✅" : "Submit"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            style={{
+              marginTop: 12,
+              background: "transparent",
+              border: "1px solid rgba(0,0,0,0.12)",
+              borderRadius: 10,
+              padding: "12px 25px",
+              width: 280,
+              fontWeight: 800,
+              cursor: "pointer",
+              color: "#111",
+            }}
+          >
+            Back to login
           </button>
         </div>
       </div>

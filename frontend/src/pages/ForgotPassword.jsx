@@ -1,78 +1,24 @@
-import React, { useMemo, useState } from "react";
-import {  Link } from "react-router-dom";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
+import React, { useMemo } from "react";
+import { Link } from "react-router-dom";
+import { useForgotPasswordForm } from "../hooks/useForgotPasswordForm";
 
 const ORANGE = "#FF681F";
 const ORANGE_HOVER = "#FF4500";
-const SOFT_ORANGE = "#FFF2E8";
 const ERROR = "#EF4444";
 const SUCCESS = "#16A34A";
 
 const ForgotPassword = () => {
-
-  const [email, setEmail] = useState("");
-  const [focused, setFocused] = useState(false);
-  const [status, setStatus] = useState({ type: null, message: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [didSucceed, setDidSucceed] = useState(false);
-  const [shake, setShake] = useState(false);
-
-  const triggerShake = () => {
-    setShake(true);
-    setTimeout(() => setShake(false), 380);
-  };
-
-  const handleReset = async () => {
-  if (isSubmitting) return;
-
-  setStatus({ type: null, message: "" });
-
-  const trimmed = email.trim();
-  if (!trimmed) {
-    setStatus({ type: "error", message: "Please enter your email." });
-    triggerShake();
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    // ✅ Check Firestore first
-    const q = query(collection(db, "users"), where("email", "==", trimmed));
-    const snap = await getDocs(q);
-
-    if (snap.empty) {
-      setStatus({ type: "error", message: "No account found with this email." });
-      triggerShake();
-      setIsSubmitting(false);
-      return;
-    }
-
-    // ✅ Then send reset email
-    await sendPasswordResetEmail(auth, trimmed);
-
-    setStatus({
-      type: "success",
-      message: "Reset link sent. Check your inbox (and spam).",
-    });
-
-    setDidSucceed(true);
-    setIsSubmitting(false); // ✅ allow user to click again if needed
-    // ✅ NO navigate() here
-  } catch (err) {
-    console.error("Reset error", err);
-
-    let msg = "Something went wrong. Please try again.";
-    if (err.code === "auth/invalid-email") msg = "Invalid email address.";
-
-    setStatus({ type: "error", message: msg });
-    triggerShake();
-    setIsSubmitting(false);
-  }
-};
+  const {
+    email,
+    setEmail,
+    focused,
+    setFocused,
+    status,
+    isSubmitting,
+    didSucceed,
+    shake,
+    handleReset,
+  } = useForgotPasswordForm();
 
   const styles = useMemo(() => {
     const baseInput = {
@@ -106,6 +52,19 @@ const ForgotPassword = () => {
       fontSize: 13,
       fontWeight: 700,
       textAlign: "center",
+      border:
+        status.type === "success"
+          ? "1px solid rgba(22,163,74,0.25)"
+          : "1px solid rgba(239,68,68,0.25)",
+      background:
+        status.type === "success"
+          ? "rgba(22,163,74,0.08)"
+          : "rgba(239,68,68,0.08)",
+      color: status.type === "success" ? SUCCESS : "#991B1B",
+      display: status.message ? "flex" : "none",
+      gap: 6,
+      justifyContent: "center",
+      alignItems: "center",
     };
 
     const submitBtn = {
@@ -124,7 +83,7 @@ const ForgotPassword = () => {
     };
 
     return { baseInput, focusInput, errorInput, messageBox, submitBtn };
-  }, [isSubmitting, didSucceed]);
+  }, [didSucceed, isSubmitting, status]);
 
   return (
     <div style={{ display: "flex", height: "100vh", width: "100vw" }}>
@@ -181,25 +140,9 @@ const ForgotPassword = () => {
             onKeyDown={(e) => e.key === "Enter" && handleReset()}
           />
 
-          {status.message && (
-            <div
-              style={{
-                ...styles.messageBox,
-                color: status.type === "success" ? SUCCESS : "#991B1B",
-                background:
-                  status.type === "success"
-                    ? "rgba(22,163,74,0.08)"
-                    : "rgba(239,68,68,0.08)",
-                border:
-                  status.type === "success"
-                    ? "1px solid rgba(22,163,74,0.25)"
-                    : "1px solid rgba(239,68,68,0.25)",
-              }}
-            >
-              {status.type === "success" ? "📧 " : "⚠️ "}
-              {status.message}
-            </div>
-          )}
+          <div style={styles.messageBox}>
+            {status.type === "success" ? "✔" : "⚠"} {status.message}
+          </div>
 
           <button
             onClick={handleReset}
@@ -216,11 +159,7 @@ const ForgotPassword = () => {
               e.currentTarget.style.transform = "translateY(0)";
             }}
           >
-            {isSubmitting
-              ? "Sending…"
-              : didSucceed
-              ? "Email sent ✅"
-              : "Send reset link"}
+            {isSubmitting ? "Sending…" : didSucceed ? "Email sent ✔" : "Send reset link"}
           </button>
 
           <Link

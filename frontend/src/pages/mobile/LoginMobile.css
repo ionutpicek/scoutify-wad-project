@@ -1,0 +1,185 @@
+.login-mobile-shell {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ff681f 0%, #ff4500 100%);
+  padding: 4vh 5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-mobile-card {
+  width: min(92vw, 70vh);
+  border-radius: 6vw;
+  padding: 4vh 5vw;
+  background: white;
+  box-shadow: 0 3vh 6vh rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 3vh;
+}
+
+.login-mobile-header {
+  display: flex;
+  align-items: center;
+  gap: 3vw;
+}
+
+.login-mobile-logo {
+  width: 14vw;
+  height: 14vw;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff2e8;
+  color: #ff681f;
+  font-size: 6vw;
+  border: 0.2vw solid rgba(255, 104, 31, 0.25);
+}
+
+.login-mobile-title {
+  margin: 0;
+  font-size: 6vw;
+  font-weight: 900;
+}
+
+.login-mobile-subtitle {
+  margin: 0;
+  font-size: 3.4vw;
+  color: #6b7280;
+}
+
+.login-mobile-lead {
+  margin: 0;
+  font-size: 4vw;
+  color: #111;
+}
+
+.login-mobile-error,
+.login-mobile-success {
+  width: 100%;
+  border-radius: 3vw;
+  padding: 1.2vh 3vw;
+  font-size: 3.6vw;
+  font-weight: 700;
+  text-align: center;
+}
+
+.login-mobile-error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #991b1b;
+  border: 0.2vw solid rgba(239, 68, 68, 0.3);
+}
+
+.login-mobile-success {
+  background: rgba(22, 163, 74, 0.12);
+  color: #16a34a;
+  border: 0.2vw solid rgba(22, 163, 74, 0.3);
+}
+
+.login-mobile-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+}
+
+.login-mobile-label {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  font-size: 3.2vw;
+  font-weight: 700;
+  color: #111;
+}
+
+.login-mobile-input {
+  width: 100%;
+  border-radius: 3vw;
+  border: 0.2vw solid rgba(255, 104, 31, 0.3);
+  background: #fff;
+  padding: 1.8vh 3vw;
+  font-size: 4vw;
+  font-weight: 600;
+  outline: none;
+  width: 90%;
+}
+
+.login-mobile-input:focus {
+  border-color: #ff4500;
+  box-shadow: 0 0 0 0.8vw rgba(255, 104, 31, 0.25);
+}
+
+.login-mobile-has-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 0.8vw rgba(239, 68, 68, 0.25);
+}
+
+.login-mobile-field-error {
+  margin: 0;
+  font-size: 3vw;
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.login-mobile-password-row {
+  position: relative;
+}
+
+.login-mobile-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 3vw;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 3vw;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-mobile-actions {
+  display: flex;
+  justify-content: space-between;
+  font-size: 3vw;
+  font-weight: 700;
+  color: #ff681f;
+}
+
+.login-mobile-link-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.5vw;
+  cursor: pointer;
+  padding: 0;
+}
+
+.login-mobile-submit {
+  border-radius: 3vw;
+  border: none;
+  font-size: 4vw;
+  font-weight: 900;
+  padding: 2vh 0;
+  background: #ff681f;
+  color: white;
+  box-shadow: 0 2vh 4vh rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.login-mobile-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.login-mobile-footer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 3vw;
+  font-size: 3vw;
+  color: #6b7280;
+}

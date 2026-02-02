@@ -1,0 +1,133 @@
+.leaderboard-mobile-shell {
+  min-height: 100vh;
+  background: #f7f7f8;
+  padding: 4vh 5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 3vh;
+}
+
+.leaderboard-mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 3vw;
+}
+
+.leaderboard-mobile-title {
+  margin: 0;
+  font-size: clamp(4vw, 6vw, 6vw);
+  font-weight: 900;
+}
+
+.leaderboard-mobile-subtitle {
+  margin: 0;
+  font-size: 3vw;
+  color: #6b7280;
+}
+
+.leaderboard-mobile-back {
+  border: none;
+  color: #000000;
+  background: #ffffff;
+  border-radius: 999vw;
+  padding: 1vh 3vw;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 1vh 2vh rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard-mobile-filters {
+  background: #ffffff;
+  border-radius: 3vw;
+  padding: 2vh 3vw;
+  box-shadow: 0 1vh 3vh rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vh;
+}
+
+.leaderboard-mobile-stat-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2vw;
+}
+
+.leaderboard-mobile-stat-button {
+  border: 0.2vw solid #e5e7eb;
+  border-radius: 999vw;
+  padding: 1.2vh 2.5vw;
+  background: transparent;
+  font-size: 3vw;
+  font-weight: 700;
+  color: #111827;
+  cursor: pointer;
+}
+
+.leaderboard-mobile-stat-button-active {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+.leaderboard-mobile-value-toggle {
+  display: flex;
+  gap: 2vw;
+}
+
+.leaderboard-mobile-toggle {
+  border: none;
+  border-radius: 999vw;
+  padding: 1vh 2.5vw;
+  background: #e5e7eb;
+  color: #111827;
+  font-size: 3vw;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.leaderboard-mobile-toggle-active {
+  background: #ff681f;
+  color: #fff;
+}
+
+.leaderboard-mobile-metric-label {
+  margin: 0;
+  font-size: 3vw;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.leaderboard-mobile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+}
+
+.leaderboard-mobile-card {
+  background: white;
+  border-radius: 4vw;
+  padding: 3vh 3vw;
+  box-shadow: 0 2vh 4vh rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+}
+
+.leaderboard-mobile-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 3.4vw;
+  color: #111827;
+  font-weight: 700;
+}
+
+.leaderboard-mobile-goals {
+  color: #ff681f;
+}
+
+.leaderboard-mobile-loading {
+  font-size: 3.4vw;
+  color: #6b7280;
+  text-align: center;
+}

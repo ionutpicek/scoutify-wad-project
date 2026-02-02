@@ -1,0 +1,148 @@
+.dashboard-mobile-shell {
+  min-height: 100vh;
+  background: #f9fafb;
+  padding: 4vh 5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 3vh;
+}
+
+.dashboard-mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 3vw;
+}
+
+.dashboard-mobile-greeting {
+  margin: 0;
+  font-size: clamp(4vw, 6vw, 7vw);
+  font-weight: 900;
+}
+
+.dashboard-mobile-subtitle {
+  margin: 0;
+  font-size: 3.4vw;
+  color: #6b7280;
+}
+
+.dashboard-mobile-logout {
+  border: none;
+  background: #ffffff;
+  color: #ff681f;
+  font-weight: 900;
+  border-radius: 999px;
+  padding: 1vh 3vw;
+  box-shadow: 0 1vh 2vh rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.dashboard-mobile-section {
+  background: white;
+  border-radius: 4vw;
+  padding: 3vh 4vw;
+  box-shadow: 0 3vh 6vh rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+}
+
+.dashboard-mobile-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 3vw;
+}
+
+.dashboard-mobile-section-head h2 {
+  margin: 0;
+  font-size: 4.2vw;
+  font-weight: 900;
+}
+
+.dashboard-mobile-section-head p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 3.2vw;
+}
+
+.dashboard-mobile-section-badge {
+  border-radius: 999px;
+  padding: 0.8vh 2.5vw;
+  background: #fff2e8;
+  color: #ff681f;
+  font-weight: 900;
+  font-size: 3vw;
+}
+
+.dashboard-mobile-card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2vh;
+}
+
+.dashboard-mobile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  border-radius: 3vw;
+  border: 0.2vw solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  padding: 2.5vh 3vw;
+  box-shadow: 0 2vh 4vh rgba(0, 0, 0, 0.06);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.dashboard-mobile-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dashboard-mobile-card:hover:not(.disabled) {
+  transform: translateY(-0.5vh);
+  box-shadow: 0 3vh 4vh rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-mobile-card-top {
+  display: flex;
+  align-items: center;
+  gap: 2vw;
+}
+
+.dashboard-mobile-card-icon {
+  width: 11vw;
+  height: 11vw;
+  border-radius: 3vw;
+  background: #fff2e8;
+  display: grid;
+  place-items: center;
+  font-size: 5vw;
+}
+
+.dashboard-mobile-card-title-group {
+  display: flex;
+  color:#ff681f;
+  flex-direction: column;
+  gap: 0.6vh;
+}
+
+.dashboard-mobile-card-desc {
+  margin: 0;
+  font-size: 3.2vw;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.dashboard-mobile-card-foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 2.8vw;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.dashboard-mobile-card-foot span:first-child {
+  color: #ff681f;
+}

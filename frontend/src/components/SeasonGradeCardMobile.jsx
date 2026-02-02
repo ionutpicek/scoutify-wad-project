@@ -20,7 +20,6 @@ const SCOUT_ICONS = {
   Strengths: "🧠",
   Development: "🚀",
   Conclusion: "⭐",
-  GPS: "📡",
 };
 
 const findNextHeadingIndex = (text, startIndex, headingOrder) => {
@@ -152,18 +151,9 @@ export default function SeasonGradeCard({
     return fragments.join("\n");
   }, [physicalMetrics]);
 
-  const displayCards = useMemo(() => {
-    const cardsMap = { ...snapshotData.cards };
-    const baseline = SCOUT_HEADINGS;
-    const beforeStrengths = baseline.slice(0, 4);
-    const afterStrengths = baseline.slice(4);
-
-    if (gpsNarrative) {
-      cardsMap.GPS = { narrative: gpsNarrative };
-      return [...beforeStrengths, "GPS", ...afterStrengths];
-    }
-    return baseline;
-  }, [snapshotData, gpsNarrative]);
+const displayCards = useMemo(() => {
+  return SCOUT_HEADINGS;
+}, []);
 
   const generateVerdict = async () => {
     try {
@@ -304,38 +294,15 @@ export default function SeasonGradeCard({
                   )}
                 </div>
 
-                {isAdmin && (
+                {isAdmin && !localAIVerdict && (
                   <div style={actionRow}>
-                    {!localAIVerdict && (
-                      <button
-                        onClick={generateVerdict}
-                        disabled={loadingAI}
-                        style={aiButton}
-                      >
-                        {loadingAI ? "Generating..." : "Generate AI Verdict"}
-                      </button>
-                    )}
-
-                    {localAIVerdict && (
-                      <>
-                        <button
-                          onClick={() =>
-                            setVerdictMode(verdictMode === "ai" ? "analyst" : "ai")
-                          }
-                          style={toggleButton}
-                        >
-                          {showAI ? "Show Analyst Review" : "Show AI Verdict"}
-                        </button>
-
-                        <button
-                          onClick={generateVerdict}
-                          disabled={loadingAI}
-                          style={secondaryButton}
-                        >
-                          Regenerate AI
-                        </button>
-                      </>
-                    )}
+                    <button
+                      onClick={generateVerdict}
+                      disabled={loadingAI}
+                      style={aiButton}
+                    >
+                      {loadingAI ? "Generating..." : "Generate AI Verdict"}
+                    </button>
                   </div>
                 )}
 
@@ -426,8 +393,14 @@ export default function SeasonGradeCard({
                   return displayCards.map((heading) => {
                     const card = cardsMap[heading];
                     const text = card?.narrative || "";
-                    return (
-                      <div key={heading} style={{ ...scoutCard }}>
+                  return (
+                      <div
+                        key={heading}
+                        style={{
+                          ...scoutCard,
+                          ...(heading === "Conclusion" ? { gridColumn: "span 2" } : {}),
+                        }}
+                      >
                         <div style={scoutCardHeader}>
                           <span style={scoutIcon}>{SCOUT_ICONS[heading] || ""}</span>
                           <span>{heading}</span>
@@ -476,32 +449,14 @@ const aiTime = {
   fontWeight: 400,
 };
 
-const toggleButton = {
-  padding: "6px 12px",
-  borderRadius: 8,
-  border: "1px solid #ddd",
-  background: "#fff",
-  cursor: "pointer",
-  color: "#000",
-};
-
-const secondaryButton = {
-  padding: "6px 12px",
-  borderRadius: 8,
-  border: "1px solid #FF681F",
-  background: "#fff",
-  color: "#FF681F",
-  cursor: "pointer",
-};
-
 const cardStyle = {
   background: "#fff",
   border: "2px solid #FF681F",
   borderRadius: 18,
   padding: "24px 28px",
-  width: "85vw",
-  height: "78vh",
-  margin: "3vh auto",
+  width: "95%",
+  boxSizing: "border-box",
+  margin: "2vh auto",
   display: "flex",
   flexDirection: "column",
   boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
@@ -514,8 +469,9 @@ const titleStyle = {
 };
 
 const mainGrid = {
-  display: "grid",
-  gridTemplateColumns: "260px minmax(0, 1fr)",
+  display:"flex",
+  marginBottom: 16,
+  flexDirection: "column",
   gap: 24,
   alignItems: "stretch",
   height: "100%",
@@ -530,7 +486,8 @@ const leftColumn = {
 };
 
 const leftControls = {
-  marginTop: "auto",
+  marginTop: "2vh",
+  marginBottom: 0,
   display: "flex",
   flexDirection: "column",
   gap: 12,
@@ -623,13 +580,14 @@ const rightColumn = {
 };
 
 const matchesViewGrid = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
+  display: "flex",
+  flexDirection: "column",
   gap: 16,
-  height: "90%",
+  height: "100%",
 };
 
 const verdictPanel = {
+  marginTop: "0vh",
   backgroundColor: "#fafafa",
   borderRadius: 14,
   padding: "20px",
@@ -660,6 +618,7 @@ const matchesList = {
   display: "flex",
   flexDirection: "column",
   gap: 10,
+  maxHeight: "40vh",
   overflowY: "auto",
 };
 
@@ -691,9 +650,10 @@ const scoutRoleTitle = {
 
 const scoutGrid = {
   display: "grid",
-  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
   gridAutoRows: "minmax(0, 1fr)",
-  gap: 14,
+  gap: 16,
+  marginBottom: 16,
   flex: 1,
   minHeight: 0,
 };
@@ -705,8 +665,9 @@ const scoutCard = {
   padding: "8px",
   display: "flex",
   flexDirection: "column",
-  gap: 10,
-  minHeight: 0,
+  gap: 12,
+  minHeight: "20vh",
+  maxHeight: "30vh",
   overflowY: "auto",
   alignSelf: "stretch",
 };
