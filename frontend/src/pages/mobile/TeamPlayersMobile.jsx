@@ -6,10 +6,17 @@ import { db, getDocsLogged as getDocs } from "../../firebase.jsx";
 import Header from "../../components/Header.jsx"; 
 import Spinner from "../../components/Spinner.jsx";
 import PlayerCardMobile from "../../components/PlayerCardMobile.jsx";
+import {
+    getTeamReport,
+    regenerateTeamReport,
+    uploadTeamReportPdf
+} from "../../api/ai.js";
 
 const TeamPlayersMobile = () => { 
         const location = useLocation(); 
-        const { teamID, teamName } = location.state || {}; 
+        const { teamID, teamName, teamCoach } = location.state || {}; 
+        const role = location.state?.role; 
+        const userTeam = location.state?.userTeam; 
         const navigate = useNavigate(); 
         const [players, setPlayers] = useState([]); 
         const [isLoading, setIsLoading] = useState(true); 
@@ -17,6 +24,12 @@ const TeamPlayersMobile = () => {
         const [formInputs, setFormInputs] = useState({ name: "", position: "", photoURL: "", birthdate: "", moveTeamID: "", }); 
         const [teamsList, setTeamsList] = useState([]);
         const [viewMode, setViewMode] = useState("players");
+        const [teamReport, setTeamReport] = useState(null);
+        const [teamReportLoading, setTeamReportLoading] = useState(false);
+        const [teamReportRefreshing, setTeamReportRefreshing] = useState(false);
+        const [teamReportUploading, setTeamReportUploading] = useState(false);
+        const [teamReportUploadFile, setTeamReportUploadFile] = useState(null);
+        const [teamReportError, setTeamReportError] = useState(null);
                             
         useEffect(() => {
             if (editingPlayer) {
@@ -33,6 +46,7 @@ const TeamPlayersMobile = () => {
 
         const [deleteP, setDeletePlayer] = useState(false); 
         const [playerToDelete, setPlayerToDelete] = useState(null); 
+        const deletePlayer = () => { setDeletePlayer(prev => !prev); }
 
         const handleDelete = async () => { try { 
             if (!playerToDelete) return;
@@ -52,6 +66,10 @@ const TeamPlayersMobile = () => {
         };
 
         const [add, setAdd] = useState(false); 
+
+        const startAdd = () => { 
+            setAdd(prev => !prev); 
+        }
 
         const abbr = (fullName) => {
             const parts = fullName.split(" ");
@@ -111,6 +129,8 @@ const TeamPlayersMobile = () => {
             await setDoc(playerRef, updatedInfo, { merge: true }); 
         } 
         
+        const [edit, setEdit] = useState(false); 
+        const changeEdit = () => { setEdit(prev => !prev); } 
         useEffect(() => { 
             if (!teamID) return;
         
@@ -164,6 +184,67 @@ const TeamPlayersMobile = () => {
             fetchTeams();
         }, []);
         
+        useEffect(() => {
+            let cancelled = false;
+            if (viewMode !== "teamReport" || !teamID) {
+                setTeamReport(null);
+                setTeamReportError(null);
+                setTeamReportLoading(false);
+                return;
+            }
+
+            setTeamReportLoading(true);
+            setTeamReportError(null);
+            setTeamReport(null);
+
+            getTeamReport(teamID, { regenerate: false })
+                .then(data => {
+                    if (cancelled) return;
+                    setTeamReport(data);
+                })
+                .catch(error => {
+                    if (cancelled) return;
+                    setTeamReportError(error.message || "Unable to load team report.");
+                })
+                .finally(() => {
+                    if (cancelled) return;
+                    setTeamReportLoading(false);
+                });
+
+            return () => {
+                cancelled = true;
+            };
+        }, [viewMode, teamID]);
+
+        const handleRegenerateTeamReport = async () => {
+            if (role !== "admin" || !teamID || teamReportRefreshing) return;
+            setTeamReportRefreshing(true);
+            setTeamReportError(null);
+            try {
+                const data = await regenerateTeamReport(teamID);
+                setTeamReport(data);
+            } catch (error) {
+                setTeamReportError(error.message || "Unable to regenerate team report.");
+            } finally {
+                setTeamReportRefreshing(false);
+            }
+        };
+
+        const handleUploadTeamReportPdf = async () => {
+            if (role !== "admin" || !teamID || !teamReportUploadFile || teamReportUploading) return;
+            setTeamReportUploading(true);
+            setTeamReportError(null);
+            try {
+                const data = await uploadTeamReportPdf(teamID, teamReportUploadFile);
+                setTeamReport(data);
+                setTeamReportUploadFile(null);
+            } catch (error) {
+                setTeamReportError(error.message || "Unable to upload report PDF.");
+            } finally {
+                setTeamReportUploading(false);
+            }
+        };
+        
         const handleLogout = () => { navigate("/login"); }; 
        
     return (
@@ -174,7 +255,9 @@ const TeamPlayersMobile = () => {
                 onLogout={handleLogout}
             />
 
-                <div style={teamHeaderRight}>
+            <div style={teamHeaderRowReport}>
+                <div style={teamHeaderTopRow}>
+                    <p style={coachLabelReport}>Coach: {teamCoach || "-"}</p>
                     <div style={viewSwitchContainer}>
                         <button
                             type="button"
@@ -185,13 +268,56 @@ const TeamPlayersMobile = () => {
                         </button>
                         <button
                             type="button"
-                            onClick={() => setViewMode("teamStyle")}
-                            style={viewSwitchButton(viewMode === "teamStyle")}
+                            onClick={() => setViewMode("teamReport")}
+                            style={viewSwitchButton(viewMode === "teamReport")}
                         >
-                            Team Style of Play
+                            Team Report
                         </button>
                     </div>
                 </div>
+                <div style={teamHeaderCenterReport}>
+                    {viewMode === "players" &&
+                        ((role === "manager" && teamName === userTeam) || role === "admin") && (
+                            <div style={playerActionButtons}>
+                                <button onClick={changeEdit} style={playerActionPrimary}>
+                                    Edit Players
+                                </button>
+                                <button onClick={startAdd} style={playerActionSecondary}>
+                                    Add Player
+                                </button>
+                            </div>
+                        )}
+                    {viewMode === "teamReport" && role === "admin" && (
+                        <div style={teamStyleActions}>
+                            <button
+                                type="button"
+                                onClick={handleRegenerateTeamReport}
+                                disabled={teamReportLoading || teamReportRefreshing}
+                                style={regenerateButton(teamReportLoading || teamReportRefreshing)}
+                            >
+                                {teamReportRefreshing ? "Regenerating..." : "Regenerate report"}
+                            </button>
+                            <label style={uploadReportButton}>
+                                <input
+                                    type="file"
+                                    accept="application/pdf"
+                                    style={{ display: "none" }}
+                                    onChange={event => setTeamReportUploadFile(event.target.files?.[0] || null)}
+                                />
+                                {teamReportUploadFile ? "PDF selected" : "Choose PDF"}
+                            </label>
+                            <button
+                                type="button"
+                                onClick={handleUploadTeamReportPdf}
+                                disabled={!teamReportUploadFile || teamReportUploading}
+                                style={regenerateButton(!teamReportUploadFile || teamReportUploading)}
+                            >
+                                {teamReportUploading ? "Uploading..." : "Upload to report"}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
             
             {add && (
                <div style={{
@@ -210,7 +336,7 @@ const TeamPlayersMobile = () => {
                         backgroundColor: "white",
                         borderRadius: 16,
                         padding: 30,
-                        width: "60vw",
+                        width: "92vw",
                         display: "flex",
                         flexDirection: "column",
                         borderColor: "3px solid #FF681F",
@@ -329,7 +455,7 @@ const TeamPlayersMobile = () => {
                     backgroundColor: "white",
                     borderRadius: 16,
                     padding: 30,
-                    width: "40vw",
+                    width: "92vw",
                     display: "flex",
                     flexDirection: "column",
                     borderColor: "3px solid #FF681F",
@@ -462,7 +588,7 @@ const TeamPlayersMobile = () => {
                         backgroundColor: "white",
                         borderRadius: 16,
                         padding: 30,
-                        width: "25vw",
+                        width: "90vw",
                         display: "flex",
                         flexDirection: "column",
                         borderColor: "3px solid #FF681F",
@@ -477,13 +603,7 @@ const TeamPlayersMobile = () => {
 
             {viewMode === "players" ? (
                 <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                        gap: 20,
-                        padding: "0 5vw 5vh 5vw",
-                        justifyItems: "center",
-                    }}
+                    style={playersGrid}
                 >
                     {isLoading ? (
                         <Spinner />
@@ -499,43 +619,218 @@ const TeamPlayersMobile = () => {
                                 onClick={() =>
                                     navigate(`/player-profile`, { state: { playerID: player.id } })
                                 }
+                                onEdit={edit ? (p) => setEditingPlayer(p) : null}
+                                onRemove={edit ? (p) => { setPlayerToDelete(p); deletePlayer(); } : null}
                             />
                         ))
                     )}
                 </div>
             ) : (
-                <div style={teamStylePlaceholder}>
-                    <p style={teamStylePlaceholderText}>
-                        Team style of play view will be configured here.
-                    </p>
-                </div>
+                <>
+                    {teamReportLoading ? (
+                        <div style={{ display: "flex", justifyContent: "center", padding: "5vh 0" }}>
+                            <Spinner />
+                        </div>
+                    ) : teamReportError ? (
+                        <div style={teamStylePlaceholder}>
+                            <p style={teamStylePlaceholderText}>{teamReportError}</p>
+                        </div>
+                    ) : teamReport?.report ? (
+                        <div style={teamReportContainer}>
+                            <div style={teamStyleHeader}>
+                                <p style={teamStyleLabel}>{teamReport.report.reportTitle || "Team Report"}</p>
+                                <span style={teamStyleMatches}>
+                                    Matches analyzed: {teamReport.report.matchesAnalyzed ?? 0}
+                                </span>
+                            </div>
+
+                            <p style={teamStyleSummaryText}>{teamReport.report.executiveSummary}</p>
+
+                            {teamReport.report.supplementalInsights?.length ? (
+                                <div style={teamReportSectionCard}>
+                                    <div style={teamReportSectionTitle}>
+                                        Supplemental PDFs ({teamReport.report.supplementalInsights.length})
+                                    </div>
+                                    <ul style={teamReportList}>
+                                        {teamReport.report.supplementalInsights.map(item => (
+                                            <li key={item.id || item.sourceName} style={teamReportListItem}>
+                                                {item.sourceName}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : null}
+
+                            {teamReport.report.keyMetrics?.length ? (
+                                <div style={teamStyleHighlights}>
+                                    {teamReport.report.keyMetrics.map((item, index) => (
+                                        <div key={`metric-${index}`} style={teamStyleHighlightItem}>
+                                            <div style={teamStyleHighlightValue}>{item.value}</div>
+                                            <div style={teamStyleHighlightLabel}>{item.label}</div>
+                                            <div style={teamStyleHighlightNote}>{item.whyItMatters}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : null}
+
+                            {teamReport.report.sections?.map(section => (
+                                <div key={section.title} style={teamReportSectionCard}>
+                                    <div style={teamReportSectionTitle}>{section.title}</div>
+                                    <ul style={teamReportList}>
+                                        {section.findings?.map((point, index) => (
+                                            <li key={`${section.title}-${index}`} style={teamReportListItem}>
+                                                {point}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+
+                            <div style={teamReportColumns}>
+                                <div style={teamReportColumnCard}>
+                                    <div style={teamReportSectionTitle}>Strengths</div>
+                                    <ul style={teamReportList}>
+                                        {teamReport.report.strengths?.map((point, index) => (
+                                            <li key={`strength-${index}`} style={teamReportListItem}>{point}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div style={teamReportColumnCard}>
+                                    <div style={teamReportSectionTitle}>Weaknesses</div>
+                                    <ul style={teamReportList}>
+                                        {teamReport.report.weaknesses?.map((point, index) => (
+                                            <li key={`weakness-${index}`} style={teamReportListItem}>{point}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div style={teamReportSectionCard}>
+                                <div style={teamReportSectionTitle}>Opponent Game Plan</div>
+                                <ul style={teamReportList}>
+                                    {teamReport.report.opponentGamePlan?.map((point, index) => (
+                                        <li key={`plan-${index}`} style={teamReportListItem}>{point}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={teamStylePlaceholder}>
+                            <p style={teamStylePlaceholderText}>
+                                Team report will be generated once this view is opened.
+                            </p>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
 };
 
-
-const teamHeaderRight = {
+const teamHeaderRow = {
     display: "flex",
-    justifyContent: "space-around",
+    flexDirection: "column",
+    alignItems: "stretch",
+    padding: "1.5vh 4vw",
+    gap: 12,
+};
+
+const teamHeaderRowReport = {
+    ...teamHeaderRow,
+    margin: "1.2vh 4vw 1.6vh 4vw",
+    padding: "12px",
+    borderRadius: 16,
+    border: "1px solid #f2d7c8",
+    background: "linear-gradient(180deg, #fff9f4 0%, #fff 100%)",
+    boxShadow: "0 8px 18px rgba(0,0,0,0.04)",
+};
+
+const teamHeaderTopRow = {
+    display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+    width: "100%",
+};
+
+const teamHeaderCenter = {
+    flex: "none",
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    width: "100%",
+};
+
+const teamHeaderCenterReport = {
+    ...teamHeaderCenter,
+    justifyContent: "flex-start",
+};
+
+const coachLabel = {
+    color: "#000",
+    margin: 0,
+    fontSize: 16,
+    fontWeight: 500,
+    flex: 1,
+    minWidth: 0,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+};
+
+const coachLabelReport = {
+    ...coachLabel,
+    fontSize: 16,
+    fontWeight: 600,
+    color: "#1f1f1f",
+};
+
+const playerActionButtons = {
+    display: "flex",
+    gap: 8,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexWrap: "wrap",
+};
+
+const playerActionPrimary = {
+    borderRadius: 999,
+    border: "1px solid #FF681F",
+    padding: "9px 14px",
+    background: "#FF681F",
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: 600,
+};
+
+const playerActionSecondary = {
+    borderRadius: 999,
+    border: "1px solid #FF681F",
+    padding: "9px 14px",
+    background: "#fff",
+    color: "#FF681F",
+    fontSize: 13,
+    fontWeight: 600,
 };
 
 const viewSwitchContainer = {
     display: "flex",
-    justifyContent: "center",
-    width: "80vw",
-    gap: 10,
-    padding: "1.5vh 0vw 1.5vh 0vw",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    flexWrap: "nowrap",
+    gap: 6,
+    padding: 0,
+    flexShrink: 0,
 };
 
 const viewSwitchButton = (active) => ({
-    borderRadius: 90,
-    padding: "12px 16px",
+    borderRadius: 999,
+    padding: "8px 12px",
     border: active ? "1px solid #FF681F" : "1px solid #ddd",
     background: active ? "#fff6ee" : "#fff",
     color: "#111",
-    fontWeight: 500,
+    fontWeight: 600,
+    fontSize: 13,
     cursor: "pointer",
     boxShadow: active ? "0 5px 14px rgba(255,104,31,0.25)" : "none",
     transition: "all 0.2s ease",
@@ -543,13 +838,14 @@ const viewSwitchButton = (active) => ({
 
 const teamStylePlaceholder = {
     minHeight: "60vh",
-    margin: "0 5vw 5vh 5vw",
+    margin: "0 4vw 4vh 4vw",
     borderRadius: 16,
     border: "1px dashed rgba(255,104,31,0.7)",
     background: "#fffaf5",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    padding: "12px",
 };
 
 const teamStylePlaceholderText = {
@@ -558,5 +854,179 @@ const teamStylePlaceholderText = {
     fontWeight: 600,
 };
 
+const teamStyleHeader = {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    gap: 12,
+    paddingBottom: 12,
+    borderBottom: "1px solid #f0e2d7"
+};
+
+const teamStyleLabel = {
+    fontSize: 20,
+    lineHeight: 1.3,
+    fontWeight: 700,
+    margin: 0,
+    color: "#111"
+};
+
+const teamStyleMatches = {
+    fontSize: 14,
+    color: "#777"
+};
+
+const teamStyleSummaryText = {
+    margin: 0,
+    color: "#333",
+    fontSize: 15,
+    lineHeight: 1.55
+};
+
+const teamStyleHighlights = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+    gap: 10
+};
+
+const teamStyleHighlightItem = {
+    padding: "12px 14px 14px 14px",
+    borderRadius: 12,
+    background: "linear-gradient(180deg, #fff 0%, #fffaf6 100%)",
+    border: "1px solid #f2dfd1",
+    borderTop: "3px solid #FF8A4D",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: 7,
+    boxShadow: "0 4px 12px rgba(0,0,0,0.03)"
+};
+
+const teamStyleHighlightValue = {
+    fontSize: 13,
+    fontWeight: 700,
+    lineHeight: 1.4,
+    color: "#FF681F"
+};
+
+const teamStyleHighlightLabel = {
+    fontSize: 12,
+    color: "#555",
+    textTransform: "uppercase",
+    letterSpacing: 0.5
+};
+
+const teamStyleHighlightNote = {
+    fontSize: 13,
+    color: "#666",
+    lineHeight: 1.45
+};
+
+const teamReportContainer = {
+    minHeight: "60vh",
+    margin: "0 4vw 4vh 4vw",
+    borderRadius: 16,
+    border: "1px solid #f1dac9",
+    background: "linear-gradient(180deg, #fffbf8 0%, #fff 100%)",
+    padding: "14px",
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
+    boxShadow: "0 12px 30px rgba(0,0,0,0.05)"
+};
+
+const teamReportSectionCard = {
+    background: "#fff",
+    borderRadius: 12,
+    padding: "14px 16px",
+    border: "1px solid #f0dfd3",
+    borderLeft: "4px solid #ffc7a7",
+    boxShadow: "0 6px 18px rgba(0,0,0,0.03)"
+};
+
+const teamReportSectionTitle = {
+    fontSize: 13,
+    fontWeight: 700,
+    color: "#222",
+    marginBottom: 8,
+    textTransform: "uppercase",
+    letterSpacing: 0.3
+};
+
+const teamReportList = {
+    margin: 0,
+    paddingLeft: 20,
+    display: "flex",
+    flexDirection: "column",
+    gap: 6
+};
+
+const teamReportListItem = {
+    color: "#333",
+    lineHeight: 1.45,
+    fontSize: 14
+};
+
+const teamReportColumns = {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: 10
+};
+
+const teamReportColumnCard = {
+    background: "#fff",
+    borderRadius: 12,
+    padding: "14px 16px",
+    border: "1px solid #f0dfd3",
+    boxShadow: "0 6px 18px rgba(0,0,0,0.03)"
+};
+
+const teamStyleActions = {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "nowrap",
+    gap: 8,
+    width: "100%",
+    overflowX: "auto",
+    paddingBottom: 2,
+};
+
+const uploadReportButton = {
+    borderRadius: 999,
+    width: "fit-content",
+    whiteSpace: "nowrap",
+    textAlign: "center",
+    border: "1px solid #FF681F",
+    padding: "8px 14px",
+    background: "#fff",
+    color: "#FF681F",
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: "pointer",
+    flex: "0 0 auto",
+};
+
+const regenerateButton = disabled => ({
+    borderRadius: 999,
+    border: "1px solid #FF681F",
+    padding: "8px 12px",
+    background: disabled ? "#ffe6d7" : "#FF681F",
+    color: disabled ? "#a74f1f" : "#fff",
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: disabled ? "not-allowed" : "pointer",
+    flex: "0 0 auto",
+});
+
+const playersGrid = {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: 12,
+    padding: "0 4vw 4vh 4vw",
+    justifyItems: "center",
+};
+
 export default TeamPlayersMobile;
-  
+    
+
