@@ -1,11 +1,30 @@
 // src/services/grading/gradeGame.js
 
 const clamp = (x, a = 0, b = 100) => Math.max(a, Math.min(b, x));
+const toNumber = value => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
 
-// Unified goal bonus for all roles so scoring is rewarded consistently.
-// Attackers still evaluate the metric even at 0 goals (so it's visible); other
-// roles only score when they actually net a goal.
-const GOAL_BONUS_RULE = { key: "goalBonus_p90", weight: 2, target: [0, 0.2, 0.7, 1.2] };
+const RATE_SAMPLE_SIZE_KEYS = {
+  passAccuracy: "passes",
+  forwardPassAccuracy: "forwardPasses",
+  progressivePassAccuracy: "progressivePasses",
+  finalThirdPassAccuracy: "passesFinalThird",
+  throughPassAccuracy: "throughPasses",
+  duelWinPct: "duels",
+  defensiveDuelWinPct: "defensiveDuels",
+  offensiveDuelWinPct: "offensiveDuels",
+  aerialDuelWinPct: "aerialDuels",
+  actionSuccessRate: "totalActions"
+};
+
+// Keep goal bonus visible in breakdown, but do not let it dominate the weighted average.
+// Goal impact is added separately with a hard cap (see applyGoalImpact below).
+const GOAL_BONUS_RULE = { key: "goalBonus_p90", weight: 0, target: [0, 0.2, 0.7, 1.2] };
+const GOAL_IMPACT_MAX_POINTS = 10; // = max +1.0 on the 1-10 scale
+const GOAL_P90_FOR_MAX_IMPACT = 1;
+const NEUTRAL_SCORE = 50;
 const ACTION_RULES = {
   CB: [
     { key: "defensiveDuelWinPct", weight: 1.6, target: [0.38, 0.5, 0.62, 0.75] },
@@ -54,7 +73,7 @@ const ROLE_RULES = {
   CB: [
     GOAL_BONUS_RULE,
     { key: "duelWinPct", weight: 3, target: [0.3, 0.45, 0.6, 0.8] },
-    { key: "passAccuracy", weight: 2, target: [0.55, 0.7, 0.82, 0.9] },
+    { key: "passAccuracy", weight: 2, target: [0.5, 0.64, 0.76, 0.86] },
     { key: "forwardPasses_p90", weight: 1.2, target: [8, 14, 22, 32] },
     { key: "forwardPassAccuracy", weight: 1.0, target: [0.45, 0.6, 0.72, 0.82] },
     ...getActionRules("CB"),
@@ -69,7 +88,7 @@ const ROLE_RULES = {
   FULLBACK: [
     GOAL_BONUS_RULE,
     { key: "duelWinPct", weight: 2.5, target: [0.3, 0.45, 0.65, 0.82] },
-    { key: "passAccuracy", weight: 1.5, target: [0.58, 0.72, 0.84, 0.9] },
+    { key: "passAccuracy", weight: 1.5, target: [0.52, 0.66, 0.78, 0.87] },
     { key: "progressivePasses_p90", weight: 1.0, target: [3, 6, 10, 16] },
     { key: "finalThirdPasses_p90", weight: 1.0, target: [2, 4, 7, 11] },
     { key: "throughPasses_p90", weight: 0.7, target: [0, 0.3, 0.8, 1.6] },
@@ -86,7 +105,7 @@ const ROLE_RULES = {
   WINGBACK: [
     GOAL_BONUS_RULE,
     { key: "duelWinPct", weight: 2.2, target: [0.3, 0.45, 0.65, 0.8] },
-    { key: "passAccuracy", weight: 1.5, target: [0.58, 0.72, 0.84, 0.9] },
+    { key: "passAccuracy", weight: 1.5, target: [0.52, 0.66, 0.78, 0.87] },
     { key: "progressivePasses_p90", weight: 1.1, target: [3, 6, 10, 16] },
     { key: "finalThirdPasses_p90", weight: 1.1, target: [2, 4, 7, 11] },
     { key: "throughPasses_p90", weight: 0.8, target: [0, 0.4, 1.0, 1.8] },
@@ -101,7 +120,7 @@ const ROLE_RULES = {
     GOAL_BONUS_RULE,
     // Bonuses; skipped when zero
     { key: "midAssistBonus_p90", weight: 1.5, target: [0, 0.04, 0.18, 0.5] },
-    { key: "passAccuracy", weight: 2.5, target: [0.6, 0.75, 0.86, 0.92] },
+    { key: "passAccuracy", weight: 2.5, target: [0.55, 0.68, 0.8, 0.9] },
     { key: "progressivePasses_p90", weight: 1.4, target: [4, 7, 11, 17] },
     { key: "finalThirdPasses_p90", weight: 1.3, target: [3, 6, 9, 14] },
     { key: "throughPasses_p90", weight: 0.8, target: [0, 0.4, 0.9, 1.7] },
@@ -119,7 +138,7 @@ const ROLE_RULES = {
     { key: "wingAssistBonus_p90", weight: 1.5, target: [0, 0.08, 0.25, 0.6] },
     { key: "xG_p90", weight: 1.5, target: [0.04, 0.18, 0.6, 1.0] },
     { key: "duelWinPct", weight: 1.2, target: [0.28, 0.45, 0.62, 0.78] },
-    { key: "passAccuracy", weight: 1, target: [0.55, 0.7, 0.83, 0.9] },
+    { key: "passAccuracy", weight: 1, target: [0.5, 0.64, 0.76, 0.86] },
     { key: "progressivePasses_p90", weight: 1.0, target: [3, 5, 8, 13] },
     { key: "finalThirdPasses_p90", weight: 0.8, target: [2, 4, 7, 11] },
     { key: "throughPasses_p90", weight: 1.1, target: [0, 0.4, 1.0, 2.0] },
@@ -136,7 +155,7 @@ const ROLE_RULES = {
     { key: "xG_p90", weight: 2, target: [0.08, 0.28, 0.7, 1.1] },
     { key: "shotsOnTarget_p90", weight: 1.5, target: [0.25, 0.8, 1.6, 3] },
     { key: "duelWinPct", weight: 1, target: [0.25, 0.45, 0.63, 0.78] },
-    { key: "passAccuracy", weight: 0.8, target: [0.55, 0.7, 0.83, 0.9] },
+    { key: "passAccuracy", weight: 0.8, target: [0.48, 0.62, 0.74, 0.84] },
     { key: "throughPasses_p90", weight: 0.8, target: [0, 0.3, 0.8, 1.6] },
     { key: "keyPasses_p90", weight: 1.0, target: [0, 0.3, 0.8, 1.6] },
     ...getActionRules("ATTACKER"),
@@ -146,7 +165,7 @@ const ROLE_RULES = {
 };
   
 const DEFAULT_RULES = [
-  { key: "passAccuracy", weight: 2, target: [0.55, 0.7, 0.83, 0.9] },
+  { key: "passAccuracy", weight: 2, target: [0.5, 0.64, 0.76, 0.86] },
   { key: "duelWinPct", weight: 2, target: [0.3, 0.45, 0.63, 0.78] },
   { key: "progressivePasses_p90", weight: 0.8, target: [3, 5, 8, 13] },
   { key: "keyPasses_p90", weight: 0.8, target: [0, 0.3, 0.8, 1.6] },
@@ -159,6 +178,38 @@ function per90(val, minutes) {
   const m = Number(minutes) || 0;
   if (!m) return null;
   return (Number(val) || 0) * 90 / m;
+}
+
+function minutesImpactFactor(minutes) {
+  const m = Math.max(0, Math.min(90, Number(minutes) || 0));
+  if (m >= 90) return 1;
+  if (m <= 30) return 0.68;
+
+  const ratio = (m - 30) / 60; // 30->0, 90->1
+  return 0.68 + ratio * 0.32; // 45' => 0.76, 60' => 0.84
+}
+
+function applyGoalImpact(overall100, rawStats = {}, minutes = 0) {
+  const goals = Number(rawStats.goals || 0);
+  if (!Number.isFinite(goals) || goals <= 0) return { overall100, goalImpact: 0 };
+
+  const goalsPer90 = per90(goals, minutes);
+  if (goalsPer90 == null) return { overall100, goalImpact: 0 };
+
+  const goalImpact = clamp(
+    (goalsPer90 / GOAL_P90_FOR_MAX_IMPACT) * GOAL_IMPACT_MAX_POINTS,
+    0,
+    GOAL_IMPACT_MAX_POINTS
+  );
+
+  return { overall100: clamp(overall100 + goalImpact), goalImpact };
+}
+
+function safeRatio(success, attempts) {
+  const a = Number(attempts);
+  const s = Number(success);
+  if (!Number.isFinite(a) || !Number.isFinite(s) || a <= 0) return null;
+  return clamp(s / a, 0, 1);
 }
 
 function resolveMetric({ key, raw, minutes, role }) {
@@ -191,31 +242,23 @@ function resolveMetric({ key, raw, minutes, role }) {
 
   switch (key) {
     case "passAccuracy":
-      return passesSuccess != null ? (passes ? passesSuccess / passes : 0) : null;
+      return safeRatio(passesSuccess, passes);
     case "forwardPassAccuracy":
-      return forwardPassesSuccess != null
-        ? (forwardPasses ? forwardPassesSuccess / forwardPasses : 0)
-        : null;
+      return safeRatio(forwardPassesSuccess, forwardPasses);
     case "progressivePassAccuracy":
-      return progressivePassesSuccess != null
-        ? (progressivePasses ? progressivePassesSuccess / progressivePasses : 0)
-        : null;
+      return safeRatio(progressivePassesSuccess, progressivePasses);
     case "finalThirdPassAccuracy":
-      return finalThirdPassesSuccess != null
-        ? (finalThirdPasses ? finalThirdPassesSuccess / finalThirdPasses : 0)
-        : null;
+      return safeRatio(finalThirdPassesSuccess, finalThirdPasses);
     case "throughPassAccuracy":
-      return throughPassesSuccess != null
-        ? (throughPasses ? throughPassesSuccess / throughPasses : 0)
-        : null;
+      return safeRatio(throughPassesSuccess, throughPasses);
     case "duelWinPct":
-      return duels ? duelsSuccess / duels : null;
+      return safeRatio(duelsSuccess, duels);
     case "defensiveDuelWinPct":
-      return defensiveDuels ? (defensiveDuelsSuccess || 0) / defensiveDuels : null;
+      return safeRatio(defensiveDuelsSuccess || 0, defensiveDuels);
     case "offensiveDuelWinPct":
-      return offensiveDuels ? (offensiveDuelsSuccess || 0) / offensiveDuels : null;
+      return safeRatio(offensiveDuelsSuccess || 0, offensiveDuels);
     case "aerialDuelWinPct":
-      return aerialDuels ? aerialDuelsSuccess / aerialDuels : null;
+      return safeRatio(aerialDuelsSuccess, aerialDuels);
     case "lossesOwnHalf_p90":
       return lossesOwnHalf != null ? per90(lossesOwnHalf, minutes) : null;
     case "clearances_p90":
@@ -257,8 +300,7 @@ function resolveMetric({ key, raw, minutes, role }) {
     case "actions_p90":
       return totalActions != null ? per90(totalActions, minutes) : null;
     case "actionSuccessRate":
-      if (totalActions == null || successfulActions == null || totalActions <= 0) return null;
-      return successfulActions / totalActions;
+      return safeRatio(successfulActions, totalActions);
     case "goalBonus_p90": {
       const isAttacker = role === "ATTACKER";
       if (!isAttacker && (goals == null || goals <= 0)) return null;
@@ -299,6 +341,28 @@ function resolveMetric({ key, raw, minutes, role }) {
   }
 }
 
+function metricSampleSize(metricKey, rawStats = {}) {
+  const sourceKey = RATE_SAMPLE_SIZE_KEYS[metricKey];
+  if (!sourceKey) return null;
+  const value = toNumber(rawStats[sourceKey]);
+  if (value == null || value <= 0) return null;
+  return value;
+}
+
+function reliabilityAdjustedScore(rawScore, sampleSize, metricKey) {
+  if (rawScore == null || sampleSize == null) return rawScore;
+
+  const fullSampleTarget =
+    metricKey === "passAccuracy"
+      ? 26
+      : metricKey.toLowerCase().includes("duel")
+        ? 18
+        : 20;
+
+  const reliability = Math.max(0.35, Math.min(1, sampleSize / fullSampleTarget));
+  return clamp(50 + (rawScore - 50) * reliability);
+}
+
 function score(val, [a, b, c, d], inverted = false) {
   if (val == null || Number.isNaN(val)) return null;
   let pct;
@@ -325,12 +389,20 @@ export function gradeGame({ role, rawStats = {}, minutes = 0 }) {
   const breakdown = {};
 
   for (const rule of rules) {
+    const w = rule.weight ?? 1;
     const val = resolveMetric({ key: rule.key, raw: rawStats, minutes, role });
-    if (val == null) continue;
-    const sc = score(val, rule.target, rule.inverted);
-    if (sc == null) continue;
+    if (val == null) {
+      // Missing tracked fields are treated as neutral so sparse data does not over- or under-inflate grades.
+      total += NEUTRAL_SCORE * w;
+      weightSum += w;
+      continue;
+    }
+
+    const baseScore = score(val, rule.target, rule.inverted);
+    const scored = baseScore == null ? NEUTRAL_SCORE : baseScore;
+    const sampleSize = metricSampleSize(rule.key, rawStats);
+    const sc = reliabilityAdjustedScore(scored, sampleSize, rule.key);
     breakdown[rule.key] = Math.round(sc);
-    const w = rule.weight || 1;
     total += sc * w;
     weightSum += w;
   }
@@ -347,8 +419,16 @@ export function gradeGame({ role, rawStats = {}, minutes = 0 }) {
     overall100 = clamp(total / weightSum);
   }
 
-  const yellowCards = Number(rawStats.yellowCards || 0);
-  const redCards = Number(rawStats.redCards || 0);
+  const { overall100: boostedOverall100, goalImpact } = applyGoalImpact(overall100, rawStats, minutes);
+  overall100 = boostedOverall100;
+  if (goalImpact > 0) {
+    breakdown.goalImpact = Math.round(goalImpact);
+  }
+
+  overall100 = clamp(overall100 * minutesImpactFactor(minutes));
+
+  const yellowCards = Math.min(2, Math.max(0, Number(rawStats.yellowCards || 0)));
+  const redCards = Math.min(1, Math.max(0, Number(rawStats.redCards || 0)));
   const cardPenalty = (yellowCards * CARD_PENALTIES.yellow) + (redCards * CARD_PENALTIES.red);
   if (cardPenalty > 0) {
     breakdown.cardPenalty = -cardPenalty;

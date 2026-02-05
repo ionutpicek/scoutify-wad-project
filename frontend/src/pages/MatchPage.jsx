@@ -5,17 +5,24 @@ import Spinner from "../components/Spinner.jsx";
 import { getMatch, uploadMatchMetrics } from "../api/matches";
 import { db, getDocLogged as getDoc } from "../firebase";
 import { doc } from "firebase/firestore";
+import { getCurrentUser } from "../services/sessionStorage.js";
+import { buildAllPlayerMatchReports, buildPlayerMatchReport } from "../utils/playerMatchReport.js";
 
 export default function MatchPage() {
   // Cache coaches by teamId to avoid repeated Firestore reads across renders/pages
   const coachCache = React.useRef(new Map());
   const { id } = useParams();
   const navigate = useNavigate();
+  const storedUser = React.useMemo(() => getCurrentUser(), []);
+  const userRole = String(storedUser?.role || "").toLowerCase();
+  const isPlayerRole = userRole === "player";
+  const isAdminRole = userRole === "admin";
+  const canUploadMetrics = !isPlayerRole;
   const [match, setMatch] = useState(null);
   const [coaches, setCoaches] = useState({ home: {}, away: {} });
   const [metricsFiles, setMetricsFiles] = useState({ home: null, away: null });
   const [metricsUploading, setMetricsUploading] = useState({ home: false, away: false });
-  const [viewMode, setViewMode] = useState("lineups"); // lineups | teamstats
+  const [viewMode, setViewMode] = useState(isPlayerRole ? "playerreport" : "lineups"); // lineups | teamstats | playerreport
 
   const loadMatch = async () => {
     try {
@@ -90,6 +97,14 @@ export default function MatchPage() {
   };
 
   const players = Array.isArray(match?.players) ? match.players : [];
+  const playerReport = React.useMemo(() => {
+    if (!isPlayerRole) return null;
+    return buildPlayerMatchReport(players, storedUser);
+  }, [isPlayerRole, players, storedUser]);
+  const allPlayerReports = React.useMemo(() => {
+    if (!isAdminRole) return [];
+    return buildAllPlayerMatchReports(players);
+  }, [isAdminRole, players]);
 
   const normalize = str =>
     String(str || "")
@@ -663,32 +678,246 @@ export default function MatchPage() {
           </div>
         )}
 
-        <div style={{ width: "100%", marginTop: 8 }}>
-          <div style={{ fontSize: 12, color: "#777", marginBottom: 6 }}>Upload GPS metrics (xls/xlsx)</div>
-          <input
-            type="file"
-            accept=".xls,.xlsx"
-            onChange={e => handleMetricsFileChange(teamKey, e.target.files?.[0] || null)}
-            style={{ width: "100%" }}
-          />
-          <button
-            onClick={() => handleMetricsUpload(teamKey)}
-            disabled={!metricsFiles[teamKey] || metricsUploading[teamKey]}
+        {canUploadMetrics && (
+          <div style={{ width: "100%", marginTop: 8 }}>
+            <div style={{ fontSize: 12, color: "#777", marginBottom: 6 }}>Upload GPS metrics (xls/xlsx)</div>
+            <input
+              type="file"
+              accept=".xls,.xlsx"
+              onChange={e => handleMetricsFileChange(teamKey, e.target.files?.[0] || null)}
+              style={{ width: "100%" }}
+            />
+            <button
+              onClick={() => handleMetricsUpload(teamKey)}
+              disabled={!metricsFiles[teamKey] || metricsUploading[teamKey]}
+              style={{
+                marginTop: 8,
+                width: "100%",
+                background: metricsUploading[teamKey] ? "#ccc" : accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: 10,
+                padding: "8px 12px",
+                cursor: metricsUploading[teamKey] ? "not-allowed" : "pointer",
+                fontWeight: 700
+              }}
+            >
+              {metricsUploading[teamKey] ? "Uploading..." : "Upload metrics"}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderPlayerReportCard = (report, options = {}) => {
+    if (!report?.entry) return null;
+
+    const entry = report.entry;
+    const grade = report.grade;
+    const statsRows = report.statsRows;
+    const reportTitle = options.title || entry.canonicalName || entry.name || "Player report";
+    const teamText =
+      entry.team === "home" ? match?.homeTeam || "Home" : entry.team === "away" ? match?.awayTeam || "Away" : null;
+    const cleanSignalLabel = label =>
+      String(label || "")
+        .replace(/\s*\/90\b/gi, "")
+        .replace(/\s*p90\b/gi, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+    const formatSignal = item =>
+      `${cleanSignalLabel(item.label)}${item.raw && item.raw.includes("%") ? ` (${item.raw})` : ""}`;
+
+    return (
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #f1f1f1",
+          borderRadius: 20,
+          padding: 20,
+          boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 16
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 10
+          }}
+        >
+          <div>
+            <h3 style={{ margin: 0, color: "#111" }}>{reportTitle}</h3>
+            <p style={{ margin: "4px 0 0 0", color: "#666" }}>
+              {entry.position || entry.rolePlayed || "-"} • {entry.minutesPlayed ?? 0}' played
+              {teamText ? ` • ${teamText}` : ""}
+            </p>
+          </div>
+          <div
             style={{
-              marginTop: 8,
-              width: "100%",
-              background: metricsUploading[teamKey] ? "#ccc" : accent,
-              color: "#fff",
-              border: "none",
-              borderRadius: 10,
-              padding: "8px 12px",
-              cursor: metricsUploading[teamKey] ? "not-allowed" : "pointer",
-              fontWeight: 700
+              borderRadius: 14,
+              border: "1px solid #FF681F",
+              padding: "8px 14px",
+              fontWeight: 800,
+              color: "#FF681F",
+              background: "#fff8f2"
             }}
           >
-            {metricsUploading[teamKey] ? "Uploading..." : "Upload metrics"}
-          </button>
+            {grade.overall10 != null ? `${grade.overall10.toFixed(1)} / 10` : "No grade"}
+          </div>
         </div>
+
+        <div
+          style={{
+            borderRadius: 12,
+            border: "1px solid #f0e2d7",
+            background: "#fffaf6",
+            padding: 14,
+            display: "flex",
+            flexDirection: "column",
+            gap: 8
+          }}
+        >
+          <div style={{ fontWeight: 700, color: "#222" }}>Grade explanation</div>
+          <div style={{ color: "#444", lineHeight: 1.5 }}>{grade.summary}</div>
+          {grade.cardPenalty != null && (
+            <div style={{ color: "#b45309", fontWeight: 600 }}>
+              Discipline impact: -{grade.cardPenalty} points.
+            </div>
+          )}
+          {grade.hasBreakdown ? (
+            <>
+              {grade.strengths.length > 0 && (
+                <div style={{ color: "#14532d" }}>
+                  Strength drivers:{" "}
+                  {grade.strengths.map(item => formatSignal(item)).join(", ")}
+                  .
+                </div>
+              )}
+              {grade.improvements.length > 0 && (
+                <div style={{ color: "#7f1d1d" }}>
+                  Improvement areas:{" "}
+                  {grade.improvements.map(item => formatSignal(item)).join(", ")}
+                  .
+                </div>
+              )}
+            </>
+          ) : (
+            grade.fallbackInsights.length > 0 && (
+              <ul style={{ margin: 0, paddingLeft: 18, color: "#444" }}>
+                {grade.fallbackInsights.map((line, index) => (
+                  <li key={`fallback-${index}`}>{line}</li>
+                ))}
+              </ul>
+            )
+          )}
+        </div>
+
+        <div>
+          <div style={{ fontWeight: 700, color: "#222", marginBottom: 10 }}>Match stats</div>
+          {statsRows.length ? (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+                gap: 10
+              }}
+            >
+              {statsRows.map(stat => (
+                <div
+                  key={stat.key}
+                  style={{
+                    border: "1px solid #f1f1f1",
+                    borderRadius: 12,
+                    padding: "10px 12px",
+                    background: "#fff"
+                  }}
+                >
+                  <div style={{ fontSize: 12, color: "#666" }}>{stat.label}</div>
+                  <div style={{ marginTop: 4, fontWeight: 800, color: "#111" }}>{stat.value}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ color: "#777" }}>No tracked player stats found for this match.</div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderPlayerReport = () => {
+    if (!isPlayerRole) {
+      return (
+        <div style={{ padding: 20, textAlign: "center", color: "#666" }}>
+          Player report is available only for player accounts.
+        </div>
+      );
+    }
+
+    if (!playerReport?.entry) {
+      return (
+        <div style={{ padding: 20, textAlign: "center", color: "#666" }}>
+          Your player profile was not found in this match lineup.
+        </div>
+      );
+    }
+
+    return renderPlayerReportCard(playerReport, { title: playerReport.entry?.canonicalName || "My report" });
+  };
+
+  const renderAllPlayerReports = () => {
+    if (!isAdminRole) {
+      return (
+        <div style={{ padding: 20, textAlign: "center", color: "#666" }}>
+          All player reports are available only for admin accounts.
+        </div>
+      );
+    }
+
+    if (!allPlayerReports.length) {
+      return (
+        <div style={{ padding: 20, textAlign: "center", color: "#666" }}>
+          No player reports available for this match.
+        </div>
+      );
+    }
+
+    const homeReports = allPlayerReports.filter(r => r?.entry?.team === "home");
+    const awayReports = allPlayerReports.filter(r => r?.entry?.team === "away");
+    const otherReports = allPlayerReports.filter(r => !["home", "away"].includes(String(r?.entry?.team || "")));
+
+    const renderSection = (title, reports) => {
+      if (!reports.length) return null;
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ fontWeight: 800, color: "#222", fontSize: 18 }}>{title}</div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
+              gap: 12
+            }}
+          >
+            {reports.map(report => (
+              <div key={`all-report-${report.entry.playerId || report.entry.name}`}>
+                {renderPlayerReportCard(report)}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {renderSection(`${match?.homeTeam || "Home"} reports (${homeReports.length})`, homeReports)}
+        {renderSection(`${match?.awayTeam || "Away"} reports (${awayReports.length})`, awayReports)}
+        {renderSection(`Other reports (${otherReports.length})`, otherReports)}
       </div>
     );
   };
@@ -761,39 +990,40 @@ export default function MatchPage() {
             >
               {match.date || "Match Date N/A"}
             </div>
-            <button
-              onClick={() => setViewMode("lineups")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 10,
-                border: viewMode === "lineups" ? "1px solid #FF681F" : "1px solid #ddd",
-                background: viewMode === "lineups" ? "#fff6ee" : "#fff",
-                color: "#111",
-                cursor: "pointer",
-                fontWeight: 700,
-                boxShadow: viewMode === "lineups" ? "0 2px 8px rgba(255,104,31,0.25)" : "none"
-              }}
-            >
-              Lineups
-            </button>
-            <button
-              onClick={() => setViewMode("teamstats")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 10,
-                border: viewMode === "teamstats" ? "1px solid #FF681F" : "1px solid #ddd",
-                background: viewMode === "teamstats" ? "#fff6ee" : "#fff",
-                color: "#111",
-                cursor: "pointer",
-                fontWeight: 700,
-                boxShadow: viewMode === "teamstats" ? "0 2px 8px rgba(255,104,31,0.25)" : "none"
-              }}
-            >
-              Team stats
-            </button>
+            {[
+              { id: "lineups", label: "Lineups" },
+              { id: "teamstats", label: "Team stats" },
+              ...(isPlayerRole ? [{ id: "playerreport", label: "My report" }] : []),
+              ...(isAdminRole ? [{ id: "allreports", label: "All reports" }] : [])
+            ].map(mode => (
+              <button
+                key={mode.id}
+                onClick={() => setViewMode(mode.id)}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 10,
+                  border: viewMode === mode.id ? "1px solid #FF681F" : "1px solid #ddd",
+                  background: viewMode === mode.id ? "#fff6ee" : "#fff",
+                  color: "#111",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  boxShadow: viewMode === mode.id ? "0 2px 8px rgba(255,104,31,0.25)" : "none"
+                }}
+              >
+                {mode.label}
+              </button>
+            ))}
           </div>
 
-          {viewMode === "lineups" ? (
+          {viewMode === "playerreport" ? (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
+              {renderPlayerReport()}
+            </div>
+          ) : viewMode === "allreports" ? (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
+              {renderAllPlayerReports()}
+            </div>
+          ) : viewMode === "lineups" ? (
             <div
               style={{
                 display: "grid",
@@ -898,7 +1128,7 @@ export default function MatchPage() {
                 {renderCoachCard(coaches.away, "right", getBestPerformer("away"), "away")}
               </div>
             </div>
-          ) : (
+          ) : viewMode === "teamstats" ? (
             <div style={{ display: "grid", gridTemplateColumns: "260px 1fr 260px", gap: 12, alignItems: "start" }}>
               <div style={{ display: "flex", justifyContent: "center" }}>
                 {renderCoachCard(coaches.home, "left", getBestPerformer("home"), "home")}
@@ -909,6 +1139,10 @@ export default function MatchPage() {
               <div style={{ display: "flex", justifyContent: "center" }}>
                 {renderCoachCard(coaches.away, "right", getBestPerformer("away"), "away")}
               </div>
+            </div>
+          ) : (
+            <div style={{ padding: 16, textAlign: "center", color: "#666" }}>
+              Unknown view mode.
             </div>
           )}
         </div>

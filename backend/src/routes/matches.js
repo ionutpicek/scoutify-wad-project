@@ -4,18 +4,62 @@ import { db } from "../firebase/firebaseAdmin.js";
 import { importMatchFromPdf } from "../matchesPdf/importMatchFromPDF.js";
 import { parseExcelMetrics } from "../gpsMetrics/parseExcel.js";
 import { buildExcelHighlights } from "../gpsMetrics/buildHighlights.js";
+import { gradeGame } from "../grading/gameGrade.js";
+import { gradeGameGK } from "../grading/gradeGK.js";
+import { pickBestPerformers } from "../grading/pickBestPerformer.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 const MATCHES_COL = "matches";
 const DEFAULT_LIMIT = 200;
+const MIN_MINUTES_FOR_GRADE_OUTFIELD = 30;
+const MIN_MINUTES_FOR_GRADE_GK = 45;
 
 function handleFirestoreError(res, err, context = "") {
   const isQuota = err?.code === 8 || /quota|exhausted/i.test(err?.message || "");
   console.error("[matches]", context, err);
   return res.status(isQuota ? 503 : 500).json({
     error: isQuota ? "Firestore quota exceeded, try again in a minute" : "Failed to fetch matches"
+  });
+}
+
+function regradePlayers(players = []) {
+  if (!Array.isArray(players)) return [];
+
+  return players.map(player => {
+    const rolePlayed =
+      player?.rolePlayed ||
+      (String(player?.position || "").toUpperCase() === "GK" ? "GK" : "GENERIC");
+    const minutesPlayed = Number(player?.minutesPlayed || 0);
+    const isGK = rolePlayed === "GK";
+    const hasStats = player?.matchStats && Object.keys(player.matchStats).length > 0;
+    const minRequired = isGK ? MIN_MINUTES_FOR_GRADE_GK : MIN_MINUTES_FOR_GRADE_OUTFIELD;
+
+    let gameGrade = null;
+    if (hasStats && minutesPlayed >= minRequired) {
+      gameGrade = isGK
+        ? gradeGameGK({ derived: player?.derived || {} })
+        : gradeGame({
+            role: rolePlayed,
+            rawStats: player?.matchStats || {},
+            minutes: minutesPlayed
+          });
+    }
+
+    const seasonGrade = player?.seasonGradeSnapshot?.overall10 ?? player?.seasonGrade ?? null;
+    const delta =
+      seasonGrade != null && gameGrade?.overall10 != null
+        ? Math.round((Number(gameGrade.overall10) - Number(seasonGrade)) * 10) / 10
+        : null;
+
+    return {
+      ...player,
+      rolePlayed,
+      gameGrade,
+      grade: gameGrade?.overall10 ?? null,
+      delta
+    };
   });
 }
 
@@ -65,7 +109,18 @@ router.get("/:id", async (req, res) => {
     const ref = db.collection(MATCHES_COL).doc(req.params.id);
     const docSnap = await ref.get();
     if (!docSnap.exists) return res.status(404).json({ error: "Match not found" });
-    res.json({ id: docSnap.id, ...docSnap.data() });
+
+    const data = docSnap.data() || {};
+    const players = regradePlayers(data.players || []);
+    const bestPerformers = pickBestPerformers(players);
+
+    res.json({
+      id: docSnap.id,
+      ...data,
+      players,
+      bestPerformers,
+      bestPerformer: bestPerformers
+    });
   } catch (err) {
     return handleFirestoreError(res, err, "detail");
   }

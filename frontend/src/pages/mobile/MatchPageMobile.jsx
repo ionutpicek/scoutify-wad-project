@@ -5,11 +5,13 @@ import Spinner from "../../components/Spinner.jsx";
 import { getMatch, uploadMatchMetrics } from "../../api/matches";
 import { db, getDocLogged as getDoc } from "../../firebase";
 import { doc } from "firebase/firestore";
+import { getCurrentUser } from "../../services/sessionStorage.js";
+import { buildAllPlayerMatchReports, buildPlayerMatchReport } from "../../utils/playerMatchReport.js";
 
-const VIEW_MODES = [
+const DEFAULT_VIEW_MODES = [
   { id: "lineups", label: "Lineups" },
   { id: "teamstats", label: "Team stats" },
-  { id: "coaches", label: "Coach notes" }
+  { id: "coaches", label: "Performers" }
 ];
 
 const gradeChip = (grade, delta) => {
@@ -126,8 +128,23 @@ export default function MatchPageMobile() {
   const coachCache = React.useRef(new Map());
   const { id } = useParams();
   const navigate = useNavigate();
+  const storedUser = React.useMemo(() => getCurrentUser(), []);
+  const userRole = String(storedUser?.role || "").toLowerCase();
+  const isPlayerRole = userRole === "player";
+  const isAdminRole = userRole === "admin";
+  const canUploadMetrics = !isPlayerRole;
+  const viewModes = isPlayerRole
+    ? [
+        { id: "playerreport", label: "My report" },
+        { id: "lineups", label: "Lineups" },
+        { id: "teamstats", label: "Team stats" },
+        { id: "coaches", label: "Performers" }
+      ]
+    : isAdminRole
+      ? [{ id: "allreports", label: "All reports" }, ...DEFAULT_VIEW_MODES]
+      : DEFAULT_VIEW_MODES;
   const [match, setMatch] = useState(null);
-  const [viewMode, setViewMode] = useState("lineups");
+  const [viewMode, setViewMode] = useState(isPlayerRole ? "playerreport" : "lineups");
   const [coaches, setCoaches] = useState({ home: {}, away: {} });
   const [metricsFiles, setMetricsFiles] = useState({ home: null, away: null });
   const [metricsUploading, setMetricsUploading] = useState({ home: false, away: false });
@@ -194,6 +211,14 @@ export default function MatchPageMobile() {
   };
 
   const players = Array.isArray(match?.players) ? match.players : [];
+  const playerReport = React.useMemo(() => {
+    if (!isPlayerRole) return null;
+    return buildPlayerMatchReport(players, storedUser);
+  }, [isPlayerRole, players, storedUser]);
+  const allPlayerReports = React.useMemo(() => {
+    if (!isAdminRole) return [];
+    return buildAllPlayerMatchReports(players);
+  }, [isAdminRole, players]);
 
   const normalize = (value) =>
     String(value || "")
@@ -388,32 +413,34 @@ export default function MatchPageMobile() {
           </div>
         )}
 
-        <div style={{ width: "100%" }}>
-          <div style={coachMetricsLabel}>Upload GPS metrics (xls/xlsx)</div>
-          <input
-            type="file"
-            accept=".xls,.xlsx"
-            onChange={(e) => handleMetricsFileChange(teamKey, e.target.files?.[0] || null)}
-            style={{ width: "100%" }}
-          />
-          <button
-            onClick={() => handleMetricsUpload(teamKey)}
-            disabled={!metricsFiles[teamKey] || metricsUploading[teamKey]}
-            style={{
-              marginTop: "1vh",
-              width: "100%",
-              background: metricsUploading[teamKey] ? "#ccc" : accent,
-              color: "#fff",
-              border: "none",
-              borderRadius: 12,
-              padding: "2vh 0",
-              cursor: metricsUploading[teamKey] ? "not-allowed" : "pointer",
-              fontWeight: 700
-            }}
-          >
-            {metricsUploading[teamKey] ? "Uploading..." : "Upload metrics"}
-          </button>
-        </div>
+        {canUploadMetrics && (
+          <div style={{ width: "100%" }}>
+            <div style={coachMetricsLabel}>Upload GPS metrics (xls/xlsx)</div>
+            <input
+              type="file"
+              accept=".xls,.xlsx"
+              onChange={(e) => handleMetricsFileChange(teamKey, e.target.files?.[0] || null)}
+              style={{ width: "100%" }}
+            />
+            <button
+              onClick={() => handleMetricsUpload(teamKey)}
+              disabled={!metricsFiles[teamKey] || metricsUploading[teamKey]}
+              style={{
+                marginTop: "1vh",
+                width: "100%",
+                background: metricsUploading[teamKey] ? "#ccc" : accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: 12,
+                padding: "2vh 0",
+                cursor: metricsUploading[teamKey] ? "not-allowed" : "pointer",
+                fontWeight: 700
+              }}
+            >
+              {metricsUploading[teamKey] ? "Uploading..." : "Upload metrics"}
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -530,6 +557,142 @@ export default function MatchPageMobile() {
     );
   };
 
+  const renderPlayerReportCard = (report, options = {}) => {
+    if (!report?.entry) return null;
+
+    const entry = report.entry;
+    const grade = report.grade;
+    const statsRows = report.statsRows;
+    const title = options.title || entry.canonicalName || entry.name || "Player report";
+    const teamText =
+      entry.team === "home" ? match?.homeTeam || "Home" : entry.team === "away" ? match?.awayTeam || "Away" : null;
+    const cleanSignalLabel = label =>
+      String(label || "")
+        .replace(/\s*\/90\b/gi, "")
+        .replace(/\s*p90\b/gi, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+    const formatSignal = item =>
+      `${cleanSignalLabel(item.label)}${item.raw && item.raw.includes("%") ? ` (${item.raw})` : ""}`;
+
+    return (
+      <div style={playerReportWrap}>
+        <div style={playerReportHeader}>
+          <div>
+            <div style={playerReportName}>{title}</div>
+            <div style={playerReportMeta}>
+              {(entry.position || entry.rolePlayed || "-").toUpperCase()} | {entry.minutesPlayed ?? 0}' played
+              {teamText ? ` | ${teamText}` : ""}
+            </div>
+          </div>
+          <div style={playerGradeBadge}>
+            {grade.overall10 != null ? `${grade.overall10.toFixed(1)} / 10` : "No grade"}
+          </div>
+        </div>
+
+        <div style={playerExplanationCard}>
+          <div style={playerSectionTitle}>Grade explanation</div>
+          <div style={playerSummaryText}>{grade.summary}</div>
+          {grade.cardPenalty != null && (
+            <div style={playerPenaltyText}>Discipline impact: -{grade.cardPenalty} points.</div>
+          )}
+
+          {grade.hasBreakdown ? (
+            <>
+              {grade.strengths.length > 0 && (
+                <div style={playerStrengthText}>
+                  Strength drivers:{" "}
+                  {grade.strengths.map(item => formatSignal(item)).join(", ")}
+                  .
+                </div>
+              )}
+              {grade.improvements.length > 0 && (
+                <div style={playerImproveText}>
+                  Improvement areas:{" "}
+                  {grade.improvements.map(item => formatSignal(item)).join(", ")}
+                  .
+                </div>
+              )}
+            </>
+          ) : (
+            grade.fallbackInsights.length > 0 && (
+              <ul style={playerInsightList}>
+                {grade.fallbackInsights.map((line, index) => (
+                  <li key={`insight-${index}`}>{line}</li>
+                ))}
+              </ul>
+            )
+          )}
+        </div>
+
+        <div style={playerStatsSection}>
+          <div style={playerSectionTitle}>Match stats</div>
+          {statsRows.length ? (
+            <div style={playerStatsGrid}>
+              {statsRows.map(stat => (
+                <div key={stat.key} style={playerStatCard}>
+                  <div style={playerStatLabel}>{stat.label}</div>
+                  <div style={playerStatValue}>{stat.value}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={playerSummaryText}>No tracked player stats found for this match.</div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderPlayerReport = () => {
+    if (!isPlayerRole) {
+      return <div style={noDataStyle}>Player report is available only for player accounts.</div>;
+    }
+
+    if (!playerReport?.entry) {
+      return <div style={noDataStyle}>Your player profile was not found in this match lineup.</div>;
+    }
+
+    return renderPlayerReportCard(playerReport, { title: playerReport.entry?.canonicalName || "My report" });
+  };
+
+  const renderAllPlayerReports = () => {
+    if (!isAdminRole) {
+      return <div style={noDataStyle}>All player reports are available only for admin accounts.</div>;
+    }
+    if (!allPlayerReports.length) {
+      return <div style={noDataStyle}>No player reports available for this match.</div>;
+    }
+
+    const homeReports = allPlayerReports.filter(r => r?.entry?.team === "home");
+    const awayReports = allPlayerReports.filter(r => r?.entry?.team === "away");
+    const otherReports = allPlayerReports.filter(r => !["home", "away"].includes(String(r?.entry?.team || "")));
+
+    const renderSection = (label, reports) => {
+      if (!reports.length) return null;
+      return (
+        <div style={allReportsSection}>
+          <div style={allReportsTitle}>{label}</div>
+          <div style={allReportsList}>
+            {reports.map(report => (
+              <div key={`admin-report-${report.entry.playerId || report.entry.name}`}>
+                {renderPlayerReportCard(report)}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div style={sectionStack}>
+        {renderSection(`${match?.homeTeam || "Home"} reports (${homeReports.length})`, homeReports)}
+        {renderSection(`${match?.awayTeam || "Away"} reports (${awayReports.length})`, awayReports)}
+        {renderSection(`Other reports (${otherReports.length})`, otherReports)}
+      </div>
+    );
+  };
+
   const getBestPerformer = (side) => {
     const pool = match?.bestPerformers || match?.bestPerformer || {};
     return pool?.[side] || null;
@@ -562,7 +725,7 @@ export default function MatchPageMobile() {
         </div>
 
         <div style={viewToggleRow}>
-          {VIEW_MODES.map((mode) => (
+          {viewModes.map((mode) => (
             <button
               key={mode.id}
               type="button"
@@ -576,6 +739,13 @@ export default function MatchPageMobile() {
             </button>
           ))}
         </div>
+
+        {viewMode === "playerreport" && (
+          <div style={sectionStack}>{renderPlayerReport()}</div>
+        )}
+        {viewMode === "allreports" && (
+          <div style={sectionStack}>{renderAllPlayerReports()}</div>
+        )}
 
         {viewMode === "lineups" && (
           <div>
@@ -862,6 +1032,146 @@ const noDataStyle = {
   color: "#666",
   background: "#fff",
   borderRadius: 16
+};
+
+const playerReportWrap = {
+  background: "#fff",
+  borderRadius: 16,
+  border: "1px solid #f1f1f1",
+  padding: "2vh 3vw",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+  display: "flex",
+  flexDirection: "column",
+  gap: "1.6vh"
+};
+
+const playerReportHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "2vw"
+};
+
+const playerReportName = {
+  fontSize: "1.05rem",
+  fontWeight: 800,
+  color: "#111"
+};
+
+const playerReportMeta = {
+  marginTop: "0.4vh",
+  fontSize: "0.78rem",
+  color: "#666"
+};
+
+const playerGradeBadge = {
+  borderRadius: 12,
+  border: "1px solid #FF681F",
+  background: "#fff8f2",
+  color: "#FF681F",
+  fontWeight: 800,
+  padding: "0.8vh 2.8vw",
+  whiteSpace: "nowrap"
+};
+
+const playerExplanationCard = {
+  borderRadius: 12,
+  border: "1px solid #f0e2d7",
+  background: "#fffaf6",
+  padding: "1.4vh 2.4vw",
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.7vh"
+};
+
+const playerStatsSection = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.8vh"
+};
+
+const playerSectionTitle = {
+  fontSize: "0.82rem",
+  fontWeight: 800,
+  textTransform: "uppercase",
+  letterSpacing: 0.4,
+  color: "#333"
+};
+
+const playerSummaryText = {
+  fontSize: "0.86rem",
+  lineHeight: 1.45,
+  color: "#444"
+};
+
+const playerPenaltyText = {
+  fontSize: "0.82rem",
+  fontWeight: 700,
+  color: "#b45309"
+};
+
+const playerStrengthText = {
+  fontSize: "0.82rem",
+  lineHeight: 1.45,
+  color: "#14532d"
+};
+
+const playerImproveText = {
+  fontSize: "0.82rem",
+  lineHeight: 1.45,
+  color: "#7f1d1d"
+};
+
+const playerInsightList = {
+  margin: 0,
+  paddingLeft: 18,
+  color: "#444",
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.4vh",
+  fontSize: "0.82rem"
+};
+
+const playerStatsGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: "1vh 2vw"
+};
+
+const playerStatCard = {
+  borderRadius: 12,
+  border: "1px solid #f1f1f1",
+  background: "#fff",
+  padding: "1vh 2vw"
+};
+
+const playerStatLabel = {
+  fontSize: "0.72rem",
+  color: "#666"
+};
+
+const playerStatValue = {
+  marginTop: "0.2vh",
+  fontWeight: 800,
+  color: "#111"
+};
+
+const allReportsSection = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "1vh"
+};
+
+const allReportsTitle = {
+  fontSize: "0.95rem",
+  fontWeight: 800,
+  color: "#222"
+};
+
+const allReportsList = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "1vh"
 };
 
 const coachGrid = {

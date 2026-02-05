@@ -316,14 +316,6 @@ export function processMatch({
     });
   }
 
-  // Build peers by role (derived only) for outfield grading
-  const peersByRole = new Map();
-  interim.forEach(pl => {
-    const role = pl.rolePlayed || "GENERIC";
-    if (!peersByRole.has(role)) peersByRole.set(role, []);
-    peersByRole.get(role).push(pl.derived);
-  });
-
   const processedPlayers = interim.map(pl => {
     const rolePlayed = pl.rolePlayed;
     const isGK = rolePlayed === "GK";
