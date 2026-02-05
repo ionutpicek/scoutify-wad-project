@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { collection, query, where } from "firebase/firestore";
-import { db, getDocsLogged as getDocs } from "../firebase.jsx";
+import { getAllPlayers } from "../api/players.js";
+import { getPlayerStatsByPlayerId } from "../api/stats.js";
 import { useNavigate } from "react-router-dom";
 import profilePhoto from '../assets/download.jpeg';
 import Header from "../components/Header.jsx";
@@ -19,9 +19,8 @@ function ComparePlayers() {
     const fetchPlayers = async () => {
       setIsLoading(true);
       try {
-        const snapshot = await getDocs(collection(db, "player"));
-        const playerList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setPlayers(playerList);
+        const data = await getAllPlayers();
+        setPlayers(data.players || []);
       } catch (error) {
         console.error("Error fetching players:", error);
       } finally {
@@ -71,9 +70,8 @@ function ComparePlayers() {
     newQueries[index] = "";
     setSearchQueries(newQueries);
 
-    const statsQuery = query(collection(db, "stats"), where("playerID", "==", player.playerID));
-    const snapshot = await getDocs(statsQuery);
-    const statsData = snapshot.docs[0]?.data() || null;
+    const statsResult = await getPlayerStatsByPlayerId(player.playerID);
+    const statsData = statsResult?.stats || null;
 
     const newStats = [...playerStats];
     newStats[index] = statsData;

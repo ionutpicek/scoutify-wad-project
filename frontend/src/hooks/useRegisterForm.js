@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { auth, db, getDocsLogged as getDocs } from "../firebase";
+import { auth } from "../firebase";
+import { getTeams } from "../api/teams.js";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from "firebase/auth";
-import { doc, setDoc, collection } from "firebase/firestore";
 import { findPlayerByNameAndTeam } from "../services/playerServices.jsx";
+import { registerUser } from "../api/users.js";
 
 export function useRegisterForm(navigate) {
   const [inputs, setInputs] = useState({
@@ -31,8 +32,7 @@ export function useRegisterForm(navigate) {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const teamsSnapshot = await getDocs(collection(db, "team"));
-        const teamsData = teamsSnapshot.docs.map((d) => d.data());
+        const teamsData = await getTeams();
         setTeamsList(teamsData);
       } catch (error) {
         console.error("Error fetching teams:", error);
@@ -163,12 +163,12 @@ export function useRegisterForm(navigate) {
         }
       }
 
-      await setDoc(doc(db, "users", user.uid), {
+      await registerUser({
+        uid: user.uid,
         fullName: inputs.fullName,
         username: inputs.username,
         teamName: teamNameToSave,
         email: inputs.email,
-        createdAt: new Date(),
         role: roleValue,
         verifyUser: false,
         verifyEmail: false,

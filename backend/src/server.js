@@ -5,6 +5,10 @@ import aiRoutes from "./routes/ai.js";
 import gradingRoutes from "./routes/grading.js";
 import matchRoutes from "./routes/matches.js";
 import adminRoutes from "./routes/admin.js";
+import teamRoutes from "./routes/teams.js";
+import playerRoutes from "./routes/players.js";
+import statsRoutes from "./routes/stats.js";
+import userRoutes from "./routes/users.js";
 
 dotenv.config();
 
@@ -16,6 +20,10 @@ app.use("/grading", gradingRoutes);
 app.use("/ai", aiRoutes);
 app.use("/matches", matchRoutes);
 app.use("/admin", adminRoutes);
+app.use("/teams", teamRoutes);
+app.use("/players", playerRoutes);
+app.use("/stats", statsRoutes);
+app.use("/users", userRoutes);
 
 
 app.get("/", (req, res) => {

@@ -6,12 +6,46 @@ import buildTeamStylePrompt, { identifyTeamSide } from "../ai/teamStylePrompt.js
 import generateTeamReport from "../ai/teamReport.js";
 import extractTeamSupplementFromPdf from "../ai/teamReportPdf.js";
 import { db } from "../firebase/firebaseAdmin.js";
+import { getMysqlPool, isMysqlConfigured } from "../mysql/client.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 const TEAM_STYLE_FIELD = "teamStyleSummary";
 const TEAM_REPORT_FIELD = "teamReport";
 const MAX_TEAM_REPORT_SUPPLEMENTS = 10;
+const shouldUseMysql = () => isMysqlConfigured();
+
+const parseSourcePayload = (value) => {
+  if (!value) return {};
+  if (typeof value === "object") return value;
+  if (typeof value !== "string") return {};
+  try {
+    return JSON.parse(value);
+  } catch {
+    return {};
+  }
+};
+
+const parseJsonField = (value, fallback) => {
+  if (value == null) return fallback;
+  if (typeof value === "object") return value;
+  if (typeof value !== "string") return fallback;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+};
+
+const buildTeamDataFromRow = (row) => {
+  const payload = parseSourcePayload(row?.source_payload);
+  return {
+    ...payload,
+    id: row?.id ?? payload.id ?? null,
+    teamID: row?.team_id ?? payload.teamID ?? payload.teamId ?? null,
+    name: row?.name ?? payload.name ?? null
+  };
+};
 
 router.post("/scout-verdict/:statsDocId", async (req, res) => {
   try {
@@ -35,36 +69,61 @@ router.get("/player-summary/:playerDocId", async (req, res) => {
       return res.status(400).json({ error: "playerDocId is required" });
     }
 
-    const playerRef = db.collection("player").doc(playerDocId);
-    const playerSnap = await playerRef.get();
-    if (!playerSnap.exists) {
+    if (!shouldUseMysql()) {
+      return res.status(500).json({ error: "MySQL not configured." });
+    }
+
+    const mysql = getMysqlPool();
+    const [playerRows] = await mysql.execute(
+      `SELECT id, player_id, team_id, name, position, nationality, birthdate, photo_url, source_payload
+       FROM players
+       WHERE id = ?
+       LIMIT 1`,
+      [playerDocId]
+    );
+    if (!playerRows.length) {
       return res.status(404).json({ error: "Player not found" });
     }
 
-    const player = playerSnap.data() || {};
-    const playerID = player.playerID;
+    const playerRow = playerRows[0];
+    const playerPayload = parseSourcePayload(playerRow.source_payload);
+    const player = {
+      ...playerPayload,
+      id: playerRow.id,
+      playerID: playerRow.player_id ?? playerPayload.playerID ?? null,
+      teamID: playerRow.team_id ?? playerPayload.teamID ?? null,
+      name: playerRow.name ?? playerPayload.name ?? null,
+      position: playerRow.position ?? playerPayload.position ?? null,
+      nationality: playerRow.nationality ?? playerPayload.nationality ?? null,
+      birthdate: playerRow.birthdate ?? playerPayload.birthdate ?? null,
+      photoURL: playerRow.photo_url ?? playerPayload.photoURL ?? null
+    };
 
     let stats = null;
-    if (playerID != null) {
-      const statsQuery = await db
-        .collection("stats")
-        .where("playerID", "==", playerID)
-        .limit(1)
-        .get();
-      if (!statsQuery.empty) {
-        stats = statsQuery.docs[0].data();
+    if (player.playerID != null) {
+      const [statsRows] = await mysql.execute(
+        `SELECT source_payload FROM stats WHERE player_id = ? LIMIT 1`,
+        [player.playerID]
+      );
+      if (statsRows.length) {
+        stats = parseSourcePayload(statsRows[0].source_payload);
       }
     }
 
     let team = null;
     if (player.teamID) {
-      const teamQuery = await db
-        .collection("team")
-        .where("teamID", "==", player.teamID)
-        .limit(1)
-        .get();
-      if (!teamQuery.empty) {
-        team = teamQuery.docs[0].data();
+      const [teamRows] = await mysql.execute(
+        `SELECT id, team_id, name, source_payload FROM teams WHERE team_id = ? LIMIT 1`,
+        [String(player.teamID)]
+      );
+      if (teamRows.length) {
+        const teamPayload = parseSourcePayload(teamRows[0].source_payload);
+        team = {
+          ...teamPayload,
+          id: teamRows[0].id,
+          teamID: teamRows[0].team_id ?? teamPayload.teamID ?? null,
+          name: teamRows[0].name ?? teamPayload.name ?? null
+        };
       }
     }
 
@@ -116,6 +175,38 @@ const normalizeIdCandidates = async teamId => {
   const ids = new Set();
   addCandidateId(ids, teamId);
 
+  if (shouldUseMysql()) {
+    const mysql = getMysqlPool();
+    const teamIdValue = teamId != null ? String(teamId).trim() : "";
+    if (teamIdValue) {
+      const [rows] = await mysql.execute(
+        `SELECT id, team_id, name, source_payload
+         FROM teams
+         WHERE id = ? OR team_id = ?
+         LIMIT 1`,
+        [teamIdValue, teamIdValue]
+      );
+      if (rows.length) {
+        const row = rows[0];
+        const teamData = buildTeamDataFromRow(row);
+        addCandidateId(ids, row.id);
+        addCandidateId(ids, row.team_id);
+        addCandidateId(ids, teamData?.teamID);
+        return {
+          idCandidates: Array.from(ids),
+          teamRow: row,
+          teamData
+        };
+      }
+    }
+
+    return {
+      idCandidates: Array.from(ids),
+      teamRow: null,
+      teamData: null
+    };
+  }
+
   let resolvedTeamDoc = null;
   if (teamId != null) {
     const docSnap = await db.collection("team").doc(String(teamId)).get();
@@ -156,7 +247,8 @@ const normalizeIdCandidates = async teamId => {
 
   return {
     idCandidates: Array.from(ids),
-    teamDoc: resolvedTeamDoc
+    teamDoc: resolvedTeamDoc,
+    teamData: resolvedTeamDoc ? resolvedTeamDoc.data() || {} : null
   };
 };
 
@@ -176,6 +268,54 @@ const matchIncludesTeam = (match, teamIds, teamName) => {
 const fetchMatchesForTeam = async ({ teamIds, teamName }) => {
   const candidateIds = Array.isArray(teamIds) ? teamIds.slice(0, 10) : [];
   if (!candidateIds.length && !teamName) return [];
+
+  if (shouldUseMysql()) {
+    const mysql = getMysqlPool();
+    const limit = 50;
+    let rows = [];
+    if (candidateIds.length) {
+      const [result] = await mysql.query(
+        `SELECT id, match_date, round_no, home_team, away_team, score, home_team_id, away_team_id,
+                home_goals, away_goals, team_stats, gps_metrics, best_performers, players_json, source_payload
+         FROM matches
+         WHERE home_team_id IN (?) OR away_team_id IN (?)
+         ORDER BY match_date DESC
+         LIMIT ?`,
+        [candidateIds, candidateIds, limit]
+      );
+      rows = result || [];
+    } else {
+      const [result] = await mysql.query(
+        `SELECT id, match_date, round_no, home_team, away_team, score, home_team_id, away_team_id,
+                home_goals, away_goals, team_stats, gps_metrics, best_performers, players_json, source_payload
+         FROM matches
+         ORDER BY match_date DESC
+         LIMIT ?`,
+        [limit]
+      );
+      rows = result || [];
+    }
+
+    const matches = rows.map(row => ({
+      id: row.id,
+      date: row.match_date,
+      round: row.round_no,
+      homeTeam: row.home_team,
+      awayTeam: row.away_team,
+      score: row.score,
+      homeTeamId: row.home_team_id,
+      awayTeamId: row.away_team_id,
+      homeGoals: row.home_goals,
+      awayGoals: row.away_goals,
+      teamStats: parseJsonField(row.team_stats, null),
+      gpsMetrics: parseJsonField(row.gps_metrics, null),
+      bestPerformers: parseJsonField(row.best_performers, null),
+      players: parseJsonField(row.players_json, []),
+      sourcePayload: parseSourcePayload(row.source_payload)
+    }));
+
+    return matches.filter(match => matchIncludesTeam(match, candidateIds, teamName));
+  }
 
   const queries = [];
   if (candidateIds.length) {
@@ -218,7 +358,33 @@ const hasStoredTeamStyle = teamData => {
   return Boolean(stored?.prompt && typeof stored.prompt === "object");
 };
 
-const buildAndPersistTeamStyle = async ({ teamId, teamDoc, idCandidates, teamName }) => {
+const persistTeamPayload = async ({ teamDoc, teamRowId, payload }) => {
+  if (shouldUseMysql() && teamRowId) {
+    const mysql = getMysqlPool();
+    const patch = payload && typeof payload === "object" ? payload : null;
+    await mysql.execute(
+      `UPDATE teams
+       SET source_payload = CASE
+         WHEN ? IS NULL OR ? = '' THEN source_payload
+         ELSE JSON_MERGE_PATCH(IFNULL(source_payload, JSON_OBJECT()), CAST(? AS JSON))
+       END,
+       updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+      [
+        patch ? "1" : null,
+        patch ? "1" : null,
+        patch ? JSON.stringify(patch) : null,
+        teamRowId
+      ]
+    );
+  }
+
+  if (teamDoc) {
+    await teamDoc.ref.set(payload, { merge: true });
+  }
+};
+
+const buildAndPersistTeamStyle = async ({ teamId, teamDoc, teamRowId, idCandidates, teamName }) => {
   const matches = await fetchMatchesForTeam({ teamIds: idCandidates, teamName });
 
   const prompt = await buildTeamStylePrompt({
@@ -236,12 +402,11 @@ const buildAndPersistTeamStyle = async ({ teamId, teamDoc, idCandidates, teamNam
     generatedAt: new Date()
   };
 
-  await teamDoc.ref.set(
-    {
-      [TEAM_STYLE_FIELD]: payload
-    },
-    { merge: true }
-  );
+  await persistTeamPayload({
+    teamDoc,
+    teamRowId,
+    payload: { [TEAM_STYLE_FIELD]: payload }
+  });
 
   return payload;
 };
@@ -266,6 +431,7 @@ const getStoredSupplements = teamData => {
 const buildAndPersistTeamReport = async ({
   teamId,
   teamDoc,
+  teamRowId,
   idCandidates,
   teamName,
   supplementalInsights = []
@@ -279,12 +445,11 @@ const buildAndPersistTeamReport = async ({
     supplementalInsights: normalizeSupplements(supplementalInsights)
   });
 
-  await teamDoc.ref.set(
-    {
-      [TEAM_REPORT_FIELD]: report
-    },
-    { merge: true }
-  );
+  await persistTeamPayload({
+    teamDoc,
+    teamRowId,
+    payload: { [TEAM_REPORT_FIELD]: report }
+  });
 
   return {
     teamId,
@@ -301,21 +466,22 @@ router.get("/team-style/:teamId", async (req, res) => {
     }
 
     const regenerate = isTruthy(req.query?.regenerate);
-    const { idCandidates, teamDoc } = await normalizeIdCandidates(teamId);
-    if (!teamDoc) {
+    const { idCandidates, teamDoc, teamRow, teamData } = await normalizeIdCandidates(teamId);
+    if (!teamDoc && !teamRow) {
       return res.status(404).json({ error: "Team not found" });
     }
 
-    const teamData = teamDoc.data() || {};
-    const teamName = teamData.name ?? null;
+    const resolvedTeamData = teamData || (teamDoc ? teamDoc.data() || {} : {});
+    const teamName = resolvedTeamData.name ?? null;
 
-    if (!regenerate && hasStoredTeamStyle(teamData)) {
-      return res.json(teamData[TEAM_STYLE_FIELD]);
+    if (!regenerate && hasStoredTeamStyle(resolvedTeamData)) {
+      return res.json(resolvedTeamData[TEAM_STYLE_FIELD]);
     }
 
     const payload = await buildAndPersistTeamStyle({
       teamId,
       teamDoc,
+      teamRowId: teamRow?.id ?? null,
       idCandidates,
       teamName
     });
@@ -334,17 +500,18 @@ router.post("/team-style/:teamId/regenerate", async (req, res) => {
       return res.status(400).json({ error: "teamId is required" });
     }
 
-    const { idCandidates, teamDoc } = await normalizeIdCandidates(teamId);
-    if (!teamDoc) {
+    const { idCandidates, teamDoc, teamRow, teamData } = await normalizeIdCandidates(teamId);
+    if (!teamDoc && !teamRow) {
       return res.status(404).json({ error: "Team not found" });
     }
 
-    const teamData = teamDoc.data() || {};
-    const teamName = teamData.name ?? null;
+    const resolvedTeamData = teamData || (teamDoc ? teamDoc.data() || {} : {});
+    const teamName = resolvedTeamData.name ?? null;
 
     const payload = await buildAndPersistTeamStyle({
       teamId,
       teamDoc,
+      teamRowId: teamRow?.id ?? null,
       idCandidates,
       teamName
     });
@@ -364,26 +531,27 @@ router.get("/team-report/:teamId", async (req, res) => {
     }
 
     const regenerate = isTruthy(req.query?.regenerate);
-    const { idCandidates, teamDoc } = await normalizeIdCandidates(teamId);
-    if (!teamDoc) {
+    const { idCandidates, teamDoc, teamRow, teamData } = await normalizeIdCandidates(teamId);
+    if (!teamDoc && !teamRow) {
       return res.status(404).json({ error: "Team not found" });
     }
 
-    const teamData = teamDoc.data() || {};
-    const teamName = teamData.name ?? null;
-    const supplementalInsights = getStoredSupplements(teamData);
+    const resolvedTeamData = teamData || (teamDoc ? teamDoc.data() || {} : {});
+    const teamName = resolvedTeamData.name ?? null;
+    const supplementalInsights = getStoredSupplements(resolvedTeamData);
 
-    if (!regenerate && hasStoredTeamReport(teamData)) {
+    if (!regenerate && hasStoredTeamReport(resolvedTeamData)) {
       return res.json({
         teamId,
         teamName,
-        report: teamData[TEAM_REPORT_FIELD]
+        report: resolvedTeamData[TEAM_REPORT_FIELD]
       });
     }
 
     const payload = await buildAndPersistTeamReport({
       teamId,
       teamDoc,
+      teamRowId: teamRow?.id ?? null,
       idCandidates,
       teamName,
       supplementalInsights
@@ -406,14 +574,14 @@ router.post("/team-report/:teamId/upload-pdf", upload.single("file"), async (req
       return res.status(400).json({ error: "No PDF uploaded (field name must be 'file')." });
     }
 
-    const { idCandidates, teamDoc } = await normalizeIdCandidates(teamId);
-    if (!teamDoc) {
+    const { idCandidates, teamDoc, teamRow, teamData } = await normalizeIdCandidates(teamId);
+    if (!teamDoc && !teamRow) {
       return res.status(404).json({ error: "Team not found" });
     }
 
-    const teamData = teamDoc.data() || {};
-    const teamName = teamData.name ?? null;
-    const existingSupplements = getStoredSupplements(teamData);
+    const resolvedTeamData = teamData || (teamDoc ? teamDoc.data() || {} : {});
+    const teamName = resolvedTeamData.name ?? null;
+    const existingSupplements = getStoredSupplements(resolvedTeamData);
 
     const supplement = await extractTeamSupplementFromPdf({
       pdfBuffer: req.file.buffer,
@@ -426,6 +594,7 @@ router.post("/team-report/:teamId/upload-pdf", upload.single("file"), async (req
     const payload = await buildAndPersistTeamReport({
       teamId,
       teamDoc,
+      teamRowId: teamRow?.id ?? null,
       idCandidates,
       teamName,
       supplementalInsights: mergedSupplements
@@ -452,18 +621,19 @@ router.post("/team-report/:teamId/regenerate", async (req, res) => {
       return res.status(400).json({ error: "teamId is required" });
     }
 
-    const { idCandidates, teamDoc } = await normalizeIdCandidates(teamId);
-    if (!teamDoc) {
+    const { idCandidates, teamDoc, teamRow, teamData } = await normalizeIdCandidates(teamId);
+    if (!teamDoc && !teamRow) {
       return res.status(404).json({ error: "Team not found" });
     }
 
-    const teamData = teamDoc.data() || {};
-    const teamName = teamData.name ?? null;
-    const supplementalInsights = getStoredSupplements(teamData);
+    const resolvedTeamData = teamData || (teamDoc ? teamDoc.data() || {} : {});
+    const teamName = resolvedTeamData.name ?? null;
+    const supplementalInsights = getStoredSupplements(resolvedTeamData);
 
     const payload = await buildAndPersistTeamReport({
       teamId,
       teamDoc,
+      teamRowId: teamRow?.id ?? null,
       idCandidates,
       teamName,
       supplementalInsights

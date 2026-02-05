@@ -1,7 +1,5 @@
 import {React, useEffect, useState, useMemo} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { doc, query, collection, where, orderBy } from "firebase/firestore";
-import { db, getDocLogged as getDoc, getDocsLogged as getDocs } from "../../firebase.jsx";
 import profilePhoto from '../../assets/download.jpeg';
 import Header from "../../components/Header.jsx";
 import Spinner from "../../components/Spinner.jsx";
@@ -9,6 +7,10 @@ import superligaLogo from '../../assets/superligaF.png';
 import SeasonGradeCardMobile from "../../components/SeasonGradeCardMobile.jsx";
 import { getCurrentUser } from "../../services/sessionStorage.js";
 import { apiUrl } from "../../config/api.js";
+import { getPlayerById } from "../../api/players.js";
+import { getTeamById } from "../../api/teams.js";
+import { getPlayerStatsByPlayerId } from "../../api/stats.js";
+import { getAllMatches } from "../../api/matches.js";
 
 
 const PlayerProfileMobile = () => {
@@ -116,72 +118,43 @@ const PlayerProfileMobile = () => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const playerRef = doc(db, "player", playerID);
-                const playerSnap = await getDoc(playerRef);
-
-                if (!playerSnap.exists()) {
+                const playerRes = await getPlayerById(playerID);
+                const player = playerRes?.player || null;
+                if (!player) {
                     console.warn("Player not found!");
                     setIsLoading(false);
                     return;
                 }
 
-                const player = playerSnap.data();
                 setPlayerData(player);
                 console.log("PlayerID:", player.playerID);
 
-                const statsQuery = query(
-                    collection(db, "stats"),
-                    where("playerID", "==", player.playerID)
-                );
-                const statsSnapshot = await getDocs(statsQuery);
-
-                if (statsSnapshot.docs.length > 0) {
-                  const docSnap = statsSnapshot.docs[0];
-
-                  const rawStats = docSnap.data();
-
-                  const statsWithGrade = {
-                    ...rawStats,
-                    _statsDocId: docSnap.id, // keep it on stats
-
-                    seasonGrade: rawStats.seasonGrade
-                      ? {
-                          ...rawStats.seasonGrade,
-                          statsDocId: docSnap.id, // 🔑 inject here
-                        }
-                      : null,
-                  };
-
-                  setStatsData(statsWithGrade);
-                }
-                else {
+                const statsRes = player.playerID
+                  ? await getPlayerStatsByPlayerId(player.playerID)
+                  : { stats: null };
+                if (statsRes?.stats) {
+                    setStatsData(statsRes.stats);
+                } else {
                     console.warn("No stats found for this player.");
                     setStatsData(null);
                 }
 
-                const teamQuery = query(
-                    collection(db, "team"),
-                    where("teamID", "==", player.teamID)
-                );
-                const teamSnapshot = await getDocs(teamQuery);
-
-                if (teamSnapshot.docs.length > 0) {
-                    const teams = teamSnapshot.docs.map(doc => doc.data());
-                    setTeamData(teams[0]);
-                } else {
-                    console.warn("No team found for this player.");
-                    setTeamData(null);
+                let team = null;
+                if (player.teamID) {
+                    const teamRes = await getTeamById(player.teamID);
+                    team = teamRes?.team || null;
                 }
+                setTeamData(team);
 
                 // Fetch matches the player appeared in
-                const matchesRef = collection(db, "matches");
-                const matchesSnap = await getDocs(query(matchesRef, orderBy("date", "desc")));
+                const matchesSnap = await getAllMatches();
+                const matchesList = Array.isArray(matchesSnap) ? matchesSnap : [];
                 const played = [];
                 const gpsStats = [];
                 
-                console.log("Total matches in DB:", matchesSnap.size);  
-                matchesSnap.forEach(d => {
-                  const data = d.data() || {};
+                console.log("Total matches in DB:", matchesList.length);  
+                matchesList.forEach(d => {
+                  const data = d || {};
                   const playersArr = Array.isArray(data.players) ? data.players : [];
 
                   const entry = playersArr.find(p => {
@@ -218,7 +191,7 @@ const PlayerProfileMobile = () => {
                       ? homeTeamName
                       : entrySide === "away"
                         ? awayTeamName
-                        : player.teamName || teamData?.name || "";
+                        : player.teamName || team?.name || "";
 
                   let oppName = "";
                   if (entrySide === "home") {
@@ -287,7 +260,7 @@ const PlayerProfileMobile = () => {
         };
 
         fetchData();
-    }, [playerID, isBlocked, teamData?.name, refreshKey]);
+    }, [playerID, isBlocked, refreshKey]);
 
     const accessDeniedMessage = isManagerMismatch
       ? "Managers can only view players from their own team."
@@ -532,3 +505,4 @@ const PlayerProfileMobile = () => {
 }   
 
 export default PlayerProfileMobile;
+

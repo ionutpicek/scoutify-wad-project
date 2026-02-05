@@ -1,5 +1,18 @@
 // src/matches/loadSeasonGrades.js
-import { db } from "../firebase/firebaseAdmin.js";
+import { getMysqlPool, isMysqlConfigured } from "../mysql/client.js";
+
+const shouldUseMysql = () => isMysqlConfigured();
+
+const parseSourcePayload = (value) => {
+  if (!value) return {};
+  if (typeof value === "object") return value;
+  if (typeof value !== "string") return {};
+  try {
+    return JSON.parse(value);
+  } catch {
+    return {};
+  }
+};
 
 export async function loadSeasonGrades(playerIds) {
   const map = {};
@@ -8,20 +21,24 @@ export async function loadSeasonGrades(playerIds) {
 
   const uniqueIds = [...new Set(playerIds)].filter(Boolean);
 
-  for (const playerId of uniqueIds) {
-    const snap = await db
-      .collection("stats")
-      .where("playerID", "==", playerId)
-      .limit(1)
-      .get();
-
-    if (!snap.empty) {
-      const data = snap.docs[0].data();
-      if (data.seasonGrade) {
-        map[playerId] = data.seasonGrade;
-      }
-    }
+  if (!shouldUseMysql()) {
+    return map;
   }
+
+  const mysql = getMysqlPool();
+  const [rows] = await mysql.query(
+    `SELECT player_id, source_payload
+     FROM stats
+     WHERE player_id IN (?)`,
+    [uniqueIds]
+  );
+
+  rows.forEach(row => {
+    const payload = parseSourcePayload(row.source_payload);
+    if (payload?.seasonGrade) {
+      map[row.player_id] = payload.seasonGrade;
+    }
+  });
 
   return map;
 }

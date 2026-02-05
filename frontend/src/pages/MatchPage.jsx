@@ -3,10 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import Spinner from "../components/Spinner.jsx";
 import { getMatch, uploadMatchMetrics } from "../api/matches";
-import { db, getDocLogged as getDoc } from "../firebase";
-import { doc } from "firebase/firestore";
 import { getCurrentUser } from "../services/sessionStorage.js";
 import { buildAllPlayerMatchReports, buildPlayerMatchReport } from "../utils/playerMatchReport.js";
+import { getTeamById } from "../api/teams.js";
 
 export default function MatchPage() {
   // Cache coaches by teamId to avoid repeated Firestore reads across renders/pages
@@ -169,15 +168,15 @@ export default function MatchPage() {
           photo: data?.coachURL || data?.coachUrl || null
         });
 
-        // Cached?
         if (coachCache.current.has(teamId)) {
           return coachCache.current.get(teamId);
         }
 
         try {
-          const snap = await getDoc(doc(db, "team", String(teamId)));
-          if (snap.exists()) {
-            const coach = buildCoach(snap.data());
+          const resp = await getTeamById(teamId);
+          const team = resp?.team || null;
+          if (team) {
+            const coach = buildCoach(team);
             coachCache.current.set(teamId, coach);
             return coach;
           }

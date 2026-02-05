@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { collection, limit, orderBy, query, where } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import Spinner from "../components/Spinner.jsx";
-import { db, getDocsLogged as getDocs } from "../firebase.jsx";
+import { getLeaderboard } from "../api/stats.js";
 
 const statOptions = [
   { id: "goals", label: "Goals" },
@@ -47,56 +46,8 @@ const Leaderboard = () => {
     const loadPlayers = async () => {
       setLoadingPlayers(true);
       try {
-        const statsQuery = query(
-          collection(db, "stats"),
-          orderBy(activeStat, "desc"),
-          limit(10)
-        );
-
-        const statsSnapshot = await getDocs(statsQuery);
-        const playerIds = statsSnapshot.docs
-          .map((d) => d.data()?.playerID)
-          .filter(Boolean);
-
-        const playerMap = new Map();
-
-        for (let i = 0; i < playerIds.length; i += 10) {
-          const chunk = playerIds.slice(i, i + 10);
-          if (!chunk.length) continue;
-          const playersQuery = query(
-            collection(db, "player"),
-            where("playerID", "in", chunk)
-          );
-          const playersSnapshot = await getDocs(playersQuery);
-
-          playersSnapshot.docs.forEach((docSnap) => {
-            const data = docSnap.data() || {};
-            const key = data.playerID ?? docSnap.id;
-            playerMap.set(key, { id: docSnap.id, ...data });
-          });
-        }
-
-        const enrichedPlayers = statsSnapshot.docs.map((docSnap) => {
-          const data = docSnap.data() || {};
-          const key = data.playerID ?? docSnap.id;
-          const playerDoc = playerMap.get(key);
-
-          return {
-            id: playerDoc?.id ?? key,
-            name: playerDoc?.name || "Unknown",
-            team: playerDoc?.teamName || playerDoc?.team || "Unknown",
-            // ✅ photo support (safe fallbacks — change keys if your DB uses different names)
-            photo:
-              playerDoc?.photo ||
-              playerDoc?.photoURL ||
-              playerDoc?.imageUrl ||
-              playerDoc?.profilePhoto ||
-              "",
-            stats: data,
-          };
-        });
-
-        setPlayerRows(enrichedPlayers);
+        const data = await getLeaderboard({ stat: activeStat, limit: 10 });
+        setPlayerRows(data.players || []);
       } catch (error) {
         console.error("Failed to load leaderboard", error);
         setPlayerRows([]);

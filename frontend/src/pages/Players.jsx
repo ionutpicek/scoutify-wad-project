@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection } from "firebase/firestore";
-import { db, getDocsLogged as getDocs } from "../firebase.jsx";
 import PlayerCard from "../components/PlayerCard.jsx";
 import Spinner from "../components/Spinner.jsx";
 import Header from "../components/Header.jsx";
 import { getCurrentUser } from "../services/sessionStorage.js";
+import { getAllPlayers } from "../api/players.js";
+import { getTeams } from "../api/teams.js";
 
 function PlayersList() {
   const [players, setPlayers] = useState([]);
@@ -34,18 +34,11 @@ function PlayersList() {
       
       try {
         // 🔹 Fetch players
-        const playersSnapshot = await getDocs(collection(db, "player"));
-        const playersList = playersSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const playersRes = await getAllPlayers();
+        const playersList = playersRes?.players || [];
 
-        // 🔹 Fetch teams
-        const teamsSnapshot = await getDocs(collection(db, "team"));
-        const teamsList = teamsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        // Fetch teams
+        const teamsList = await getTeams();
 
         // 🔹 Add team name to players
         const combined = playersList.map((player) => {
@@ -239,3 +232,5 @@ function PlayersList() {
 }
 
 export default PlayersList;
+
+

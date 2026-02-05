@@ -1,11 +1,11 @@
 import React, { useMemo, useState, useEffect } from "react";
 import Photo from "../assets/ScoutifyBackground.png";
 import { useNavigate } from "react-router-dom";
-import { auth, db } from "../firebase";
+import { auth } from "../firebase";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { doc, setDoc, collection } from "firebase/firestore";
-import { getDocsLogged as getDocs } from "../firebase";
 import { findPlayerByNameAndTeam } from "../services/playerServices.jsx";
+import { getTeams } from "../api/teams.js";
+import { registerUser } from "../api/users.js";
 
 const ORANGE = "#FF681F";
 const ORANGE_HOVER = "#FF4500";
@@ -59,8 +59,7 @@ const Register = () => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const teamsSnapshot = await getDocs(collection(db, "team"));
-        const teamsData = teamsSnapshot.docs.map((d) => d.data());
+        const teamsData = await getTeams();
         setTeamsList(teamsData);
       } catch (error) {
         console.error("Error fetching teams:", error);
@@ -146,12 +145,12 @@ const Register = () => {
         }
       }
 
-      await setDoc(doc(db, "users", user.uid), {
+      await registerUser({
+        uid: user.uid,
         fullName: inputs.fullName,
         username: inputs.username,
         teamName: teamNameToSave,
         email: inputs.email,
-        createdAt: new Date(),
         role: roleValue,
         verifyUser: false,
         verifyEmail: false,

@@ -7,6 +7,7 @@ import { buildExcelHighlights } from "../gpsMetrics/buildHighlights.js";
 import { gradeGame } from "../grading/gameGrade.js";
 import { gradeGameGK } from "../grading/gradeGK.js";
 import { pickBestPerformers } from "../grading/pickBestPerformer.js";
+import { getMysqlPool, isMysqlConfigured } from "../mysql/client.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -15,6 +16,7 @@ const MATCHES_COL = "matches";
 const DEFAULT_LIMIT = 200;
 const MIN_MINUTES_FOR_GRADE_OUTFIELD = 30;
 const MIN_MINUTES_FOR_GRADE_GK = 45;
+const shouldUseMysql = () => isMysqlConfigured();
 
 function handleFirestoreError(res, err, context = "") {
   const isQuota = err?.code === 8 || /quota|exhausted/i.test(err?.message || "");
@@ -63,10 +65,120 @@ function regradePlayers(players = []) {
   });
 }
 
+function parseJsonField(value, fallback) {
+  if (value == null) return fallback;
+  if (typeof value === "object") return value;
+  if (typeof value !== "string") return fallback;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
+function toMatchRow(matchId, data) {
+  return {
+    id: matchId,
+    match_date: data.date ?? null,
+    round_no: data.round != null ? Number(data.round) : null,
+    home_team_id: data.homeTeamId != null ? String(data.homeTeamId) : null,
+    away_team_id: data.awayTeamId != null ? String(data.awayTeamId) : null,
+    home_team: data.homeTeam ?? null,
+    away_team: data.awayTeam ?? null,
+    score: data.score ?? null,
+    home_goals: data.homeGoals != null ? Number(data.homeGoals) : null,
+    away_goals: data.awayGoals != null ? Number(data.awayGoals) : null,
+    team_stats: data.teamStats ? JSON.stringify(data.teamStats) : null,
+    gps_metrics: data.gpsMetrics ? JSON.stringify(data.gpsMetrics) : null,
+    best_performers: data.bestPerformers ? JSON.stringify(data.bestPerformers) : null,
+    players_json: data.players ? JSON.stringify(data.players) : null,
+    source_payload: JSON.stringify({ id: matchId, ...data })
+  };
+}
+
+async function upsertMatch(mysql, matchId, data) {
+  const row = toMatchRow(matchId, data);
+  await mysql.execute(
+    `INSERT INTO matches (
+      id, match_date, round_no, home_team_id, away_team_id, home_team, away_team,
+      score, home_goals, away_goals, team_stats, gps_metrics, best_performers, players_json, source_payload
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+      match_date = VALUES(match_date),
+      round_no = VALUES(round_no),
+      home_team_id = VALUES(home_team_id),
+      away_team_id = VALUES(away_team_id),
+      home_team = VALUES(home_team),
+      away_team = VALUES(away_team),
+      score = VALUES(score),
+      home_goals = VALUES(home_goals),
+      away_goals = VALUES(away_goals),
+      team_stats = VALUES(team_stats),
+      gps_metrics = VALUES(gps_metrics),
+      best_performers = VALUES(best_performers),
+      players_json = VALUES(players_json),
+      source_payload = VALUES(source_payload),
+      updated_at = CURRENT_TIMESTAMP`,
+    [
+      row.id,
+      row.match_date,
+      row.round_no,
+      row.home_team_id,
+      row.away_team_id,
+      row.home_team,
+      row.away_team,
+      row.score,
+      row.home_goals,
+      row.away_goals,
+      row.team_stats,
+      row.gps_metrics,
+      row.best_performers,
+      row.players_json,
+      row.source_payload
+    ]
+  );
+}
+
 // GET ALL MATCHES
 router.get("/", async (req, res) => {
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || DEFAULT_LIMIT, 1), 500);
+    if (shouldUseMysql()) {
+      const mysql = getMysqlPool();
+      const [rows] = await mysql.query(
+        `SELECT id, match_date, round_no, home_team, away_team, score, home_team_id, away_team_id, players_json
+         FROM matches
+         ORDER BY match_date DESC
+         LIMIT ?`,
+        [limit]
+      );
+
+      const matches = rows.map(row => {
+        const players = parseJsonField(row.players_json, []);
+        const uniq = new Map();
+        for (const p of players || []) {
+          const pid = p.playerId || `${p.teamId || ""}-${p.name || ""}`;
+          const mins = Number(p.minutesPlayed || 0);
+          if (mins > 0 && !uniq.has(pid)) uniq.set(pid, true);
+        }
+
+        return {
+          id: row.id,
+          homeTeam: row.home_team,
+          awayTeam: row.away_team,
+          date: row.match_date,
+          round: row.round_no ?? null,
+          score: row.score,
+          playersCount: uniq.size,
+          players,
+          homeTeamId: row.home_team_id,
+          awayTeamId: row.away_team_id
+        };
+      });
+
+      return res.json(matches);
+    }
+
     const snap = await db
       .collection(MATCHES_COL)
       .orderBy("date", "desc")
@@ -97,7 +209,7 @@ router.get("/", async (req, res) => {
       };
     });
 
-    res.json(matches);
+    return res.json(matches);
   } catch (err) {
     return handleFirestoreError(res, err, "list");
   }
@@ -106,6 +218,46 @@ router.get("/", async (req, res) => {
 // GET ONE MATCH
 router.get("/:id", async (req, res) => {
   try {
+    if (shouldUseMysql()) {
+      const mysql = getMysqlPool();
+      const [rows] = await mysql.execute(
+        `SELECT id, match_date, round_no, home_team, away_team, score, home_team_id, away_team_id,
+                home_goals, away_goals, team_stats, gps_metrics, best_performers, players_json
+         FROM matches
+         WHERE id = ?
+         LIMIT 1`,
+        [req.params.id]
+      );
+      if (!rows.length) return res.status(404).json({ error: "Match not found" });
+      const row = rows[0];
+      const data = {
+        date: row.match_date,
+        round: row.round_no,
+        homeTeam: row.home_team,
+        awayTeam: row.away_team,
+        score: row.score,
+        homeTeamId: row.home_team_id,
+        awayTeamId: row.away_team_id,
+        homeGoals: row.home_goals,
+        awayGoals: row.away_goals,
+        teamStats: parseJsonField(row.team_stats, null),
+        gpsMetrics: parseJsonField(row.gps_metrics, null),
+        bestPerformers: parseJsonField(row.best_performers, null),
+        players: parseJsonField(row.players_json, [])
+      };
+
+      const players = regradePlayers(data.players || []);
+      const bestPerformers = pickBestPerformers(players);
+
+      return res.json({
+        id: row.id,
+        ...data,
+        players,
+        bestPerformers,
+        bestPerformer: bestPerformers
+      });
+    }
+
     const ref = db.collection(MATCHES_COL).doc(req.params.id);
     const docSnap = await ref.get();
     if (!docSnap.exists) return res.status(404).json({ error: "Match not found" });
@@ -114,7 +266,7 @@ router.get("/:id", async (req, res) => {
     const players = regradePlayers(data.players || []);
     const bestPerformers = pickBestPerformers(players);
 
-    res.json({
+    return res.json({
       id: docSnap.id,
       ...data,
       players,
@@ -147,14 +299,44 @@ router.post(
         metricsFilename: metricsFile?.originalname || null
       });
 
-      const saved = await db.collection(MATCHES_COL).doc(matchId).get();
-      const data = saved.exists ? saved.data() : null;
+      if (shouldUseMysql()) {
+        const mysql = getMysqlPool();
+        const [rows] = await mysql.execute(
+          `SELECT id, match_date, round_no, home_team, away_team, score, home_team_id, away_team_id,
+                  home_goals, away_goals, team_stats, gps_metrics, best_performers, players_json
+           FROM matches
+           WHERE id = ?
+           LIMIT 1`,
+          [matchId]
+        );
+        const row = rows[0];
+        const match = row
+          ? {
+              id: row.id,
+              date: row.match_date,
+              round: row.round_no,
+              homeTeam: row.home_team,
+              awayTeam: row.away_team,
+              score: row.score,
+              homeTeamId: row.home_team_id,
+              awayTeamId: row.away_team_id,
+              homeGoals: row.home_goals,
+              awayGoals: row.away_goals,
+              teamStats: parseJsonField(row.team_stats, null),
+              gpsMetrics: parseJsonField(row.gps_metrics, null),
+              bestPerformers: parseJsonField(row.best_performers, null),
+              players: parseJsonField(row.players_json, [])
+            }
+          : null;
 
-      return res.json({
-        ok: true,
-        matchId,
-        match: data ? { id: matchId, ...data } : null
-      });
+        return res.json({
+          ok: true,
+          matchId,
+          match
+        });
+      }
+
+      return res.json({ ok: true, matchId, match: null });
     } catch (err) {
       console.error("import-pdf error:", err);
       return res.status(500).json({ error: err.message || "Import failed" });
@@ -175,10 +357,43 @@ router.post("/:id/upload-metrics", upload.single("metrics"), async (req, res) =>
       return res.status(400).json({ error: "Invalid side; use 'home' or 'away'" });
     }
 
-    const snap = await db.collection(MATCHES_COL).doc(id).get();
-    if (!snap.exists) return res.status(404).json({ error: "Match not found" });
+    let data = null;
+    let isMysql = false;
+    if (shouldUseMysql()) {
+      isMysql = true;
+      const mysql = getMysqlPool();
+      const [rows] = await mysql.execute(
+        `SELECT id, match_date, round_no, home_team, away_team, score, home_team_id, away_team_id,
+                home_goals, away_goals, team_stats, gps_metrics, best_performers, players_json
+         FROM matches
+         WHERE id = ?
+         LIMIT 1`,
+        [id]
+      );
+      if (!rows.length) return res.status(404).json({ error: "Match not found" });
+      const row = rows[0];
+      data = {
+        id: row.id,
+        date: row.match_date,
+        round: row.round_no,
+        homeTeam: row.home_team,
+        awayTeam: row.away_team,
+        score: row.score,
+        homeTeamId: row.home_team_id,
+        awayTeamId: row.away_team_id,
+        homeGoals: row.home_goals,
+        awayGoals: row.away_goals,
+        teamStats: parseJsonField(row.team_stats, null),
+        gpsMetrics: parseJsonField(row.gps_metrics, null),
+        bestPerformers: parseJsonField(row.best_performers, null),
+        players: parseJsonField(row.players_json, [])
+      };
+    } else {
+      const snap = await db.collection(MATCHES_COL).doc(id).get();
+      if (!snap.exists) return res.status(404).json({ error: "Match not found" });
+      data = snap.data() || {};
+    }
 
-    const data = snap.data() || {};
     const players = Array.isArray(data.players) ? data.players : [];
     if (!players.length) return res.status(400).json({ error: "Match has no players to map metrics" });
 
@@ -259,13 +474,25 @@ router.post("/:id/upload-metrics", upload.single("metrics"), async (req, res) =>
       return { ...p, gps };
     });
 
-    await db.collection(MATCHES_COL).doc(id).set(
-      {
-        gpsMetrics: mergedNotes,
-        players: updatedPlayers
-      },
-      { merge: true }
-    );
+    if (!isMysql) {
+      await db.collection(MATCHES_COL).doc(id).set(
+        {
+          gpsMetrics: mergedNotes,
+          players: updatedPlayers
+        },
+        { merge: true }
+      );
+    }
+
+    if (isMysql) {
+      const mysql = getMysqlPool();
+      await mysql.execute(
+        `UPDATE matches
+         SET gps_metrics = ?, players_json = ?, updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+        [JSON.stringify(mergedNotes), JSON.stringify(updatedPlayers), id]
+      );
+    }
 
     return res.json({
       ok: true,

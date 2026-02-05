@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
-import { doc, updateDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db, getDocLogged as getDoc } from "../firebase";
+import { auth } from "../firebase";
 import { setCurrentUser } from "../services/sessionStorage.js";
 import { findPlayerByNameAndTeam } from "../services/playerServices.jsx";
+import { getUserByUid, updateUser } from "../api/users.js";
 
 export function useLoginForm(navigate) {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -97,16 +97,20 @@ export function useLoginForm(navigate) {
         return;
       }
 
-      const userRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userRef);
-      if (!userDoc.exists()) {
-        setGeneralError("User record not found in Firestore.");
+      let userData = null;
+      try {
+        const userRes = await getUserByUid(user.uid);
+        userData = userRes?.user || null;
+      } catch (err) {
+        userData = null;
+      }
+
+      if (!userData) {
+        setGeneralError("User record not found.");
         triggerShake();
         setIsSubmitting(false);
         return;
       }
-
-      const userData = userDoc.data() || {};
 
       if (!userData.verifyUser) {
         setGeneralError("Your account is pending approval from an administrator.");
@@ -116,8 +120,12 @@ export function useLoginForm(navigate) {
       }
 
       if (!userData.verifyEmail && user.emailVerified) {
-        await updateDoc(userRef, { verifyEmail: true });
-        userData.verifyEmail = true;
+        try {
+          await updateUser(user.uid, { verifyEmail: true });
+          userData.verifyEmail = true;
+        } catch (err) {
+          console.error("Failed to update verifyEmail:", err);
+        }
       }
 
       if (!userData.verifyEmail) {
@@ -134,9 +142,10 @@ export function useLoginForm(navigate) {
             teamName: userData.teamName,
           });
           if (resolvedPlayer) {
-            await updateDoc(userRef, {
+            await updateUser(user.uid, {
               playerDocId: resolvedPlayer.docId,
               playerID: resolvedPlayer.playerID ?? null,
+              matchedPlayerName: resolvedPlayer.name ?? null
             });
             userData.playerDocId = resolvedPlayer.docId;
             userData.playerID = resolvedPlayer.playerID;

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { collection, deleteDoc, doc, addDoc, setDoc, query, where } from "firebase/firestore"; 
-import { db, getDocsLogged as getDocs } from "../../firebase.jsx"; 
+import { getTeams } from "../../api/teams.js";
+import { addPlayer, deletePlayer, editPlayer, getTeamPlayers } from "../../services/playerServices.jsx";
 import Header from "../../components/Header.jsx"; 
 import Spinner from "../../components/Spinner.jsx";
 import PlayerCardMobile from "../../components/PlayerCardMobile.jsx";
@@ -50,12 +50,7 @@ const TeamPlayersMobile = () => {
 
         const handleDelete = async () => { try { 
             if (!playerToDelete) return;
-
-            await deleteDoc(doc(db, "player", playerToDelete.id)); 
-            const q = query(collection(db, "stats"), where("playerID", "==", playerToDelete.playerID)); 
-            const snap = await getDocs(q); snap.forEach(docItem => deleteDoc(doc(db, "stats", docItem.id))); 
-            
-            // remove from stats 
+            await deletePlayer(playerToDelete.id, playerToDelete.playerID);
             setPlayers(prevPlayers => prevPlayers.filter(p => p.id !== playerToDelete.id)); 
             console.log("Player removed successfully!"); setDeletePlayer(false); 
         } catch (error) { console.error("Error deleting player:", error); } }; 
@@ -71,52 +66,20 @@ const TeamPlayersMobile = () => {
             setAdd(prev => !prev); 
         }
 
-        const abbr = (fullName) => {
-            const parts = fullName.split(" ");
-            const abbrName = `${parts[0][0]}. ${parts[parts.length - 1]}`;
-            return abbrName;
-        }
-
         const handleAdd = async (info) => {
             try {
-                const playerID = Date.now();
-
-                // add player document
-                const playerRef = await addDoc(collection(db, "player"), {
+                const created = await addPlayer({
                     name: info.name,
                     teamID: info.teamID,
                     position: info.position,
                     photoURL: info.photoURL || "",
                     teamName: info.teamName,
                     birthdate: info.birthdate || "",
-                    nationality: info.nationality, 
-                    playerID: playerID,
-                    abbrName: abbr(info.name),
+                    nationality: info.nationality,
                 });
-
-                // add stats document
-                await addDoc(
-                    collection(db, "stats"),
-                    info.position !== "Goalkeeper"
-                        ? { playerID: playerID, minutes: 0, goals: 0, assists: 0, shots: 0, passes: 0, dribbles: 0 }
-                        : { playerID: playerID, minutes: 0, xCG: 0, concededGoals: 0, saves: 0, cleanSheet: 0, shotAgainst: 0, shortGoalKicks: 0, longGoalKicks: 0 }
-                );
-
-                // update local state immediately (or you can fetch all players again)
-                setPlayers(prevPlayers => [
-                    ...prevPlayers,
-                    {
-                        id: playerRef.id,  // unique Firestore doc ID
-                        name: info.name,
-                        teamID: info.teamID,
-                        position: info.position,
-                        photoURL: info.photoURL || "",
-                        teamName: info.teamName,
-                        birthdate: info.birthdate || "",
-                        nationality: info.nationality,
-                        playerID: playerID,
-                    },
-                ]);
+                if (created) {
+                    setPlayers(prevPlayers => [...prevPlayers, created]);
+                }
 
             } catch (error) {
                 console.error("Error adding player:", error);
@@ -124,11 +87,6 @@ const TeamPlayersMobile = () => {
         };
 
             
-        const editPlayer = async (playerID, updatedInfo) => { 
-            const playerRef = doc(db, "player", playerID); 
-            await setDoc(playerRef, updatedInfo, { merge: true }); 
-        } 
-        
         const [edit, setEdit] = useState(false); 
         const changeEdit = () => { setEdit(prev => !prev); } 
         useEffect(() => { 
@@ -137,32 +95,8 @@ const TeamPlayersMobile = () => {
         const fetchPlayers = async () => { 
             setIsLoading(true); 
             try { 
-                const q = query(collection(db, "player"), where("teamID", "==", teamID));
-                const snapshot = await getDocs(q); 
-                const teamPlayers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                // fetch season grades for these players (chunked by 10 for Firestore 'in' constraint)
-                const playerIds = teamPlayers.map(p => p.playerID).filter(Boolean);
-                const statsCol = collection(db, "stats");
-                const gradeByPlayer = new Map();
-                for (let i = 0; i < playerIds.length; i += 10) {
-                    const chunk = playerIds.slice(i, i + 10);
-                    const sq = query(statsCol, where("playerID", "in", chunk));
-                    const ssnap = await getDocs(sq);
-                    ssnap.forEach(d => {
-                        const data = d.data() || {};
-                        const pid = data.playerID;
-                        const sg = data.seasonGrade?.overall10 ?? null;
-                        if (pid != null && sg != null) gradeByPlayer.set(pid, sg);
-                    });
-                }
-
-                const merged = teamPlayers.map(p => ({
-                    ...p,
-                    seasonGradeOverall: gradeByPlayer.get(p.playerID) ?? null,
-                }));
-
-                setPlayers(merged); 
+                const teamPlayers = await getTeamPlayers(teamID);
+                setPlayers(teamPlayers); 
             } catch (error) { 
                 console.error("Error fetching team players:", error); 
             } finally {
@@ -175,8 +109,8 @@ const TeamPlayersMobile = () => {
         useEffect(() => {
             const fetchTeams = async () => {
                 try {
-                    const snapshot = await getDocs(collection(db, "team"));
-                    setTeamsList(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                    const list = await getTeams();
+                    setTeamsList(list);
                 } catch (error) {
                     console.error("Error fetching teams:", error);
                 }
@@ -560,9 +494,8 @@ const TeamPlayersMobile = () => {
                         setFormInputs({ name: "", position: "", photoURL: "", birthdate: "", nationality:"", moveTeamID: "" });
 
                         // Refresh player list
-                        const q = query(collection(db, "player"), where("teamID", "==", teamID));
-                        const snapshot = await getDocs(q);
-                        setPlayers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                        const refreshed = await getTeamPlayers(teamID);
+                        setPlayers(refreshed);
                     }}>
                         Save
                     </button>

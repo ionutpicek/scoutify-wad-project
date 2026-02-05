@@ -1,4 +1,17 @@
-import { db } from "../firebase/firebaseAdmin.js";
+import { getMysqlPool, isMysqlConfigured } from "../mysql/client.js";
+
+const shouldUseMysql = () => isMysqlConfigured();
+
+const parseSourcePayload = (value) => {
+  if (!value) return {};
+  if (typeof value === "object") return value;
+  if (typeof value !== "string") return {};
+  try {
+    return JSON.parse(value);
+  } catch {
+    return {};
+  }
+};
 
 /* ---------------- NORMALIZATION ---------------- */
 
@@ -45,14 +58,32 @@ function applyAliases(norm) {
 /* ---------------- FIRESTORE LOAD ---------------- */
 
 async function loadAllPlayers() {
-  const snap = await db.collection("player").get();
+  if (!shouldUseMysql()) {
+    throw new Error("MySQL not configured for player resolution.");
+  }
 
-  return snap.docs.map(d => ({
-    id: d.id,
-    ...d.data(),
-    _normName: normalize(d.data().name || ""),
-    _normAbbr: normalize(d.data().abbrName || "")
-  }));
+  const mysql = getMysqlPool();
+  const [rows] = await mysql.query(
+    `SELECT id, player_id, team_id, name, abbr_name, source_payload
+     FROM players`
+  );
+
+  return rows.map(row => {
+    const payload = parseSourcePayload(row.source_payload);
+    const name = row.name ?? payload.name ?? "";
+    const abbrName = row.abbr_name ?? payload.abbrName ?? "";
+    return {
+      id: row.id,
+      playerID: row.player_id ?? payload.playerID ?? null,
+      teamID: row.team_id ?? payload.teamID ?? null,
+      name,
+      abbrName,
+      shirtNumber: payload.shirtNumber ?? payload.number ?? null,
+      number: payload.number ?? null,
+      _normName: normalize(name),
+      _normAbbr: normalize(abbrName)
+    };
+  });
 }
 
 function pickCandidate(candidates, homeTeamId, awayTeamId) {

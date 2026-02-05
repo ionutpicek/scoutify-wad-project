@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { collection, orderBy, query, limit, where } from "firebase/firestore";
-import { db, getDocsLogged as getDocs } from "../../firebase.jsx";
 import { useNavigate } from "react-router-dom";
 import "./LeaderboardMobile.css";
 import profilePhoto from "../../assets/download.jpeg";
+import { getLeaderboard } from "../../api/stats.js";
 
 const statOptions = [
   { id: "goals", label: "Goals" },
@@ -40,47 +39,10 @@ export default function LeaderboardMobile() {
     const load = async () => {
       setLoading(true);
       try {
-        const statsSnap = await getDocs(
-          query(collection(db, "stats"), orderBy(activeStat, "desc"), limit(12))
-        );
+        const res = await getLeaderboard({ stat: activeStat, limit: 12 });
         if (cancelled) return;
-
-        const statsList = statsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        const playerIds = Array.from(
-          new Set(statsList.map((stat) => stat.playerID).filter(Boolean))
-        );
-        const playerMap = new Map();
-
-        for (let i = 0; i < playerIds.length; i += 10) {
-          const chunk = playerIds.slice(i, i + 10);
-          if (!chunk.length) break;
-          const playersSnap = await getDocs(
-            query(collection(db, "player"), where("playerID", "in", chunk))
-          );
-          playersSnap.docs.forEach((doc) => {
-            const data = doc.data();
-            if (data?.playerID) {
-              playerMap.set(data.playerID, { id: doc.id, ...data });
-            }
-          });
-        }
-
-        const enriched = statsList.map((stat) => {
-          const player = playerMap.get(stat.playerID);
-          return {
-            id: stat.id,
-            playerID: stat.playerID,
-            name: player?.name || player?.playerName || stat.playerName || "Player",
-            team: player?.teamName || player?.team || stat.teamName || "Team",
-            photo:
-              player?.photoURL || player?.photo || player?.profilePhoto || "",
-            stats: stat,
-            goals: stat.goals ?? 0,
-            assists: stat.assists ?? 0,
-          };
-        });
-
-        setLeaders(enriched);
+        const players = Array.isArray(res?.players) ? res.players : [];
+        setLeaders(players);
       } catch (error) {
         console.error("Leaderboard load failed:", error);
         setLeaders([]);
@@ -153,12 +115,12 @@ export default function LeaderboardMobile() {
           ))}
         </div>
         <p className="leaderboard-mobile-metric-label">
-          {activeStatLabel} · {metricSuffix}
+          {activeStatLabel} - {metricSuffix}
         </p>
       </div>
 
       {loading ? (
-        <p className="leaderboard-mobile-loading">Loading leaderboards�...</p>
+        <p className="leaderboard-mobile-loading">Loading leaderboards...</p>
       ) : (
         <div className="leaderboard-mobile-list">
           {sortedLeaders.map((player, index) => {
@@ -202,3 +164,4 @@ export default function LeaderboardMobile() {
     </div>
   );
 }
+

@@ -1,8 +1,5 @@
-import { collection, writeBatch, increment } from "firebase/firestore";
-import { getFirestore } from "firebase/firestore";
-import { app, getDocsLogged as getDocs } from "../firebase.jsx";
-
-const db = getFirestore(app);
+import { getAllPlayers } from "../api/players.js";
+import { incrementPlayerStats } from "../api/stats.js";
 
 const fieldMap = {
   // FIELD PLAYERS
@@ -42,26 +39,16 @@ const goalkeeperMap = {
 
 const buildLookupMaps = async () => {
   // One-time reads: all players + all stats, then join by playerID
-  const [playerSnap, statsSnap] = await Promise.all([
-    getDocs(collection(db, "player")),
-    getDocs(collection(db, "stats"))
-  ]);
-
+  const response = await getAllPlayers();
+  const players = response?.players || [];
   const playerByAbbr = new Map();
-  playerSnap.docs.forEach(d => {
-    const data = d.data();
-    if (data?.abbrName) {
-      playerByAbbr.set(data.abbrName.trim(), { ...data, docId: d.id });
+  players.forEach(p => {
+    if (p?.abbrName) {
+      playerByAbbr.set(String(p.abbrName).trim(), p);
     }
   });
 
-  const statsByPlayerId = new Map();
-  statsSnap.docs.forEach(d => {
-    const data = d.data();
-    if (data?.playerID) statsByPlayerId.set(data.playerID, d.ref);
-  });
-
-  return { playerByAbbr, statsByPlayerId };
+  return { playerByAbbr };
 };
 
 const handleXMLUpload = (file) => {
@@ -73,18 +60,18 @@ const handleXMLUpload = (file) => {
     const instances = [...xml.getElementsByTagName("instance")];
 
     // Build lookup maps with two reads total
-    const { playerByAbbr, statsByPlayerId } = await buildLookupMaps();
+    const { playerByAbbr } = await buildLookupMaps();
 
     // Accumulate increments per stats doc to batch writes
-    const incrementsByStatsRef = new Map();
+    const incrementsByPlayerId = new Map();
 
-    const addIncrement = (ref, field) => {
-      if (!ref || !field) return;
-      if (!incrementsByStatsRef.has(ref.path)) {
-        incrementsByStatsRef.set(ref.path, { ref, updates: {} });
+    const addIncrement = (playerId, field) => {
+      if (!playerId || !field) return;
+      if (!incrementsByPlayerId.has(playerId)) {
+        incrementsByPlayerId.set(playerId, {});
       }
-      const entry = incrementsByStatsRef.get(ref.path);
-      if (!entry.updates[field]) entry.updates[field] = increment(1);
+      const entry = incrementsByPlayerId.get(playerId);
+      entry[field] = (entry[field] || 0) + 1;
     };
 
     for (const inst of instances) {
@@ -97,9 +84,6 @@ const handleXMLUpload = (file) => {
       const player = playerByAbbr.get(playerAbbr);
       if (!player) continue;
 
-      const statsRef = statsByPlayerId.get(player.playerID);
-      if (!statsRef) continue;
-
       const mapping = ["gk", "goalkeeper"].includes(player.position?.toLowerCase())
         ? goalkeeperMap
         : fieldMap;
@@ -109,18 +93,19 @@ const handleXMLUpload = (file) => {
 
       if (Array.isArray(statField)) {
         // increment both fields
-        statField.forEach(f => addIncrement(statsRef, f));
+        statField.forEach(f => addIncrement(player.playerID, f));
       } else {
-        addIncrement(statsRef, statField);
+        addIncrement(player.playerID, statField);
       }
     }
 
-    // Batch write once
-    const batch = writeBatch(db);
-    for (const { ref, updates } of incrementsByStatsRef.values()) {
-      batch.set(ref, updates, { merge: true });
+    const increments = Array.from(incrementsByPlayerId.entries()).map(
+      ([playerId, deltas]) => ({ playerId, deltas })
+    );
+
+    if (increments.length) {
+      await incrementPlayerStats(increments);
     }
-    await batch.commit();
 
     alert("XML stats uploaded successfully!");
   };

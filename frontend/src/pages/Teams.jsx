@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, getCountFromServer, deleteDoc, doc, addDoc, setDoc} from "firebase/firestore";
-import { db, getDocsLogged as getDocs } from "../firebase.jsx"; // your Firebase config file
+import { getTeams, createTeam, updateTeam, deleteTeam as deleteTeamApi } from "../api/teams.js";
 import { useLocation } from 'react-router-dom';
 import Spinner from '../components/Spinner.jsx';
 import Header from '../components/Header.jsx';
@@ -29,18 +28,7 @@ function TeamsPage() {
     const handleDelete = async () => { try { 
       if (!teamToDelete) return;
     
-        await deleteDoc(doc(db, "team", teamToDelete.id));
-
-        const q = query(collection(db, "player"), where("teamID", "==", teamToDelete.teamID)); 
-        const snap = await getDocs(q); 
-
-        if (!snap.empty) {
-          await Promise.all(
-            snap.docs.map(docItem =>
-              setDoc(doc(db, "player", docItem.id), { teamID: null }, { merge: true })
-            )
-          );
-        }
+        await deleteTeamApi(teamToDelete.teamID);
      
         setTeam(prevTeam => prevTeam.filter(p => p.id !== teamToDelete.id)); 
         console.log("Team removed successfully!"); setdeleteTeam(false); 
@@ -59,27 +47,14 @@ function TeamsPage() {
   
           const handleAdd = async (info) => {
               try {
-                  const teamID = Date.now();
-  
-                  const teamRef = await addDoc(collection(db, "team"), {
+                  const created = await createTeam({
                       name: info.name,
-                      teamID: teamID,
                       coach: info.coachName,
                       coachURL: info.coachURL || coach_placeholder,
                       photoURL: info.photoURL || teamPhoto,
                   });
-  
-                  // update local state immediately
-                  setTeam((prevTeam) => [
-                      ...prevTeam,
-                      {
-                        name: info.name,
-                        teamID: teamID,
-                        coach: info.coachName,
-                        coachURL: info.coachURL || coach_placeholder,
-                        photoURL: info.photoURL || teamPhoto,
-                      },
-                  ]);
+
+                  setTeam((prevTeam) => [...prevTeam, created]);
   
               } catch (error) {
                   console.error("Error adding team:", error);
@@ -87,8 +62,7 @@ function TeamsPage() {
           };
               
           const editTeam = async (teamID, updatedInfo) => { 
-              const teamRef = doc(db, "team", teamID); 
-              await setDoc(teamRef, updatedInfo, { merge: true }); 
+              await updateTeam(teamID, updatedInfo);
           } 
           
           const [edit, setEdit] = useState(false); 
@@ -102,14 +76,8 @@ function TeamsPage() {
       const fetchTeams = async () => {
         setIsLoading(true);
         try {
-          const teamsSnapshot = await getDocs(collection(db, "team"));
-          const teamList = teamsSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            // Skip expensive per-team counts to avoid Firestore 429 quotas
-            noPlayers: null
-          }));
-          setTeam(teamList);
+          const teamList = await getTeams();
+          setTeam(teamList.map(team => ({ ...team, noPlayers: null })));
         } catch (err) {
           console.error(err);
         } finally {
@@ -308,7 +276,7 @@ function TeamsPage() {
                               )
                             };
 
-                            await editTeam(editingTeam.id, updatedData);
+                            await editTeam(editingTeam.teamID, updatedData);
 
                             // close form before refresh
                             setEditingTeam(null);
@@ -317,8 +285,8 @@ function TeamsPage() {
                             setFormInputs({ name: "", photoURL: "", coach: "", coachURL: "" });
 
                             // refresh full team list, not individual one
-                            const snapshot = await getDocs(collection(db, "team"));
-                            setTeam(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                            const teamList = await getTeams();
+                            setTeam(teamList);
                           }}
                         >
                           Save

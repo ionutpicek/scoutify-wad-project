@@ -1,8 +1,8 @@
 import * as XLSX from "xlsx";
-import { collection, query, where, setDoc, doc } from "firebase/firestore";
-import { db, getDocsLogged as getDocs } from "../firebase";
 import { computeDerivedMetrics } from "../../../backend/src/grading/derivedMetrics";
 import { detectPrimaryRole } from "../../../backend/src/grading/roleDetector";
+import { searchPlayer } from "../api/players.js";
+import { upsertPlayerStats } from "../api/stats.js";
 
 const handleStatsUpload = async (file) => {
   if (!file) return;
@@ -31,21 +31,12 @@ const handleStatsUpload = async (file) => {
     /* --------------------------------
      * FIND PLAYER
      * -------------------------------- */
-    const playerRef = collection(db, "player");
-    const snap1 = await getDocs(query(playerRef, where("abbrName", "==", rawName)));
-    const snap2 = await getDocs(query(playerRef, where("name", "==", rawName)));
-
-    const merged = [...snap1.docs, ...snap2.docs];
-    const unique = new Map();
-    merged.forEach(d => unique.set(d.id, d));
-
-    if (!unique.size) {
+    const searchRes = await searchPlayer({ fullName: rawName });
+    const player = searchRes?.player || null;
+    if (!player) {
       alert("Player not found: " + rawName);
       return;
     }
-
-    const playerDoc = [...unique.values()][0];
-    const player = playerDoc.data();
 
     /* --------------------------------
      * FIELD MAPPING
@@ -258,15 +249,7 @@ const handleStatsUpload = async (file) => {
     /* --------------------------------
      * SAVE
      * -------------------------------- */
-    const statsSnap = await getDocs(
-      query(collection(db, "stats"), where("playerID", "==", player.playerID))
-    );
-
-    if (!statsSnap.empty) {
-      await setDoc(statsSnap.docs[0].ref, totals, { merge: false });
-    } else {
-      await setDoc(doc(collection(db, "stats")), totals);
-    }
+    await upsertPlayerStats(player.playerID, totals);
 
     alert(`Stats uploaded/updated for ${rawName}`);
   };

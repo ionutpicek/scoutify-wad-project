@@ -3,9 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import Spinner from "../components/Spinner.jsx";
 import { apiUrl } from "../config/api.js";
-import { db, getDocsLogged as getDocs } from "../firebase.jsx";
-import { collection } from "firebase/firestore";
 import { findPlayerByNameAndTeam } from "../services/playerServices.jsx";
+import { getAllPlayers } from "../api/players.js";
 
 const VerificationQueue = () => {
   const navigate = useNavigate();
@@ -20,6 +19,7 @@ const VerificationQueue = () => {
   const [playersLoading, setPlayersLoading] = useState(false);
   const [sendingUid, setSendingUid] = useState(null);
   const [linkingUid, setLinkingUid] = useState(null);
+  const [deletingUid, setDeletingUid] = useState(null);
   const [manualSelection, setManualSelection] = useState({});
   const [statusMap, setStatusMap] = useState({});
 
@@ -46,9 +46,8 @@ const VerificationQueue = () => {
     if (!isAdmin) return;
     setPlayersLoading(true);
     try {
-      const snap = await getDocs(collection(db, "player"));
-      const list = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-      setPlayers(list);
+      const res = await getAllPlayers();
+      setPlayers(res?.players || []);
     } catch (err) {
       console.error("Failed to load players:", err);
     } finally {
@@ -150,6 +149,32 @@ const VerificationQueue = () => {
       updateStatus(user.uid, error.message || "Manual link failed.");
     } finally {
       setLinkingUid(null);
+    }
+  };
+
+  const handleDeleteRequest = async (user) => {
+    if (!isAdmin || !user?.uid) return;
+    const confirmed = window.confirm(
+      `Delete verification request for ${user.fullName || user.username || user.email || "this user"}? This removes the user record.`
+    );
+    if (!confirmed) return;
+
+    setDeletingUid(user.uid);
+    updateStatus(user.uid, "Deleting request...");
+    try {
+      const res = await fetch(apiUrl(`/admin/user-request/${user.uid}`), {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Unable to delete request.");
+      }
+      updateStatus(user.uid, "Request deleted.");
+      await refreshQueue();
+    } catch (error) {
+      updateStatus(user.uid, error.message || "Unable to delete request.");
+    } finally {
+      setDeletingUid(null);
     }
   };
 
@@ -405,6 +430,22 @@ const VerificationQueue = () => {
                       }}
                     >
                       {linkingUid === user.uid ? "Matching..." : "Run auto-link"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={deletingUid === user.uid}
+                      onClick={() => handleDeleteRequest(user)}
+                      style={{
+                        borderRadius: 10,
+                        border: "1px solid #FCA5A5",
+                        background: "#FEF2F2",
+                        color: "#B91C1C",
+                        padding: "10px 14px",
+                        fontWeight: 700,
+                        cursor: deletingUid === user.uid ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      {deletingUid === user.uid ? "Deleting..." : "Delete request"}
                     </button>
                   </div>
                 </div>

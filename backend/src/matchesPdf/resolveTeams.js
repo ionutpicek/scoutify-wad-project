@@ -1,4 +1,17 @@
-import { db } from "../firebase/firebaseAdmin.js";
+import { getMysqlPool, isMysqlConfigured } from "../mysql/client.js";
+
+const shouldUseMysql = () => isMysqlConfigured();
+
+const parseSourcePayload = (value) => {
+  if (!value) return {};
+  if (typeof value === "object") return value;
+  if (typeof value !== "string") return {};
+  try {
+    return JSON.parse(value);
+  } catch {
+    return {};
+  }
+};
 
 function fixMojibake(str) {
   return String(str || "")
@@ -42,12 +55,27 @@ function applyTeamAlias(norm) {
 }
 
 export async function resolveTeams(homeTeamName, awayTeamName) {
-  const snap = await db.collection("team").get();
+  if (!shouldUseMysql()) {
+    throw new Error("MySQL not configured for team resolution.");
+  }
 
-  const teams = snap.docs.map(d => ({
-    id: d.id,
-    ...d.data(),
-  }));
+  const mysql = getMysqlPool();
+  const [rows] = await mysql.query(
+    `SELECT id, team_id, name, slug, source_payload
+     FROM teams`
+  );
+
+  const teams = rows.map(row => {
+    const payload = parseSourcePayload(row.source_payload);
+    const name = row.name ?? payload.name ?? null;
+    const slug = row.slug ?? payload.slug ?? (name ? normalize(name) : null);
+    return {
+      id: row.id,
+      teamID: row.team_id ?? payload.teamID ?? null,
+      name,
+      slug
+    };
+  });
 
   const homeNorm = applyTeamAlias(normalize(homeTeamName));
   const awayNorm = applyTeamAlias(normalize(awayTeamName));

@@ -1,4 +1,4 @@
-import { db } from "../firebase/firebaseAdmin.js";
+import { getMysqlPool, isMysqlConfigured } from "../mysql/client.js";
 
 // Minimal derived metrics we care about for grading/display.
 const DERIVED_KEYS = new Set([
@@ -69,9 +69,48 @@ function slimMatch(match = {}) {
 // Persist match data to Firestore with a filtered payload to avoid bloating documents.
 export async function saveMatch(match) {
   const payload = slimMatch(match);
+  if (!isMysqlConfigured()) {
+    throw new Error("MySQL not configured for saving matches.");
+  }
 
-  await db
-    .collection("matches")
-    .doc(payload.matchId)
-    .set(payload);
+  const mysql = getMysqlPool();
+  await mysql.execute(
+    `INSERT INTO matches (
+      id, match_date, round_no, home_team_id, away_team_id, home_team, away_team,
+      score, home_goals, away_goals, team_stats, gps_metrics, best_performers, players_json, source_payload
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+      match_date = VALUES(match_date),
+      round_no = VALUES(round_no),
+      home_team_id = VALUES(home_team_id),
+      away_team_id = VALUES(away_team_id),
+      home_team = VALUES(home_team),
+      away_team = VALUES(away_team),
+      score = VALUES(score),
+      home_goals = VALUES(home_goals),
+      away_goals = VALUES(away_goals),
+      team_stats = VALUES(team_stats),
+      gps_metrics = VALUES(gps_metrics),
+      best_performers = VALUES(best_performers),
+      players_json = VALUES(players_json),
+      source_payload = VALUES(source_payload),
+      updated_at = CURRENT_TIMESTAMP`,
+    [
+      payload.matchId,
+      payload.date ?? null,
+      payload.round ?? null,
+      payload.homeTeamId != null ? String(payload.homeTeamId) : null,
+      payload.awayTeamId != null ? String(payload.awayTeamId) : null,
+      payload.homeTeam ?? null,
+      payload.awayTeam ?? null,
+      payload.score ?? null,
+      payload.homeGoals != null ? Number(payload.homeGoals) : null,
+      payload.awayGoals != null ? Number(payload.awayGoals) : null,
+      payload.teamStats ? JSON.stringify(payload.teamStats) : null,
+      payload.gpsMetrics ? JSON.stringify(payload.gpsMetrics) : null,
+      payload.bestPerformers ? JSON.stringify(payload.bestPerformers) : null,
+      payload.players ? JSON.stringify(payload.players) : null,
+      JSON.stringify({ id: payload.matchId, ...payload })
+    ]
+  );
 }
