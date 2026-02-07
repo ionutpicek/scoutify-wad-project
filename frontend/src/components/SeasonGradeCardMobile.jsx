@@ -33,8 +33,17 @@ const findNextHeadingIndex = (text, startIndex, headingOrder) => {
   return nextIndex;
 };
 
+const formatNumberToken = (token) => {
+  const num = Number(token);
+  if (!Number.isFinite(num)) return token;
+  return num.toFixed(2).replace(/\.?0+$/, "");
+};
+
+const formatNumbersInText = (value = "") =>
+  value.replace(/-?\d+\.\d{3,}/g, (match) => formatNumberToken(match));
+
 const sanitizeSnapshotText = (value = "") =>
-  value
+  formatNumbersInText(value)
     .replace(/\*\*/g, "")
     .replace(/#+/g, "")
     .replace(/\s+/g, " ")
@@ -68,7 +77,7 @@ const parseSnapshotSections = (text = "") => {
     SCOUT_HEADINGS.forEach((heading, index) => {
       const start = normalized.indexOf(heading);
       if (start === -1) {
-        sections[heading] = "";
+        sections[heading] = { narrative: "" };
         return;
       }
       const remainingHeadings = SCOUT_HEADINGS.slice(index + 1);
@@ -81,7 +90,7 @@ const parseSnapshotSections = (text = "") => {
         nextIndex === -1
           ? normalized.slice(start + heading.length)
           : normalized.slice(start + heading.length, nextIndex);
-      sections[heading] = sanitizeSnapshotText(slice);
+      sections[heading] = { narrative: sanitizeSnapshotText(slice) };
     });
     return { cards: sections, summary: "", roleTitle: "" };
   }
@@ -392,7 +401,7 @@ const displayCards = useMemo(() => {
                   if (gpsNarrative) cardsMap.GPS = { narrative: gpsNarrative };
                   return displayCards.map((heading) => {
                     const card = cardsMap[heading];
-                    const text = card?.narrative || "";
+                    const text = typeof card === "string" ? card : card?.narrative || "";
                   return (
                       <div
                         key={heading}
@@ -407,9 +416,15 @@ const displayCards = useMemo(() => {
                         </div>
                         <div style={scoutCardBody}>
                           <p style={scoutParagraph}>{text || "—"}</p>
-                          {card?.number && <p style={scoutNumber}>{card.number}</p>}
-                          {card?.what && <p style={scoutWhat}>{card.what}</p>}
-                          {card?.cue && <p style={scoutCue}>{card.cue}</p>}
+                          {card && typeof card === "object" && card.number && (
+                            <p style={scoutNumber}>{card.number}</p>
+                          )}
+                          {card && typeof card === "object" && card.what && (
+                            <p style={scoutWhat}>{card.what}</p>
+                          )}
+                          {card && typeof card === "object" && card.cue && (
+                            <p style={scoutCue}>{card.cue}</p>
+                          )}
                         </div>
                       </div>
                     );

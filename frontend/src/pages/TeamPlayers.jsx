@@ -197,7 +197,7 @@ const TeamPlayers = () => {
             setTeamReportError(null);
             setTeamReport(null);
 
-            getTeamReport(teamID, { regenerate: false })
+            getTeamReport(teamID)
                 .then(data => {
                     if (cancelled) return;
                     setTeamReport(data);

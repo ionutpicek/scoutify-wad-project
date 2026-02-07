@@ -34,6 +34,34 @@ const PlayerProfile = () => {
         .replace(/\\s+/g, " ")
         .trim();
 
+    const selectBestStatsDoc = (docs = []) => {
+      if (!Array.isArray(docs) || !docs.length) return null;
+      const ranked = docs
+        .map((docSnap, index) => {
+          const data = docSnap.data() || {};
+          const seasonGrade = data.seasonGrade || {};
+          const hasSnapshot =
+            typeof seasonGrade.scoutSnapshot === "string" &&
+            seasonGrade.scoutSnapshot.trim().length > 0;
+          const snapshotTs =
+            seasonGrade.scoutSnapshotGeneratedAt?.seconds != null
+              ? Number(seasonGrade.scoutSnapshotGeneratedAt.seconds)
+              : 0;
+          const hasGrade = seasonGrade.overall10 != null;
+          const minutes = Number(data.minutes) || 0;
+          const games = Number(data.games) || 0;
+          const score =
+            (hasSnapshot ? 1_000_000_000 : 0) +
+            snapshotTs * 1000 +
+            (hasGrade ? 1_000_000 : 0) +
+            minutes * 100 +
+            games;
+          return { docSnap, data, score, index };
+        })
+        .sort((a, b) => b.score - a.score || a.index - b.index);
+      return ranked[0] || null;
+    };
+
     const storedUser = useMemo(() => getCurrentUser(), []);
     const isPlayerRole = storedUser?.role === "player";
     const isManagerRole = storedUser?.role === "manager";
@@ -136,9 +164,9 @@ const PlayerProfile = () => {
                 const statsSnapshot = await getDocs(statsQuery);
 
                 if (statsSnapshot.docs.length > 0) {
-                  const docSnap = statsSnapshot.docs[0];
-
-                  const rawStats = docSnap.data();
+                  const bestStats = selectBestStatsDoc(statsSnapshot.docs);
+                  const docSnap = bestStats?.docSnap || statsSnapshot.docs[0];
+                  const rawStats = bestStats?.data || docSnap.data();
 
                   const statsWithGrade = {
                     ...rawStats,
@@ -355,6 +383,11 @@ const PlayerProfile = () => {
         statsAvailable && statsData?.firstGameDate && statsData?.lastGameDate
           ? `${dateFormat(statsData.firstGameDate)} - ${dateFormat(statsData.lastGameDate)}`
           : "N/A";
+    const scoutSnapshotText =
+      playerData?.insights?.scoutSnapshot ||
+      playerData?.scoutSnapshot ||
+      statsData?.seasonGrade?.scoutSnapshot ||
+      "";
     const teamName = teamData?.name || "N/A";
     const teamPhoto = teamData?.photoURL || superligaLogo;
 
@@ -391,7 +424,7 @@ const PlayerProfile = () => {
                   seasonGrade={statsData.seasonGrade}
                   statsDocId={statsData._statsDocId}
                   matchesPlayed={matchesPlayed}
-                  scoutSnapshot={statsData?.seasonGrade?.scoutSnapshot}
+                  scoutSnapshot={scoutSnapshotText}
                   onRegenerateSnapshot={handleGenerateSnapshot}
                   isAdmin={isAdminUser}
                   generatingSnapshot={generatingSnapshot}

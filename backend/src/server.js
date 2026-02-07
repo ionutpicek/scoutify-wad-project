@@ -1,12 +1,16 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import aiRoutes from "./routes/ai.js";
 import gradingRoutes from "./routes/grading.js";
 import matchRoutes from "./routes/matches.js";
 import adminRoutes from "./routes/admin.js";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 

@@ -30,10 +30,10 @@ export async function regenerateTeamStyleSummary(teamId) {
   return response.json();
 }
 
-export async function getTeamReport(teamId, { regenerate = false } = {}) {
+export async function getTeamReport(teamId) {
   if (!teamId) throw new Error("teamId is required");
 
-  const response = await fetch(apiUrl(`/ai/team-report/${teamId}?regenerate=${regenerate ? "1" : "0"}`));
+  const response = await fetch(apiUrl(`/ai/team-report/${teamId}`));
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
     const message = payload?.error || "Failed to load team report.";

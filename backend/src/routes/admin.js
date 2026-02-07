@@ -92,8 +92,19 @@ router.post("/generate-scout-snapshot", async (req, res) => {
     const stats = statsSnap.data() || {};
 
     let player = null;
-    const playerIdToFetch = playerDocId || stats.playerDocId;
-    if (playerIdToFetch) {
+    let playerIdToFetch = playerDocId || stats.playerDocId || null;
+    if (!playerIdToFetch && stats.playerID != null) {
+      const playerQuery = await db
+        .collection("player")
+        .where("playerID", "==", stats.playerID)
+        .limit(1)
+        .get();
+      if (!playerQuery.empty) {
+        playerIdToFetch = playerQuery.docs[0].id;
+        player = playerQuery.docs[0].data() || null;
+      }
+    }
+    if (!player && playerIdToFetch) {
       const playerSnap = await db.collection("player").doc(playerIdToFetch).get();
       player = playerSnap.exists ? playerSnap.data() : null;
     }
@@ -116,6 +127,20 @@ router.post("/generate-scout-snapshot", async (req, res) => {
       "seasonGrade.scoutSnapshot": summary,
       "seasonGrade.scoutSnapshotGeneratedAt": admin.firestore.FieldValue.serverTimestamp(),
     });
+
+    if (playerIdToFetch) {
+      const playerRef = db.collection("player").doc(playerIdToFetch);
+      await playerRef.set(
+        {
+          insights: {
+            scoutSnapshot: summary,
+            scoutSnapshotGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
+            scoutSnapshotStatsDocId: statsDocId,
+          },
+        },
+        { merge: true }
+      );
+    }
 
     res.json({ summary });
   } catch (error) {

@@ -246,9 +246,40 @@ const buildAndPersistTeamStyle = async ({ teamId, teamDoc, idCandidates, teamNam
   return payload;
 };
 
-const hasStoredTeamReport = teamData => {
+const isStoredReportBody = value =>
+  Boolean(
+    value &&
+      typeof value === "object" &&
+      (
+        typeof value.reportTitle === "string" ||
+        typeof value.executiveSummary === "string" ||
+        typeof value.matchesAnalyzed === "number" ||
+        Array.isArray(value.sections) ||
+        Array.isArray(value.keyMetrics)
+      )
+  );
+
+const getStoredTeamReportPayload = ({ teamData, teamId, teamName }) => {
   const stored = teamData?.[TEAM_REPORT_FIELD];
-  return Boolean(stored && typeof stored === "object" && stored.matchesAnalyzed != null);
+  if (!stored || typeof stored !== "object") return null;
+
+  if (isStoredReportBody(stored)) {
+    return {
+      teamId,
+      teamName,
+      report: stored
+    };
+  }
+
+  if (isStoredReportBody(stored.report)) {
+    return {
+      teamId: stored.teamId ?? teamId,
+      teamName: stored.teamName ?? teamName,
+      report: stored.report
+    };
+  }
+
+  return null;
 };
 
 const normalizeSupplements = value => {
@@ -259,8 +290,12 @@ const normalizeSupplements = value => {
 };
 
 const getStoredSupplements = teamData => {
-  const report = teamData?.[TEAM_REPORT_FIELD];
-  return normalizeSupplements(report?.supplementalInsights);
+  const payload = getStoredTeamReportPayload({
+    teamData,
+    teamId: null,
+    teamName: null
+  });
+  return normalizeSupplements(payload?.report?.supplementalInsights);
 };
 
 const buildAndPersistTeamReport = async ({
@@ -279,18 +314,21 @@ const buildAndPersistTeamReport = async ({
     supplementalInsights: normalizeSupplements(supplementalInsights)
   });
 
+  const payload = {
+    teamId,
+    teamName,
+    generatedAt: new Date(),
+    report
+  };
+
   await teamDoc.ref.set(
     {
-      [TEAM_REPORT_FIELD]: report
+      [TEAM_REPORT_FIELD]: payload
     },
     { merge: true }
   );
 
-  return {
-    teamId,
-    teamName,
-    report
-  };
+  return payload;
 };
 
 router.get("/team-style/:teamId", async (req, res) => {
@@ -363,7 +401,6 @@ router.get("/team-report/:teamId", async (req, res) => {
       return res.status(400).json({ error: "teamId is required" });
     }
 
-    const regenerate = isTruthy(req.query?.regenerate);
     const { idCandidates, teamDoc } = await normalizeIdCandidates(teamId);
     if (!teamDoc) {
       return res.status(404).json({ error: "Team not found" });
@@ -372,13 +409,14 @@ router.get("/team-report/:teamId", async (req, res) => {
     const teamData = teamDoc.data() || {};
     const teamName = teamData.name ?? null;
     const supplementalInsights = getStoredSupplements(teamData);
+    const storedPayload = getStoredTeamReportPayload({
+      teamData,
+      teamId,
+      teamName
+    });
 
-    if (!regenerate && hasStoredTeamReport(teamData)) {
-      return res.json({
-        teamId,
-        teamName,
-        report: teamData[TEAM_REPORT_FIELD]
-      });
+    if (storedPayload) {
+      return res.json(storedPayload);
     }
 
     const payload = await buildAndPersistTeamReport({

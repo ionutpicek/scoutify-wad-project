@@ -9,6 +9,25 @@ import { attachAIScoutVerdict } from "../jobs/generateScoutVerdict.js";
 
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
 const GRADING_VERSION = 1;
+const pickPersistedInsightFields = (seasonGrade) => {
+  if (!seasonGrade || typeof seasonGrade !== "object") return {};
+  const persisted = {};
+
+  if (typeof seasonGrade.scoutSnapshot === "string" && seasonGrade.scoutSnapshot.trim()) {
+    persisted.scoutSnapshot = seasonGrade.scoutSnapshot;
+  }
+  if (seasonGrade.scoutSnapshotGeneratedAt != null) {
+    persisted.scoutSnapshotGeneratedAt = seasonGrade.scoutSnapshotGeneratedAt;
+  }
+  if (typeof seasonGrade.aiVerdict === "string" && seasonGrade.aiVerdict.trim()) {
+    persisted.aiVerdict = seasonGrade.aiVerdict;
+  }
+  if (seasonGrade.aiGeneratedAt != null) {
+    persisted.aiGeneratedAt = seasonGrade.aiGeneratedAt;
+  }
+
+  return persisted;
+};
 
 export async function recomputeAllSeasonGrades({ minMinutes = 90 } = {}) {
 
@@ -62,6 +81,7 @@ export async function recomputeAllSeasonGrades({ minMinutes = 90 } = {}) {
     if (minutes < minMinutes) continue;
     if (!s.derived) continue;
 
+    const persistedInsightFields = pickPersistedInsightFields(s.seasonGrade);
     const roleProfile = normalizeRoleProfile(s);
 
     const { primaryRole, secondaryRole, roleConfidence = 1 } = roleProfile;
@@ -77,6 +97,7 @@ export async function recomputeAllSeasonGrades({ minMinutes = 90 } = {}) {
         roleProfile,
         primaryRole,
         seasonGrade: {
+          ...persistedInsightFields,
           version: GRADING_VERSION,
           role: primaryRole,
           overall10: null,
@@ -139,7 +160,10 @@ export async function recomputeAllSeasonGrades({ minMinutes = 90 } = {}) {
     batch.update(statRef, {
       roleProfile,
       primaryRole,
-      seasonGrade: finalGrade
+      seasonGrade: {
+        ...persistedInsightFields,
+        ...finalGrade
+      }
     });
 
     gradedPlayers.push({ statRef, finalGrade });
