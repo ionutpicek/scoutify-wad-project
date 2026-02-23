@@ -11,6 +11,11 @@ const SECTION_TITLES = [
   "Squad and Game-State Notes"
 ];
 const MAX_SUPPLEMENTS = 10;
+const DEFAULT_REPORT_LANGUAGE = "en";
+const REPORT_LANGUAGE_META = {
+  en: { label: "English" },
+  ro: { label: "Romanian" }
+};
 
 let openai = null;
 
@@ -110,6 +115,12 @@ const normalizeStringList = (value, fallback = []) => {
   return cleaned.length ? cleaned : fallback;
 };
 
+const normalizeReportLanguage = value => {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toLowerCase();
+  return REPORT_LANGUAGE_META[normalized] ? normalized : null;
+};
+
 const parseAiJson = raw => {
   if (!raw) return null;
   const trimmed = raw.trim();
@@ -149,6 +160,7 @@ const buildAiPrompt = ({
   record,
   metrics,
   matchRows,
+  language = DEFAULT_REPORT_LANGUAGE,
   supplementalInsights = []
 }) => `
 Return ONLY JSON that matches this schema:
@@ -187,6 +199,9 @@ ${JSON.stringify(buildSupplementSnapshot(supplementalInsights), null, 2)}
 
 Rules:
 - Keep output concise and scannable; no markdown, no extra keys.
+- Write all free-text fields in ${REPORT_LANGUAGE_META[language]?.label || REPORT_LANGUAGE_META[DEFAULT_REPORT_LANGUAGE].label}.
+- Keep all "sections.title" values exactly as listed above (in English) for schema compatibility.
+- Do not mix languages in free-text fields.
 - Merge evidence from match metrics and supplemental dossier notes where relevant.
 - keyMetrics: 5 to 8 entries, each with clear tactical meaning.
 - Include a set-piece metric (corners or dead-ball threat) when data exists.
@@ -743,8 +758,11 @@ export async function generateTeamReport({
   teamId,
   teamName,
   maxMatches = 10,
+  language = DEFAULT_REPORT_LANGUAGE,
   supplementalInsights = []
 } = {}) {
+  const normalizedLanguage = normalizeReportLanguage(language) || DEFAULT_REPORT_LANGUAGE;
+
   if (!Array.isArray(matches) || !matches.length) {
     return {
       reportTitle: `${teamName || "Team"} - Tactical Report`,
@@ -820,6 +838,7 @@ export async function generateTeamReport({
     record,
     metrics,
     matchRows,
+    language: normalizedLanguage,
     supplementalInsights
   });
 
@@ -830,7 +849,7 @@ export async function generateTeamReport({
         {
           role: "system",
           content:
-            "You are a senior football performance analyst. Write concise, actionable, data-grounded team reports."
+            `You are a senior football performance analyst. Write concise, actionable, data-grounded team reports. Use ${REPORT_LANGUAGE_META[normalizedLanguage]?.label || REPORT_LANGUAGE_META[DEFAULT_REPORT_LANGUAGE].label} for all free-text fields.`
         },
         { role: "user", content: prompt }
       ],

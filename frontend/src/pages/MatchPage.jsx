@@ -17,7 +17,7 @@ export default function MatchPage() {
   const userRole = String(storedUser?.role || "").toLowerCase();
   const isPlayerRole = userRole === "player";
   const isAdminRole = userRole === "admin";
-  const canUploadMetrics = !isPlayerRole;
+  const canUploadMetrics = isAdminRole;
   const [match, setMatch] = useState(null);
   const [coaches, setCoaches] = useState({ home: {}, away: {} });
   const [metricsFiles, setMetricsFiles] = useState({ home: null, away: null });

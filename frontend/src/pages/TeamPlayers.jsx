@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { collection, deleteDoc, doc, addDoc, setDoc, query, where } from "firebase/firestore"; 
@@ -6,11 +6,24 @@ import { db, getDocsLogged as getDocs } from "../firebase.jsx";
 import Header from "../components/Header.jsx"; 
 import Spinner from "../components/Spinner.jsx";
 import PlayerCard from "../components/PlayerCard.jsx";
+import LineTrendChart from "../components/LineTrendChart.jsx";
 import {
     getTeamReport,
     regenerateTeamReport,
     uploadTeamReportPdf
 } from "../api/ai.js";
+import { fetchTeamFormSeries, summarizeFormSeries } from "../services/teamFormSeries.js";
+
+const TEAM_REPORT_LANGUAGE_LABELS = {
+    en: "English",
+    ro: "Romanian",
+};
+
+const normalizeReportLanguage = (value) => {
+    if (typeof value !== "string") return null;
+    const normalized = value.trim().toLowerCase();
+    return normalized === "en" || normalized === "ro" ? normalized : null;
+};
 
 const TeamPlayers = () => { 
         const location = useLocation(); 
@@ -30,6 +43,10 @@ const TeamPlayers = () => {
         const [teamReportUploading, setTeamReportUploading] = useState(false);
         const [teamReportUploadFile, setTeamReportUploadFile] = useState(null);
         const [teamReportError, setTeamReportError] = useState(null);
+        const [teamReportLanguage, setTeamReportLanguage] = useState("en");
+        const [teamFormSeries, setTeamFormSeries] = useState([]);
+        const [teamFormLoading, setTeamFormLoading] = useState(false);
+        const [teamFormError, setTeamFormError] = useState(null);
                             
         useEffect(() => {
             if (editingPlayer) {
@@ -201,6 +218,10 @@ const TeamPlayers = () => {
                 .then(data => {
                     if (cancelled) return;
                     setTeamReport(data);
+                    const normalizedLanguage = normalizeReportLanguage(data?.reportLanguage);
+                    if (normalizedLanguage) {
+                        setTeamReportLanguage(normalizedLanguage);
+                    }
                 })
                 .catch(error => {
                     if (cancelled) return;
@@ -216,13 +237,50 @@ const TeamPlayers = () => {
             };
         }, [viewMode, teamID]);
 
+        useEffect(() => {
+            let cancelled = false;
+            if (viewMode !== "teamReport" || (!teamID && !teamName)) {
+                setTeamFormSeries([]);
+                setTeamFormError(null);
+                setTeamFormLoading(false);
+                return;
+            }
+
+            setTeamFormLoading(true);
+            setTeamFormError(null);
+
+            fetchTeamFormSeries({ teamID, teamName, teamsList })
+                .then(series => {
+                    if (cancelled) return;
+                    setTeamFormSeries(series);
+                })
+                .catch(error => {
+                    if (cancelled) return;
+                    console.error("Error loading team form chart:", error);
+                    setTeamFormSeries([]);
+                    setTeamFormError(error.message || "Unable to load recent form chart.");
+                })
+                .finally(() => {
+                    if (cancelled) return;
+                    setTeamFormLoading(false);
+                });
+
+            return () => {
+                cancelled = true;
+            };
+        }, [viewMode, teamID, teamName, teamsList]);
+
         const handleRegenerateTeamReport = async () => {
             if (role !== "admin" || !teamID || teamReportRefreshing) return;
             setTeamReportRefreshing(true);
             setTeamReportError(null);
             try {
-                const data = await regenerateTeamReport(teamID);
+                const data = await regenerateTeamReport(teamID, { language: teamReportLanguage });
                 setTeamReport(data);
+                const normalizedLanguage = normalizeReportLanguage(data?.reportLanguage);
+                if (normalizedLanguage) {
+                    setTeamReportLanguage(normalizedLanguage);
+                }
             } catch (error) {
                 setTeamReportError(error.message || "Unable to regenerate team report.");
             } finally {
@@ -235,8 +293,14 @@ const TeamPlayers = () => {
             setTeamReportUploading(true);
             setTeamReportError(null);
             try {
-                const data = await uploadTeamReportPdf(teamID, teamReportUploadFile);
+                const data = await uploadTeamReportPdf(teamID, teamReportUploadFile, {
+                    language: teamReportLanguage,
+                });
                 setTeamReport(data);
+                const normalizedLanguage = normalizeReportLanguage(data?.reportLanguage);
+                if (normalizedLanguage) {
+                    setTeamReportLanguage(normalizedLanguage);
+                }
                 setTeamReportUploadFile(null);
             } catch (error) {
                 setTeamReportError(error.message || "Unable to upload report PDF.");
@@ -247,6 +311,7 @@ const TeamPlayers = () => {
         
         const handleLogout = () => { navigate("/login"); }; 
         const isTeamReportView = viewMode === "teamReport";
+        const teamFormSummary = useMemo(() => summarizeFormSeries(teamFormSeries), [teamFormSeries]);
        
     return (
         <div style={{ backgroundColor: "#fff", width: "100vw", minHeight:"100vh" }}>
@@ -274,6 +339,28 @@ const TeamPlayers = () => {
                         )}
                     {viewMode === "teamReport" && role === "admin" && (
                         <div style={teamStyleActions}>
+                            <div style={teamLanguageControl}>
+                                <label htmlFor="team-report-language" style={teamLanguageLabel}>
+                                    Prefered Language
+                                </label>
+                                <select
+                                    id="team-report-language"
+                                    value={teamReportLanguage}
+                                    onChange={(event) =>
+                                        setTeamReportLanguage(
+                                            normalizeReportLanguage(event.target.value) || "en"
+                                        )
+                                    }
+                                    disabled={teamReportRefreshing || teamReportUploading}
+                                    style={teamLanguageSelect}
+                                >
+                                    {Object.entries(TEAM_REPORT_LANGUAGE_LABELS).map(([value, label]) => (
+                                        <option key={value} value={value}>
+                                            {label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                             <button
                                 type="button"
                                 onClick={handleRegenerateTeamReport}
@@ -655,6 +742,50 @@ const TeamPlayers = () => {
 
                             <p style={teamStyleSummaryText}>{teamReport.report.executiveSummary}</p>
 
+                            <div style={teamReportSectionCard}>
+                                <div style={teamReportSectionTitle}>Recent Team Form (Game Grades)</div>
+                                <p style={teamFormChartSubtitle}>
+                                    Result-adjusted form score from recent matches: average game grade plus win/draw/loss impact (1-10 scale).
+                                </p>
+                                {teamFormLoading ? (
+                                    <div style={teamFormChartLoading}>Loading form chart...</div>
+                                ) : (
+                                    <>
+                                        <LineTrendChart
+                                            points={teamFormSeries}
+                                            height={190}
+                                            minValue={1}
+                                            maxValue={10}
+                                            autoScale
+                                            emptyLabel="No recent graded matches found for this team."
+                                        />
+                                        {teamFormSummary ? (
+                                            <div style={teamFormStatsGrid}>
+                                                <div style={teamFormStatCard}>
+                                                    <div style={teamFormStatLabel}>Latest</div>
+                                                    <div style={teamFormStatValue}>{teamFormSummary.latest.toFixed(1)}</div>
+                                                </div>
+                                                <div style={teamFormStatCard}>
+                                                    <div style={teamFormStatLabel}>Average</div>
+                                                    <div style={teamFormStatValue}>{teamFormSummary.average.toFixed(1)}</div>
+                                                </div>
+                                                <div style={teamFormStatCard}>
+                                                    <div style={teamFormStatLabel}>Best</div>
+                                                    <div style={teamFormStatValue}>{teamFormSummary.best.toFixed(1)}</div>
+                                                </div>
+                                                <div style={teamFormStatCard}>
+                                                    <div style={teamFormStatLabel}>Games</div>
+                                                    <div style={teamFormStatValue}>{teamFormSummary.games}</div>
+                                                </div>
+                                            </div>
+                                        ) : null}
+                                        <p style={teamFormChartFootnote}>
+                                            {teamFormError || "Win results add a bonus, losses apply a penalty, and draws add a small bonus."}
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+
                             {teamReport.report.supplementalInsights?.length ? (
                                 <div style={teamReportSectionCard}>
                                     <div style={teamReportSectionTitle}>
@@ -983,11 +1114,92 @@ const teamReportColumnCard = {
     boxShadow: "0 6px 18px rgba(0,0,0,0.03)"
 };
 
+const teamFormChartSubtitle = {
+    margin: "0 0 10px 0",
+    color: "#666",
+    fontSize: 13,
+    lineHeight: 1.45,
+};
+
+const teamFormChartLoading = {
+    minHeight: 190,
+    display: "grid",
+    placeItems: "center",
+    borderRadius: 12,
+    border: "1px dashed rgba(17,24,39,0.14)",
+    background: "#fff",
+    color: "#6b7280",
+    fontSize: 13,
+};
+
+const teamFormStatsGrid = {
+    marginTop: 10,
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
+    gap: 8,
+};
+
+const teamFormStatCard = {
+    borderRadius: 10,
+    border: "1px solid #f0dfd3",
+    background: "linear-gradient(180deg, #fff 0%, #fffaf6 100%)",
+    padding: "8px 10px",
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+};
+
+const teamFormStatLabel = {
+    fontSize: 11,
+    color: "#666",
+    textTransform: "uppercase",
+    letterSpacing: 0.35,
+    fontWeight: 600,
+};
+
+const teamFormStatValue = {
+    fontSize: 17,
+    color: "#111827",
+    fontWeight: 700,
+    lineHeight: 1.2,
+};
+
+const teamFormChartFootnote = {
+    margin: "8px 0 0 0",
+    color: "#6b7280",
+    fontSize: 12,
+    lineHeight: 1.4,
+};
+
 const teamStyleActions = {
     display: "flex",
     alignItems: "center",
     flexWrap: "nowrap",
     gap: 8,
+};
+
+const teamLanguageControl = {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    whiteSpace: "nowrap",
+};
+
+const teamLanguageLabel = {
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#4a4a4a",
+};
+
+const teamLanguageSelect = {
+    borderRadius: 999,
+    border: "1px solid #d9d9d9",
+    padding: "8px 12px",
+    background: "#fff",
+    color: "#111",
+    fontSize: 13,
+    fontWeight: 500,
+    outline: "none",
 };
 
 const uploadReportButton = {

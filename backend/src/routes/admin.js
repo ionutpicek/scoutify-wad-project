@@ -1,11 +1,35 @@
 import express from "express";
 import admin from "firebase-admin";
-import { db } from "../firebase/firebaseAdmin.js";
+import { adminAuth, db } from "../firebase/firebaseAdmin.js";
 import generatePlayerProfileSummary from "../ai/playerProfileSummary.js";
 
 const router = express.Router();
 
 const USERS_COLLECTION = "users";
+const DEFAULT_PLAYER_INSIGHT_LANGUAGE = "en";
+const PLAYER_INSIGHT_LANGUAGES = new Set(["en", "ro"]);
+
+const normalizePlayerInsightLanguage = value => {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toLowerCase();
+  return PLAYER_INSIGHT_LANGUAGES.has(normalized) ? normalized : null;
+};
+
+const requireAdminUser = async req => {
+  const authHeader =
+    typeof req.headers?.authorization === "string" ? req.headers.authorization : "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (!match?.[1]) return null;
+
+  try {
+    const decoded = await adminAuth.verifyIdToken(match[1]);
+    const userDoc = await db.collection(USERS_COLLECTION).doc(decoded.uid).get();
+    const role = String(userDoc.data()?.role || "").trim().toLowerCase();
+    return role === "admin" ? decoded.uid : null;
+  } catch (error) {
+    return null;
+  }
+};
 
 router.get("/pending-verifications", async (req, res) => {
   try {
@@ -83,6 +107,11 @@ router.post("/generate-scout-snapshot", async (req, res) => {
   }
 
   try {
+    const requesterUid = await requireAdminUser(req);
+    if (!requesterUid) {
+      return res.status(403).json({ message: "Admin privileges required." });
+    }
+
     const statsRef = db.collection("stats").doc(statsDocId);
     const statsSnap = await statsRef.get();
     if (!statsSnap.exists) {
@@ -90,6 +119,10 @@ router.post("/generate-scout-snapshot", async (req, res) => {
     }
 
     const stats = statsSnap.data() || {};
+    const requestedLanguage = normalizePlayerInsightLanguage(req.body?.language);
+    if (req.body?.language && !requestedLanguage) {
+      return res.status(400).json({ message: "language must be one of: en, ro" });
+    }
 
     let player = null;
     let playerIdToFetch = playerDocId || stats.playerDocId || null;
@@ -121,11 +154,22 @@ router.post("/generate-scout-snapshot", async (req, res) => {
       }
     }
 
-    const summary = await generatePlayerProfileSummary({ player, team, stats });
+    const insightLanguage =
+      requestedLanguage ||
+      normalizePlayerInsightLanguage(stats?.seasonGrade?.scoutSnapshotLanguage) ||
+      normalizePlayerInsightLanguage(player?.insights?.scoutSnapshotLanguage) ||
+      DEFAULT_PLAYER_INSIGHT_LANGUAGE;
+    const summary = await generatePlayerProfileSummary({
+      player,
+      team,
+      stats,
+      language: insightLanguage,
+    });
 
     await statsRef.update({
       "seasonGrade.scoutSnapshot": summary,
       "seasonGrade.scoutSnapshotGeneratedAt": admin.firestore.FieldValue.serverTimestamp(),
+      "seasonGrade.scoutSnapshotLanguage": insightLanguage,
     });
 
     if (playerIdToFetch) {
@@ -136,13 +180,14 @@ router.post("/generate-scout-snapshot", async (req, res) => {
             scoutSnapshot: summary,
             scoutSnapshotGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
             scoutSnapshotStatsDocId: statsDocId,
+            scoutSnapshotLanguage: insightLanguage,
           },
         },
         { merge: true }
       );
     }
 
-    res.json({ summary });
+    res.json({ summary, language: insightLanguage });
   } catch (error) {
     console.error("Failed to generate scout snapshot:", error);
     res.status(500).json({ message: "Unable to generate scout snapshot." });

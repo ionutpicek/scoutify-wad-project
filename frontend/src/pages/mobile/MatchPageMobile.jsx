@@ -132,7 +132,7 @@ export default function MatchPageMobile() {
   const userRole = String(storedUser?.role || "").toLowerCase();
   const isPlayerRole = userRole === "player";
   const isAdminRole = userRole === "admin";
-  const canUploadMetrics = !isPlayerRole;
+  const canUploadMetrics = isAdminRole;
   const viewModes = isPlayerRole
     ? [
         { id: "playerreport", label: "My report" },

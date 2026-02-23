@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LandingPage.css";
+import { CLUB_CONTACT_EMAIL } from "../services/subscriptionCatalog.js";
 
 const ORANGE = "#FF681F";
 const ORANGE_HOVER = "#FF4500";
 const SOFT = "#FFF2E8";
+const SHOW_SUBSCRIPTION_UI = false;
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -110,13 +112,15 @@ export default function LandingPage() {
             >
               Leaderboards
             </button>
-            <button
-              type="button"
-              onClick={() => goTo("pricing")}
-              style={navLink}
-            >
-              Pricing
-            </button>
+            {SHOW_SUBSCRIPTION_UI ? (
+              <button
+                type="button"
+                onClick={() => goTo("pricing")}
+                style={navLink}
+              >
+                Pricing
+              </button>
+            ) : null}
 
             <button
               type="button"
@@ -179,6 +183,7 @@ export default function LandingPage() {
                 Explore features 👀
               </button>
 
+              {SHOW_SUBSCRIPTION_UI ? (
               <button
                 type="button"
                 className="btnHover"
@@ -192,6 +197,7 @@ export default function LandingPage() {
               >
                 See plans 💳
               </button>
+              ) : null}
             </div>
 
             <div style={heroBadges}>
@@ -335,6 +341,7 @@ export default function LandingPage() {
                   Start scouting now 🎬
                 </button>
 
+                {SHOW_SUBSCRIPTION_UI ? (
                 <button
                   type="button"
                   className="btnHover"
@@ -343,6 +350,7 @@ export default function LandingPage() {
                 >
                   See plans →
                 </button>
+                ) : null}
               </div>
             </div>
 
@@ -413,6 +421,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
+      {SHOW_SUBSCRIPTION_UI ? (
       <section id="pricing" style={sectionAlt}>
         <div style={container}>
           <div style={sectionHead}>
@@ -432,6 +441,7 @@ export default function LandingPage() {
                 "Limited leaderboards",
                 "Basic player profiles",
               ]}
+              onCta={() => navigate("/login")}
             />
             <PriceCard
               title="Pro"
@@ -444,6 +454,7 @@ export default function LandingPage() {
                 "Match analysis + lineups",
                 "Season grades",
               ]}
+              onCta={() => navigate("/login")}
             />
             <PriceCard
               title="Club"
@@ -455,10 +466,17 @@ export default function LandingPage() {
                 "Priority support",
                 "Club onboarding",
               ]}
-              ctaText="Request access"
-              onCta={() => navigate("/register")}
+              ctaText="Email for access"
+              staticCta
             />
           </div>
+
+          <p style={{ margin: "10px 0 0", color: "#6B7280", fontWeight: 700 }}>
+            Contact:{" "}
+            <a href={`mailto:${CLUB_CONTACT_EMAIL}`} style={{ color: ORANGE }}>
+              {CLUB_CONTACT_EMAIL}
+            </a>
+          </p>
 
           <div style={pricingFoot} className="landing-pricing-foot">
             <button
@@ -482,6 +500,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      ) : null}
 
       {/* Footer */}
       <footer style={footer}>
@@ -491,14 +510,25 @@ export default function LandingPage() {
             <div style={{ color: "#6B7280", fontWeight: 700, marginTop: 6 }}>
               Women’s Football Romania · 1st Division
             </div>
+            <div style={{ color: "#9CA3AF", fontWeight: 700, marginTop: 4, fontSize: 12 }}>
+              GP Source SRL
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
             <button type="button" onClick={() => goTo("features")} style={footerLink}>
               Features
             </button>
-            <button type="button" onClick={() => goTo("pricing")} style={footerLink}>
-              Pricing
+            {SHOW_SUBSCRIPTION_UI ? (
+              <button type="button" onClick={() => goTo("pricing")} style={footerLink}>
+                Pricing
+              </button>
+            ) : null}
+            <button type="button" onClick={() => navigate("/terms-and-conditions")} style={footerLink}>
+              Terms and Conditions
+            </button>
+            <button type="button" onClick={() => navigate("/privacy-policy")} style={footerLink}>
+              Privacy Policy
             </button>
             <button type="button" onClick={() => navigate("/register")} style={footerCta}>
               Create account
@@ -584,7 +614,21 @@ function Step({ n, title, desc }) {
   );
 }
 
-function PriceCard({ title, price, badge, features, highlight, ctaText, onCta }) {
+function PriceCard({ title, price, badge, features, highlight, ctaText, onCta, staticCta = false }) {
+  const ctaStyle = {
+    marginTop: 16,
+    width: "100%",
+    borderRadius: 14,
+    border: highlight ? "none" : "1px solid rgba(255,104,31,0.25)",
+    background: highlight ? ORANGE : "white",
+    color: highlight ? "white" : ORANGE,
+    padding: "12px 14px",
+    fontWeight: 1000,
+    textAlign: "center"
+  };
+
+  const label = ctaText || (highlight ? "Go Pro" : "Get started");
+
   return (
     <div
       style={{
@@ -617,32 +661,37 @@ function PriceCard({ title, price, badge, features, highlight, ctaText, onCta })
         ))}
       </div>
 
-      <button
-        type="button"
-        className="btnHover"
-        style={{
-          marginTop: 16,
-          width: "100%",
-          borderRadius: 14,
-          border: highlight ? "none" : "1px solid rgba(255,104,31,0.25)",
-          background: highlight ? ORANGE : "white",
-          color: highlight ? "white" : ORANGE,
-          padding: "12px 14px",
-          fontWeight: 1000,
-          cursor: "pointer",
-        }}
-        onClick={onCta || (() => window.alert("Coming soon 👀"))}
-        onMouseEnter={(e) => {
-          if (highlight) e.currentTarget.style.background = ORANGE_HOVER;
-          else e.currentTarget.style.background = "#FFF2E8";
-        }}
-        onMouseLeave={(e) => {
-          if (highlight) e.currentTarget.style.background = ORANGE;
-          else e.currentTarget.style.background = "white";
-        }}
-      >
-        {ctaText || (highlight ? "Go Pro" : "Get started")}
-      </button>
+      {staticCta ? (
+        <div
+          style={{
+            ...ctaStyle,
+            cursor: "default",
+            userSelect: "none"
+          }}
+        >
+          {label}
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="btnHover"
+          style={{
+            ...ctaStyle,
+            cursor: "pointer",
+          }}
+          onClick={onCta || (() => window.alert("Coming soon"))}
+          onMouseEnter={(e) => {
+            if (highlight) e.currentTarget.style.background = ORANGE_HOVER;
+            else e.currentTarget.style.background = "#FFF2E8";
+          }}
+          onMouseLeave={(e) => {
+            if (highlight) e.currentTarget.style.background = ORANGE;
+            else e.currentTarget.style.background = "white";
+          }}
+        >
+          {label}
+        </button>
+      )}
     </div>
   );
 }
@@ -667,6 +716,7 @@ const topNav = {
 
 const navInner = {
   width: "100%",
+  boxSizing: "border-box",
   padding: "12px 18px",
   display: "flex",
   justifyContent: "space-between",
@@ -726,6 +776,7 @@ const hero = {
 
 const heroInner = {
   width: "100%",
+  boxSizing: "border-box",
   padding: "60px 18px",
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
@@ -829,7 +880,7 @@ const compareFill = {
 const section = { padding: "64px 0" };
 const sectionAlt = { padding: "64px 0", background: "#fff" };
 
-const container = { width: "100%", padding: "0 18px" };
+const container = { width: "100%", boxSizing: "border-box", padding: "0 18px" };
 
 const sectionHead = {};
 const sectionTitle = {
@@ -1096,6 +1147,7 @@ const footer = {
 
 const footerInner = {
   width: "100%",
+  boxSizing: "border-box",
   padding: "0 18px",
   display: "flex",
   justifyContent: "space-between",

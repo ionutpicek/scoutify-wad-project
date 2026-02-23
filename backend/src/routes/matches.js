@@ -1,17 +1,19 @@
 ﻿import express from "express";
 import multer from "multer";
-import { db } from "../firebase/firebaseAdmin.js";
+import { adminAuth, db } from "../firebase/firebaseAdmin.js";
 import { importMatchFromPdf } from "../matchesPdf/importMatchFromPDF.js";
 import { parseExcelMetrics } from "../gpsMetrics/parseExcel.js";
 import { buildExcelHighlights } from "../gpsMetrics/buildHighlights.js";
 import { gradeGame } from "../grading/gameGrade.js";
 import { gradeGameGK } from "../grading/gradeGK.js";
 import { pickBestPerformers } from "../grading/pickBestPerformer.js";
+import { syncPdfSeasonStatsForMatch } from "../stats/syncPdfSeasonStatsFromMatches.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 const MATCHES_COL = "matches";
+const USERS_COLLECTION = "users";
 const DEFAULT_LIMIT = 200;
 const MIN_MINUTES_FOR_GRADE_OUTFIELD = 30;
 const MIN_MINUTES_FOR_GRADE_GK = 45;
@@ -22,6 +24,22 @@ function handleFirestoreError(res, err, context = "") {
   return res.status(isQuota ? 503 : 500).json({
     error: isQuota ? "Firestore quota exceeded, try again in a minute" : "Failed to fetch matches"
   });
+}
+
+async function requireAdminUser(req) {
+  const authHeader =
+    typeof req.headers?.authorization === "string" ? req.headers.authorization : "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (!match?.[1]) return null;
+
+  try {
+    const decoded = await adminAuth.verifyIdToken(match[1]);
+    const userDoc = await db.collection(USERS_COLLECTION).doc(decoded.uid).get();
+    const role = String(userDoc.data()?.role || "").trim().toLowerCase();
+    return role === "admin" ? decoded.uid : null;
+  } catch {
+    return null;
+  }
 }
 
 function regradePlayers(players = []) {
@@ -135,6 +153,11 @@ router.post(
   ]),
   async (req, res) => {
     try {
+      const requesterUid = await requireAdminUser(req);
+      if (!requesterUid) {
+        return res.status(403).json({ error: "Admin privileges required" });
+      }
+
       const pdfFile = req.files?.file?.[0];
       if (!pdfFile?.buffer) {
         return res.status(400).json({ error: "No file uploaded (field name must be 'file')" });
@@ -149,11 +172,30 @@ router.post(
 
       const saved = await db.collection(MATCHES_COL).doc(matchId).get();
       const data = saved.exists ? saved.data() : null;
+      let pdfStatsSync = null;
+
+      // Keep PDF import successful even if live season-stats sync fails.
+      // The user can still re-import/retry, and manual season grade recompute stays separate.
+      if (data) {
+        try {
+          pdfStatsSync = await syncPdfSeasonStatsForMatch({
+            matchId,
+            match: data
+          });
+        } catch (syncErr) {
+          console.error("pdf season stats sync error:", syncErr);
+          pdfStatsSync = {
+            ok: false,
+            error: syncErr?.message || "Failed to sync PDF season stats"
+          };
+        }
+      }
 
       return res.json({
         ok: true,
         matchId,
-        match: data ? { id: matchId, ...data } : null
+        match: data ? { id: matchId, ...data } : null,
+        pdfStatsSync
       });
     } catch (err) {
       console.error("import-pdf error:", err);
@@ -165,6 +207,11 @@ router.post(
 // Upload GPS metrics Excel for an existing match (optionally scoped to one side)
 router.post("/:id/upload-metrics", upload.single("metrics"), async (req, res) => {
   try {
+    const requesterUid = await requireAdminUser(req);
+    if (!requesterUid) {
+      return res.status(403).json({ error: "Admin privileges required" });
+    }
+
     const { id } = req.params;
     const side = req.body?.side;
 

@@ -46,6 +46,15 @@ const PRIMARY_ACTIONS = [
     badge: "",
     path: "/leaderboard",
   },
+  {
+    key: "tactical-planner",
+    title: "Opponent Planner",
+    desc: "Manual opponent XI input with best lineup and tactical advice.",
+    icon: "XI",
+    badge: "",
+    path: "/tactical-planner",
+    restrictedTo: ["manager", "admin"],
+  },
 ];
 
 const MANAGEMENT_ACTIONS = [

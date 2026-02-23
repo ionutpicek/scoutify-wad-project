@@ -140,6 +140,9 @@ function parsePassingTail(tail) {
     .replace(/\d{1,3}\/\d{1,4}(?:\.\d{1,2})?%?/g, " ")
     .replace(/%/g, " ")
     .replace(/-/g, " - ");
+  const countsRawCompactSource = normalized
+    .replace(/\d{1,3}\/\d{1,4}(?:\.\d{1,2})?%?/g, " ")
+    .replace(/%/g, " ");
   const counts = [];
   const tokens = countsRaw.split(/\s+/).filter(Boolean);
   for (const tok of tokens) {
@@ -165,7 +168,83 @@ function parsePassingTail(tail) {
   }
 
   while (counts.length < 4) counts.push(null);
-  return { ratios, counts: counts.slice(0, 4) };
+
+  const decodedFallback = decodePassingCountColumns(countsRawCompactSource);
+  const mergedCounts = counts.slice(0, 4).map((val, idx) => (val == null ? decodedFallback[idx] : val));
+
+  return { ratios, counts: mergedCounts };
+}
+
+function stripAveragePassLengthToken(compact) {
+  const src = String(compact || "").replace(/\s+/g, "");
+  if (!src) return src;
+
+  const decimalMatch = src.match(/(\d{1,2}\.\d{1,2})$/);
+  if (decimalMatch) {
+    const value = Number(decimalMatch[1]);
+    if (Number.isFinite(value) && value >= 8 && value <= 40) {
+      return src.slice(0, -decimalMatch[1].length);
+    }
+  }
+
+  const int2Match = src.match(/(\d{2})$/);
+  if (int2Match) {
+    const value = Number(int2Match[1]);
+    if (Number.isFinite(value) && value >= 8 && value <= 40) {
+      return src.slice(0, -2);
+    }
+  }
+
+  return src;
+}
+
+function decodePassingCountColumns(rawCountsSource) {
+  const compact = stripAveragePassLengthToken(rawCountsSource)
+    .replace(/[^\d-]/g, "")
+    .trim();
+
+  if (!compact) return [null, null, null, null];
+
+  const out = [null, null, null, null];
+  let fieldIdx = 0;
+  let i = 0;
+
+  while (i < compact.length && fieldIdx < 4) {
+    if (compact[i] === "-") {
+      out[fieldIdx] = null;
+      fieldIdx += 1;
+      i += 1;
+      continue;
+    }
+
+    let j = i;
+    while (j < compact.length && /\d/.test(compact[j])) j += 1;
+    const run = compact.slice(i, j);
+    const remainingFields = 4 - fieldIdx;
+    if (!run) break;
+
+    if (remainingFields === 1) {
+      out[fieldIdx] = Number(run);
+      fieldIdx += 1;
+      i = j;
+      continue;
+    }
+
+    // Deep completions (first count) can be 2 digits, later counts are usually single-digit.
+    if (fieldIdx === 0 && run.length > 1) {
+      const deepLen = Math.min(2, run.length);
+      out[fieldIdx] = Number(run.slice(0, deepLen));
+      fieldIdx += 1;
+      i += deepLen;
+      continue;
+    }
+
+    out[fieldIdx] = Number(run[0]);
+    fieldIdx += 1;
+    i += 1;
+  }
+
+  return out.map(v => (Number.isFinite(v) ? v : null));
 }
 
 function addStat(statsByPlayer, playerName, key, attempts, success = null) {
@@ -177,6 +256,83 @@ function addStat(statsByPlayer, playerName, key, attempts, success = null) {
     attempts: Number(attempts) || 0,
     success: success == null ? null : Number(success) || 0
   };
+}
+
+function pickYellowRedCardToken(ratios, startIndex) {
+  const info = pickYellowRedCardTokenInfo(ratios, startIndex);
+  return info?.token || null;
+}
+
+function pickYellowRedCardTokenInfo(ratios, startIndex) {
+  const extras = (ratios || []).slice(startIndex);
+  const candidates = extras
+    .map((tok, idx) => ({ tok, idx }))
+    .filter(({ tok }) => Boolean(tok));
+
+  if (!candidates.length) return null;
+
+  const isPlausibleCard = tok => {
+    const yellow = Number(tok?.attempts);
+    const red = tok?.success == null ? 0 : Number(tok.success);
+    return Number.isFinite(yellow) && Number.isFinite(red) && yellow >= 0 && yellow <= 2 && red >= 0 && red <= 1;
+  };
+
+  // Prefer plausible small-count card ratios after at least one extra post-recoveries slot
+  // (touches in penalty area / offsides can also appear before cards).
+  const plausibleAfterGap = candidates.filter(({ tok, idx }) => idx >= 1 && isPlausibleCard(tok));
+  if (plausibleAfterGap.length) {
+    const chosen = plausibleAfterGap[plausibleAfterGap.length - 1];
+    return { token: chosen.tok, idx: chosen.idx + startIndex };
+  }
+
+  const plausible = candidates.filter(({ tok }) => isPlausibleCard(tok));
+  if (plausible.length) {
+    const chosen = plausible[plausible.length - 1];
+    return { token: chosen.tok, idx: chosen.idx + startIndex };
+  }
+
+  // Some PDFs glue the card minute/offside count to the yellow-card count on the left side,
+  // e.g. "11/0" where the actual Yellow/Red is "1/0". Salvage the last digit only.
+  for (let i = candidates.length - 1; i >= 0; i -= 1) {
+    const { tok } = candidates[i];
+    const red = tok?.success == null ? 0 : Number(tok.success);
+    const yellowRaw = Number(tok?.attempts);
+    if (!Number.isFinite(yellowRaw) || !Number.isFinite(red) || red < 0 || red > 1) continue;
+    if (yellowRaw <= 2) continue;
+
+    const digits = String(Math.trunc(yellowRaw)).replace(/\D/g, "");
+    if (!digits) continue;
+    const yellow = Number(digits.slice(-1));
+    if (!Number.isFinite(yellow) || yellow < 0 || yellow > 2) continue;
+
+    return { token: { attempts: yellow, success: red }, idx: i + startIndex };
+  }
+
+  return null;
+}
+
+function pickTouchesOffsidesToken(ratios, startIndex) {
+  const extras = (ratios || []).slice(startIndex);
+  const candidates = extras
+    .map((tok, idx) => ({ tok, idx }))
+    .filter(({ tok }) => Boolean(tok));
+  if (!candidates.length) return null;
+
+  const cardInfo = pickYellowRedCardTokenInfo(ratios, startIndex);
+  if (cardInfo) {
+    const beforeCard = candidates.find(c => (c.idx + startIndex) < cardInfo.idx);
+    if (beforeCard) return beforeCard.tok;
+    return null;
+  }
+
+  // No detectable card token: use the first extra ratio only when it looks like touches/offsides.
+  const first = candidates[0].tok;
+  const a = Number(first?.attempts);
+  const s = first?.success == null ? 0 : Number(first.success);
+  if ((Number.isFinite(a) && a > 2) || (Number.isFinite(s) && s > 1)) {
+    return first;
+  }
+  return null;
 }
 
 function applyTableRatios(statsByPlayer, playerName, ratios, ratioMatches = []) {
@@ -289,7 +445,16 @@ function applyTableRatios(statsByPlayer, playerName, ratios, ratioMatches = []) 
     addStat(statsByPlayer, playerName, col, tok.attempts, tok.success);
   });
 
-  const cardToken = ratios.slice(3 + cols.length).filter(Boolean).pop();
+  const extrasStartIdx = 3 + cols.length;
+  const touchesTok = pickTouchesOffsidesToken(ratios, extrasStartIdx);
+  if (touchesTok) {
+    addStat(statsByPlayer, playerName, "touchesInPenaltyArea", touchesTok.attempts, null);
+    if (touchesTok.success != null) {
+      addStat(statsByPlayer, playerName, "offsides", touchesTok.success, null);
+    }
+  }
+
+  const cardToken = pickYellowRedCardToken(ratios, extrasStartIdx);
   if (cardToken) {
     addStat(statsByPlayer, playerName, "yellowCards", cardToken.attempts, null);
     if (cardToken.success != null) {
@@ -301,6 +466,8 @@ function applyTableRatios(statsByPlayer, playerName, ratios, ratioMatches = []) 
 function applyDuelsRatios(statsByPlayer, playerName, ratios) {
   const defensiveTok = ratios?.[0] || null;
   const offensiveTok = ratios?.[1] || null;
+  const aerialTok = ratios?.[2] || null;
+  const looseBallTok = ratios?.[3] || null;
 
   if (defensiveTok) {
     const prev = statsByPlayer[playerName]?.stats?.defensiveDuels?.attempts ?? -1;
@@ -315,10 +482,75 @@ function applyDuelsRatios(statsByPlayer, playerName, ratios) {
       addStat(statsByPlayer, playerName, "offensiveDuels", offensiveTok.attempts, offensiveTok.success);
     }
   }
+
+  if (aerialTok) {
+    const prev = statsByPlayer[playerName]?.stats?.aerialDuels?.attempts ?? -1;
+    if (aerialTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "aerialDuels", aerialTok.attempts, aerialTok.success);
+    }
+  }
+
+  if (looseBallTok) {
+    const prev = statsByPlayer[playerName]?.stats?.looseBallDuels?.attempts ?? -1;
+    if (looseBallTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "looseBallDuels", looseBallTok.attempts, looseBallTok.success);
+    }
+  }
+
+  // After the first 4 duels columns, the next slash pair is usually Interceptions/Clearances.
+  // "Shots blocked" is a single count column and may appear as a skipped number (no placeholder),
+  // so the pair can land at index 4 or 5 depending on whether shots blocked is "-"/0/number.
+  const hasShotsBlockedPlaceholder = ratios?.[4] === null;
+  const interceptionsClearancesIdx = hasShotsBlockedPlaceholder ? 5 : 4;
+  const interceptionsClearancesTok = ratios?.[interceptionsClearancesIdx] || null;
+  if (interceptionsClearancesTok) {
+    const interceptions = Number(interceptionsClearancesTok.attempts) || 0;
+    const clearancesRaw = Number(interceptionsClearancesTok.success);
+    const clearances = Number.isFinite(clearancesRaw) ? clearancesRaw : null;
+
+    const prevInterceptions = statsByPlayer[playerName]?.stats?.interceptions?.attempts ?? -1;
+    if (interceptions >= prevInterceptions) {
+      addStat(statsByPlayer, playerName, "interceptions", interceptions, null);
+    }
+
+    if (clearances != null) {
+      const prevClearances = statsByPlayer[playerName]?.stats?.clearances?.attempts ?? -1;
+      if (clearances >= prevClearances) {
+        addStat(statsByPlayer, playerName, "clearances", clearances, null);
+      }
+    }
+  }
+
+  const slidingTok = ratios?.[interceptionsClearancesIdx + 1] || null;
+  if (slidingTok) {
+    const prev = statsByPlayer[playerName]?.stats?.slidingTackles?.attempts ?? -1;
+    if (slidingTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "slidingTackles", slidingTok.attempts, slidingTok.success);
+    }
+  }
+
+  const foulsTok = ratios?.[interceptionsClearancesIdx + 2] || null;
+  if (foulsTok) {
+    const fouls = Number(foulsTok.attempts) || 0;
+    const prev = statsByPlayer[playerName]?.stats?.fouls?.attempts ?? -1;
+    if (fouls >= prev) {
+      addStat(statsByPlayer, playerName, "fouls", fouls, null);
+    }
+
+    const foulsSuffered = Number(foulsTok.success);
+    if (Number.isFinite(foulsSuffered)) {
+      const prevSuffered = statsByPlayer[playerName]?.stats?.foulsSuffered?.attempts ?? -1;
+      if (foulsSuffered >= prevSuffered) {
+        addStat(statsByPlayer, playerName, "foulsSuffered", foulsSuffered, null);
+      }
+    }
+  }
 }
 
 function applyPassingRatios(statsByPlayer, playerName, ratios, counts) {
   const forwardTok = ratios?.[0] || null;
+  const backTok = ratios?.[1] || null;
+  const longTok = ratios?.[4] || null;
   const progressiveTok = ratios?.[5] || null;
   const finalThirdTok = ratios?.[6] || null;
   const throughTok = ratios?.[7] || null;
@@ -327,6 +559,20 @@ function applyPassingRatios(statsByPlayer, playerName, ratios, counts) {
     const prev = statsByPlayer[playerName]?.stats?.forwardPasses?.attempts ?? -1;
     if (forwardTok.attempts >= prev) {
       addStat(statsByPlayer, playerName, "forwardPasses", forwardTok.attempts, forwardTok.success);
+    }
+  }
+
+  if (backTok) {
+    const prev = statsByPlayer[playerName]?.stats?.backPasses?.attempts ?? -1;
+    if (backTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "backPasses", backTok.attempts, backTok.success);
+    }
+  }
+
+  if (longTok) {
+    const prev = statsByPlayer[playerName]?.stats?.longPasses?.attempts ?? -1;
+    if (longTok.attempts >= prev) {
+      addStat(statsByPlayer, playerName, "longPasses", longTok.attempts, longTok.success);
     }
   }
 
@@ -362,12 +608,33 @@ function applyPassingRatios(statsByPlayer, playerName, ratios, counts) {
       addStat(statsByPlayer, playerName, "keyPasses", keyPasses, null);
     }
   }
+
+  const secondAssistCandidate = counts?.[2];
+  const secondAssists = Number.isFinite(secondAssistCandidate) && Number.isInteger(secondAssistCandidate)
+    ? secondAssistCandidate
+    : null;
+  if (secondAssists != null) {
+    const prev = statsByPlayer[playerName]?.stats?.secondAssists?.attempts ?? -1;
+    if (secondAssists >= prev) {
+      addStat(statsByPlayer, playerName, "secondAssists", secondAssists, null);
+    }
+  }
+
+  const shotAssistCandidate = counts?.[3];
+  const shotAssists = Number.isFinite(shotAssistCandidate) && Number.isInteger(shotAssistCandidate)
+    ? shotAssistCandidate
+    : null;
+  if (shotAssists != null) {
+    const prev = statsByPlayer[playerName]?.stats?.shotAssists?.attempts ?? -1;
+    if (shotAssists >= prev) {
+      addStat(statsByPlayer, playerName, "shotAssists", shotAssists, null);
+    }
+  }
 }
 
 const HEADER_ANCHOR_REGEX = /Goals\s*\/\s*xG.*Assists\s*\/\s*xA/i;
 const HEADER_SKIP_REGEX = /^(Player|Minutes|played|Goals|Assists|Actions|Shots|Passes|Crosses|Dribbles|Duels|Losses|Recoveries|Touches|Offsides|Yellow|Red)/i;
 const CONTINUATION_REGEX = /(\d{1,3}\/\d{1,4}|%)/;
-const DUELS_HEADER_REGEXES = [/Defensive duels/i, /Offensive duels/i];
 const PASSING_TITLE_REGEX = /^Passing$/i;
 const DUELS_HEADER_SKIP_REGEX = /^(Player|Minutes|played|Defensive|Offensive|Aerial|Loose|Shots|Interceptions|Clearances|Sliding|Fouls|Free|Set pieces|Direct|Corners|served|Throw-ins)/i;
 const PASSING_HEADER_SKIP_REGEX = /^(Player|Minutes|played|Forward|Back|Lateral|Short|Long|Progressive|Passes|Through|Deep|Key|Second|Shot|Average)/i;
@@ -489,6 +756,24 @@ function findPassingAnchors(lines) {
   return Array.from(anchors).sort((a, b) => a - b);
 }
 
+function findDuelsAnchors(lines) {
+  const anchors = new Set();
+  for (let i = 0; i < lines.length - 3; i++) {
+    const l0 = lines[i] || "";
+    const l1 = lines[i + 1] || "";
+    const l2 = lines[i + 2] || "";
+    const l3 = lines[i + 3] || "";
+
+    const defensiveHeader = /^Defensive duels\/?$/i.test(l0) && /^won$/i.test(l1);
+    const offensiveHeader = /^Offensive duels\/?$/i.test(l2) && /^won$/i.test(l3);
+
+    if (defensiveHeader && offensiveHeader) {
+      anchors.add(i);
+    }
+  }
+  return Array.from(anchors).sort((a, b) => a - b);
+}
+
 function collectSectionBlocks(lines, rowRegex, regexes, prefer = "after") {
   const blocks = [];
   const anchors = findSectionAnchors(lines, regexes);
@@ -513,6 +798,18 @@ function collectPassingBlocks(lines, rowRegex) {
   for (const idx of anchors) {
     const after = collectRowBlockAfterHeader(lines, idx, rowRegex);
     if (after.rowCount) blocks.push(after.lines);
+  }
+
+  return blocks;
+}
+
+function collectDuelsBlocks(lines, rowRegex) {
+  const blocks = [];
+  const anchors = findDuelsAnchors(lines);
+
+  for (const idx of anchors) {
+    const before = collectRowBlockBeforeHeader(lines, idx, rowRegex);
+    if (before.rowCount) blocks.push(before.lines);
   }
 
   return blocks;
@@ -696,7 +993,7 @@ export function extractFieldPlayerStats(
     normalizeName
   );
 
-  const duelsBlocks = collectSectionBlocks(lines, ROW_REGEX, DUELS_HEADER_REGEXES, "before");
+  const duelsBlocks = collectDuelsBlocks(lines, ROW_REGEX);
   applyTableBlocks(duelsBlocks, statsByPlayer, {
     nameByNorm,
     nameByNormWithNumber,
@@ -704,7 +1001,7 @@ export function extractFieldPlayerStats(
     normalizeName,
     headerSkipRegex: DUELS_HEADER_SKIP_REGEX,
     onRow: (playerKey, tail) => {
-      const ratios = parseRatioTail(tail, 2);
+      const ratios = parseRatioTail(tail, 10);
       applyDuelsRatios(statsByPlayer, playerKey, ratios);
     }
   });
@@ -723,4 +1020,16 @@ export function extractFieldPlayerStats(
   });
 
   return statsByPlayer;
+}
+
+export const __test__ = {
+  findDuelsAnchors,
+  applyTableRatios,
+  parseRatioTail,
+  parsePassingTail,
+  decodePassingCountColumns,
+  applyDuelsRatios,
+  applyPassingRatios,
+  pickYellowRedCardToken,
+  pickTouchesOffsidesToken
 }

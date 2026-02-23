@@ -1,4 +1,15 @@
-export function generateFallbackScoutVerdict(grade) {
+const DEFAULT_PLAYER_INSIGHT_LANGUAGE = "en";
+const PLAYER_INSIGHT_LANGUAGES = new Set(["en", "ro"]);
+
+const normalizePlayerInsightLanguage = value => {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toLowerCase();
+  return PLAYER_INSIGHT_LANGUAGES.has(normalized) ? normalized : null;
+};
+
+export function generateFallbackScoutVerdict(grade, { language } = {}) {
+  const normalizedLanguage =
+    normalizePlayerInsightLanguage(language) || DEFAULT_PLAYER_INSIGHT_LANGUAGE;
   const strengths = [];
   const weaknesses = [];
 
@@ -16,6 +27,15 @@ export function generateFallbackScoutVerdict(grade) {
     weaknesses.length > 0
       ? weaknesses.join(", ")
       : "minor consistency aspects";
+
+  if (normalizedLanguage === "ro") {
+    return `
+Evaluare de sezon pentru un ${grade.role.toLowerCase()}.
+Jucatorul arata calitati bune la ${strengthsText}, cu aport clar in rolul sau.
+Zone de imbunatatit: ${weaknessesText}, care pot creste prin lucru specific.
+Per total, profilul se potriveste cerintelor pozitiei si ofera un nivel constant pe parcursul sezonului.
+`.trim();
+  }
 
   return `
 Season evaluation for a ${grade.role.toLowerCase()}.

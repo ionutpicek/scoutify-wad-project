@@ -2,6 +2,21 @@ import OpenAI from "openai";
 import { pickDerivedForPrompt, humanizeStat, formatStat } from "./scoutPrompt.js";
 
 const MODEL_NAME = "gpt-5.2";
+const DEFAULT_PLAYER_INSIGHT_LANGUAGE = "en";
+const PLAYER_INSIGHT_LANGUAGE_META = {
+  en: { label: "English" },
+  ro: { label: "Romanian" },
+};
+const FIXED_HEADINGS = [
+  "Offensive",
+  "Passing profile",
+  "Dribbling",
+  "Defensive",
+  "Strengths",
+  "Development",
+  "Conclusion",
+];
+
 let openai = null;
 
 const getOpenAI = () => {
@@ -17,7 +32,13 @@ const getOpenAI = () => {
   return openai;
 };
 
-const calculateAge = (value) => {
+const normalizePlayerInsightLanguage = value => {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toLowerCase();
+  return PLAYER_INSIGHT_LANGUAGE_META[normalized] ? normalized : null;
+};
+
+const calculateAge = value => {
   if (!value) return null;
   let birthDate;
   if (typeof value.toDate === "function") {
@@ -30,9 +51,7 @@ const calculateAge = (value) => {
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
   const dayDiff = today.getDate() - birthDate.getDate();
-  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-    age--;
-  }
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) age--;
   return age;
 };
 
@@ -45,7 +64,7 @@ const subGradesSummary = (subGrades = {}) => {
   return { strengths, weaknesses };
 };
 
-const buildDerivedList = (stats) => {
+const buildDerivedList = stats => {
   const derived = pickDerivedForPrompt(stats?.derived || {});
   const entries = Object.entries(derived)
     .filter(([, value]) => value != null && value !== "")
@@ -53,31 +72,15 @@ const buildDerivedList = (stats) => {
   return entries.length ? entries.join("\n") : "- Not enough per90 data.";
 };
 
-const buildPrompt = ({ player, team, stats }) => {
+const buildPrompt = ({ player, team, stats, language = DEFAULT_PLAYER_INSIGHT_LANGUAGE }) => {
   const age = calculateAge(player?.birthdate) ?? "N/A";
-  const role =
-    (stats?.seasonGrade?.role || player?.position || "Unknown").toString();
-  const foot =
-    player?.preferredFoot || player?.foot || player?.preferred_foot || "Unknown";
+  const role = (stats?.seasonGrade?.role || player?.position || "Unknown").toString();
   const minutes = stats?.minutes ?? stats?.minutesPlayed ?? "N/A";
   const games = stats?.games ?? stats?.appearances ?? "N/A";
-  const overallGrade =
-    stats?.seasonGrade?.overall10 != null
-      ? Number(stats.seasonGrade.overall10).toFixed(1)
-      : "N/A";
   const teamName = team?.name || "Unknown team";
-  const nationality = player?.nationality || player?.country || "Romania";
-  const derivedList = buildDerivedList(stats);
-  const subGrades = stats?.seasonGrade?.subGrades || {};
-  const gradeLines = Object.entries(subGrades)
-    .map(([key, value]) => `- ${key}: ${value}`)
-    .join("\n");
+
   const physical =
-    stats?.physicalMetrics ||
-    stats?.physical ||
-    stats?.gps ||
-    stats?.gpsMetrics ||
-    {};
+    stats?.physicalMetrics || stats?.physical || stats?.gps || stats?.gpsMetrics || {};
   const physicalLines = [];
   if (physical.kmPer90 != null) {
     physicalLines.push(`- km/90: ${Number(physical.kmPer90).toFixed(2)}`);
@@ -91,15 +94,10 @@ const buildPrompt = ({ player, team, stats }) => {
   if (physical.sprints != null) {
     physicalLines.push(`- sprints: ${Number(physical.sprints).toFixed(0)}`);
   }
-  const physicalText = physicalLines.length ? physicalLines.join("\n") : "- Physical metrics not available.";
-  const roleConfidence =
-    stats?.seasonGrade?.roleConfidence != null
-      ? ` (${Math.round(stats.seasonGrade.roleConfidence * 100)}% confidence)`
-      : "";
-  const roleDescriptor = `${role}${roleConfidence}`;
+  const physicalText =
+    physicalLines.length ? physicalLines.join("\n") : "- Physical metrics not available.";
 
   return `
-
 Create a role-based insight panel and return ONLY JSON that matches the schema:
 {
   "role_title": string,
@@ -125,27 +123,28 @@ ${JSON.stringify(stats?.rawTotals || {}, null, 2)}
 DERIVED METRICS (per90 and % already computed):
 ${JSON.stringify(stats?.derived || {}, null, 2)}
 
+DERIVED METRICS LIST:
+${buildDerivedList(stats)}
+
 PHYSICAL/GPS METRICS:
 ${physicalText}
 
 Important:
-- Include exactly one number per card, and label it. Format the number field as "Stat label: value" (e.g., "xG/90: 0.17" or "Shots on target: 1.4").
-- Use either raw totals or derived per90/percentages and keep the narrative focused on tendencies.
-- “what_it_looks_like” must describe a repeatable pattern drawn from the data.
-- “coaching_cue” must be one actionable instruction (e.g., “Emphasize…” or “Look to…”).
-- Restrict roles to this list: Classic 10, Advanced 8, Two-way Attacking Midfielder, Box-to-Box 8, Deep-lying Playmaker, Regista, Mezzala, Carrilero, Segundo Volante, Half-Back, Anchor 6, Destroyer, Ball-winning Midfielder, Wide Playmaker, Inverted Winger, Traditional Winger, Inside Forward, Wide Forward, Wide Target Forward, Pressing Forward, Target Forward, Poacher, False 9, Complete Forward, Advanced Forward, Trequartista, Second Striker, Shadow Striker, Raumdeuter, Centre Back, Ball-Playing Center Back, Stopper, Sweeper, Fullback, Inverted Fullback, Wingback, Defensive Fullback, Overlapping Fullback, Underlapping Fullback, Wide Center Back. Mention multiple roles if it helps clarify the profile.
-- Keep the JSON clean—no markdown bullets, emphasis markers, or extra commentary outside the schema.
-- Rely on derived metrics for justification instead of repeating the raw numbers already visible in the UI.
-
-Use the data to craft concise insights for the headings: Offensive, Passing profile, Dribbling, Defensive, Strengths, Development, Conclusion.
-`
-    .trim();
+- Include exactly one number per card, and label it as "Stat label: value".
+- Use either raw totals or derived per90/percentages and keep narrative focused on tendencies.
+- "what_it_looks_like" must describe a repeatable pattern drawn from the data.
+- "coaching_cue" must be one actionable instruction.
+- Write all free-text fields in ${PLAYER_INSIGHT_LANGUAGE_META[language]?.label || PLAYER_INSIGHT_LANGUAGE_META[DEFAULT_PLAYER_INSIGHT_LANGUAGE].label}.
+- Keep each cards[].heading exactly in English and in this set: ${FIXED_HEADINGS.join(", ")}.
+- Do not mix languages in free-text fields.
+- Keep JSON clean: no markdown, no extra commentary outside schema.
+- Rely on derived metrics for justification instead of repeating raw numbers already visible in the UI.
+`;
 };
 
-const fallbackSummary = ({ player, team, stats }) => {
+const fallbackSummaryEnglish = ({ player, team, stats }) => {
   const age = calculateAge(player?.birthdate);
-  const role =
-    (stats?.seasonGrade?.role || player?.position || "Unknown").toString();
+  const role = (stats?.seasonGrade?.role || player?.position || "Unknown").toString();
   const teamName = team?.name || "Unknown team";
   const minutes = stats?.minutes ?? stats?.minutesPlayed ?? 0;
   const games = stats?.games ?? stats?.appearances ?? 0;
@@ -222,13 +221,101 @@ const fallbackSummary = ({ player, team, stats }) => {
   });
 };
 
-export async function generatePlayerProfileSummary({ player, team, stats }) {
-  const prompt = buildPrompt({ player, team, stats });
+const fallbackSummaryRomanian = ({ player, team, stats }) => {
+  const age = calculateAge(player?.birthdate);
+  const role = (stats?.seasonGrade?.role || player?.position || "Unknown").toString();
+  const teamName = team?.name || "Unknown team";
+  const minutes = stats?.minutes ?? stats?.minutesPlayed ?? 0;
+  const games = stats?.games ?? stats?.appearances ?? 0;
+  const grade = stats?.seasonGrade?.overall10 ?? null;
+  const { strengths, weaknesses } = subGradesSummary(stats?.seasonGrade?.subGrades);
+  const strengthLine = strengths.length
+    ? `Iese in evidenta la ${strengths.join(", ")}.`
+    : "Arata o baza solida in sarcinile principale.";
+  const weaknessLine = weaknesses.length
+    ? `Zone de imbunatatit: ${weaknesses.join(", ")}.`
+    : "Nu apar slabiciuni majore in esantionul curent.";
+  const gradeLabel = grade ? ` (${grade.toFixed(1)}/10)` : "";
+  const progressionStyle = role.toLowerCase().includes("mid") ? "progresiv" : "sigur";
+
+  return JSON.stringify({
+    role_title: `Profil ${role}${gradeLabel}`,
+    summary_text: `${player?.name || "Acest jucator"} (${age ?? "N/A"}) la ${teamName}. ${strengthLine} ${weaknessLine}`,
+    cards: [
+      {
+        heading: "Offensive",
+        narrative: strengthLine,
+        number: `Minute: ${minutes}`,
+        what_it_looks_like: "Se implica in fazele ofensive si sustine actiunile din treimea finala.",
+        coaching_cue: "Accentueaza cursele de sustinere dupa prima pasa verticala."
+      },
+      {
+        heading: "Passing profile",
+        narrative: `Prefera un stil ${progressionStyle} de pasare, cu intentie de progresie.`,
+        number: `Meciuri: ${games}`,
+        what_it_looks_like: "Cauta optiuni inainte cand orientarea corpului permite.",
+        coaching_cue: "Cauta pasa verticala mai devreme cand culoarele centrale sunt deschise."
+      },
+      {
+        heading: "Dribbling",
+        narrative: role.toLowerCase().includes("mid")
+          ? "Foloseste driblingul pentru a rupe linii."
+          : "Gestioneaza bine mingea in progresie.",
+        number: `Varsta: ${age ?? "N/A"}`,
+        what_it_looks_like: "Conduce mingea in spatiu liber inainte de pasa.",
+        coaching_cue: "Accentueaza primul control in spatiu pentru accelerare."
+      },
+      {
+        heading: "Defensive",
+        narrative: weaknessLine,
+        number: grade != null ? `Nota generala: ${grade.toFixed(1)}/10` : "Nota generala: N/A",
+        what_it_looks_like: "Contributia defensiva variaza in functie de rol si zona.",
+        coaching_cue: "Recupereaza forma defensiva mai devreme dupa pierderea posesiei."
+      },
+      {
+        heading: "Strengths",
+        narrative: `Activitate echilibrata intre posesie si recuperare, mai ales la ${strengths[0] || "munca fara minge"}.`,
+        number: `Numar puncte forte: ${strengths.length}`,
+        what_it_looks_like: "Repeta actiuni pozitive in sarcinile principale ale rolului.",
+        coaching_cue: "Repeta actiunile forte in zonele cu impact mare."
+      },
+      {
+        heading: "Development",
+        narrative:
+          "Poate creste prin decizii mai bune in presiune ridicata si selectie mai buna a finalizarii.",
+        number: `Zone de lucru: ${weaknesses.length}`,
+        what_it_looks_like: "Calitatea deciziei scade cand ritmul si presiunea cresc.",
+        coaching_cue: "Simplifica prima actiune sub presiune inainte de progresie fortata."
+      },
+      {
+        heading: "Conclusion",
+        narrative: `Profil de ${role.toLowerCase()} cu energie si progresie controlata pentru ${teamName}.`,
+        number: `Incredere rol: ${Math.round((stats?.seasonGrade?.roleConfidence || 0) * 100)}%`,
+        what_it_looks_like: "Se potriveste intr-o structura care cere implicare in ambele faze.",
+        coaching_cue: "Mentine claritatea rolului si tiparele de decizie de la meci la meci."
+      }
+    ]
+  });
+};
+
+const fallbackSummaryByLanguage = ({ player, team, stats, language }) => {
+  const normalized =
+    normalizePlayerInsightLanguage(language) || DEFAULT_PLAYER_INSIGHT_LANGUAGE;
+  if (normalized === "ro") {
+    return fallbackSummaryRomanian({ player, team, stats });
+  }
+  return fallbackSummaryEnglish({ player, team, stats });
+};
+
+export async function generatePlayerProfileSummary({ player, team, stats, language } = {}) {
+  const normalizedLanguage =
+    normalizePlayerInsightLanguage(language) || DEFAULT_PLAYER_INSIGHT_LANGUAGE;
+  const prompt = buildPrompt({ player, team, stats, language: normalizedLanguage });
 
   const client = getOpenAI();
   if (!client) {
     console.log("OpenAI API key not configured, using fallback summary.");
-    return fallbackSummary({ player, team, stats });
+    return fallbackSummaryByLanguage({ player, team, stats, language: normalizedLanguage });
   }
 
   try {
@@ -237,8 +324,7 @@ export async function generatePlayerProfileSummary({ player, team, stats }) {
       messages: [
         {
           role: "system",
-          content:
-            "You are a professional football scout. Keep insights structured, clear and data-driven.",
+          content: `You are a professional football scout. Keep insights structured, clear and data-driven. Use ${PLAYER_INSIGHT_LANGUAGE_META[normalizedLanguage]?.label || PLAYER_INSIGHT_LANGUAGE_META[DEFAULT_PLAYER_INSIGHT_LANGUAGE].label} for all free-text fields.`,
         },
         { role: "user", content: prompt },
       ],
@@ -251,7 +337,7 @@ export async function generatePlayerProfileSummary({ player, team, stats }) {
     console.warn("AI profile summary failed, falling back:", error.message || error);
   }
 
-  return fallbackSummary({ player, team, stats });
+  return fallbackSummaryByLanguage({ player, team, stats, language: normalizedLanguage });
 }
 
 export default generatePlayerProfileSummary;

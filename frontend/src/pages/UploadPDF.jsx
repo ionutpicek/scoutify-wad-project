@@ -9,7 +9,7 @@ const UploadPDF = () => {
   const handleLogout = () => navigate("/login");
 
   const storedUser = useMemo(() => getCurrentUser(), []);
-  const canUploadMatches = storedUser?.role !== "player";
+  const canUploadMatches = String(storedUser?.role || "").toLowerCase() === "admin";
 
   const [fileStatus, setFileStatus] = useState(false);
   const [file, setFile] = useState(null);
@@ -185,7 +185,7 @@ const UploadPDF = () => {
                 width: "100%",
               }}
             >
-              Uploading match PDFs is restricted to managers and admins.
+              Uploading match PDFs is restricted to admins only.
             </div>
           )}
         </div>

@@ -1,9 +1,11 @@
 import React, { useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LandingPageMobile.css";
+import { CLUB_CONTACT_EMAIL } from "../../services/subscriptionCatalog.js";
 
 const ORANGE = "#FF681F";
 const ORANGE_HOVER = "#FF4500";
+const SHOW_SUBSCRIPTION_UI = false;
 
 const features = [
   {
@@ -179,6 +181,7 @@ export default function LandingPageMobile() {
           >
             Start scouting now ⚡
           </button>
+          {SHOW_SUBSCRIPTION_UI ? (
           <button
             type="button"
             className="landing-mobile-btn ghost"
@@ -186,6 +189,7 @@ export default function LandingPageMobile() {
           >
             See plans →
           </button>
+          ) : null}
         </div>
       </section>
 
@@ -205,6 +209,7 @@ export default function LandingPageMobile() {
         </div>
       </section>
 
+      {SHOW_SUBSCRIPTION_UI ? (
       <section
         id="landing-mobile-pricing"
         className="landing-mobile-section landing-mobile-pricing"
@@ -232,23 +237,39 @@ export default function LandingPageMobile() {
                   </li>
                 ))}
               </ul>
-              <button
-                type="button"
-                className={`landing-mobile-btn ${plan.highlight ? "primary" : "secondary"}`}
-                onClick={() => (plan.title === "Club" ? navigate("/register") : alert("Coming soon"))}
-              >
-                {plan.highlight ? "Go Pro" : plan.title === "Club" ? "Request access" : "Get started"}
-              </button>
+              {plan.title === "Club" ? (
+                <div className="landing-mobile-btn" style={clubCtaLikeBtn}>
+                  Email for access
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={`landing-mobile-btn ${plan.highlight ? "primary" : "secondary"}`}
+                  onClick={() => navigate("/login")}
+                >
+                  {plan.highlight ? "Go Pro" : "Get started"}
+                </button>
+              )}
             </article>
           ))}
         </div>
+        <p className="landing-mobile-subtext" style={{ marginTop: 10 }}>
+          Contact:{" "}
+          <a href={`mailto:${CLUB_CONTACT_EMAIL}`} style={{ color: ORANGE, fontWeight: 700 }}>
+            {CLUB_CONTACT_EMAIL}
+          </a>
+        </p>
       </section>
+      ) : null}
 
       <footer className="landing-mobile-footer">
         <div>
           <div className="landing-mobile-footer-title">Scoutify</div>
           <div className="landing-mobile-footer-subtitle">
             Women’s Football Romania · 1st Division
+          </div>
+          <div style={{ color: "#9CA3AF", fontWeight: 700, marginTop: 4, fontSize: 12 }}>
+            GP Source SRL
           </div>
         </div>
         <div className="landing-mobile-footer-actions">
@@ -259,12 +280,28 @@ export default function LandingPageMobile() {
           >
             Features
           </button>
+          {SHOW_SUBSCRIPTION_UI ? (
+            <button
+              type="button"
+              onClick={() => scrollTo("landing-mobile-pricing")}
+              className="landing-mobile-footer-link"
+            >
+              Pricing
+            </button>
+          ) : null}
           <button
             type="button"
-            onClick={() => scrollTo("landing-mobile-pricing")}
+            onClick={() => navigate("/terms-and-conditions")}
             className="landing-mobile-footer-link"
           >
-            Pricing
+            Terms and Conditions
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/privacy-policy")}
+            className="landing-mobile-footer-link"
+          >
+            Privacy Policy
           </button>
           <button
             type="button"
@@ -278,3 +315,14 @@ export default function LandingPageMobile() {
     </div>
   );
 }
+
+const clubCtaLikeBtn = {
+  width: "100%",
+  textAlign: "center",
+  border: "0.2vw solid rgba(255, 104, 31, 0.25)",
+  background: "white",
+  color: ORANGE,
+  boxShadow: "none",
+  cursor: "default",
+  userSelect: "none"
+};

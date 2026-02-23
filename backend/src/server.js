@@ -14,7 +14,11 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    exposedHeaders: ["Content-Disposition"],
+  })
+);
 app.use(express.json());
 app.use("/grading", gradingRoutes);
 app.use("/ai", aiRoutes);

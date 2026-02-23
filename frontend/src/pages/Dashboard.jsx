@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Header } from "../components/Header";
 import { apiUrl } from "../config/api.js";
+import { getCurrentUser } from "../services/sessionStorage.js";
 
 const ORANGE = "#FF681F";
 const ORANGE_SOFT = "#FFF2E8";
@@ -12,7 +13,11 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { role: userRole, username, userTeam } = location.state || {};
+  const storedUser = getCurrentUser();
+  const routeState = location.state || {};
+  const userRole = routeState.role || routeState.userRole || storedUser?.role || "manager";
+  const username = routeState.username || storedUser?.username || "Scout";
+  const userTeam = routeState.userTeam || storedUser?.teamName || "Your team";
   const isAdmin = userRole === "admin";
   const isManager = userRole === "manager";
   const canAccessManagement = isAdmin || isManager;
@@ -260,6 +265,18 @@ const Dashboard = () => {
       badge: "Manage",
       onClick: () =>
         navigate("/teams", { state: { userTeam: userTeam, userRole: userRole } }),
+    },
+    {
+      key: "tactical-planner",
+      title: "Opponent Planner",
+      desc: "Input predicted opponent XI and get your best formation, first 11, and tactical advice.",
+      icon: "XI",
+      badge: "Plan",
+      onClick: () =>
+        navigate("/tactical-planner", {
+          state: { userTeam: userTeam, userRole: userRole, username },
+        }),
+      restrictedTo: ["manager", "admin"],
     },
     {
       key: "leaderboard",

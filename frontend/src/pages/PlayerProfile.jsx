@@ -1,14 +1,43 @@
 import {React, useEffect, useState, useMemo} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { doc, query, collection, where, orderBy } from "firebase/firestore";
-import { db, getDocLogged as getDoc, getDocsLogged as getDocs } from "../firebase.jsx";
+import { auth, db, getDocLogged as getDoc, getDocsLogged as getDocs } from "../firebase.jsx";
 import profilePhoto from '../assets/download.jpeg';
 import Header from "../components/Header.jsx";
 import Spinner from "../components/Spinner.jsx";
 import superligaLogo from '../assets/superligaF.png';
 import SeasonGradeCard from "../components/SeasonGradeCard";
-import { getCurrentUser } from "../services/sessionStorage.js";
+import LineTrendChart from "../components/LineTrendChart.jsx";
+import {
+  getCurrentUser,
+  getPreferredInsightLanguage,
+  setPreferredInsightLanguage
+} from "../services/sessionStorage.js";
+import {
+  buildPlayerRecentGradeSeries,
+  summarizePlayerGradeSeries,
+} from "../services/playerFormSeries.js";
 import { apiUrl } from "../config/api.js";
+import { downloadPlayerCvPdf } from "../api/ai.js";
+
+const PLAYER_INSIGHT_LANGUAGE_LABELS = {
+    en: "English",
+    ro: "Romanian",
+};
+
+const normalizePlayerInsightLanguage = (value) => {
+    if (typeof value !== "string") return null;
+    const normalized = value.trim().toLowerCase();
+    return normalized === "en" || normalized === "ro" ? normalized : null;
+};
+
+const buildPdfFileName = (name) => {
+    const cleaned = String(name || "Player")
+      .replace(/[\\/:*?"<>|]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    return `${cleaned || "Player"}.pdf`;
+};
 
 
 const PlayerProfile = () => {
@@ -19,10 +48,17 @@ const PlayerProfile = () => {
     const [playerData, setPlayerData] = useState(null);
     const [statsData, setStatsData] = useState(null);
     const [teamData, setTeamData] = useState([]);
+    const [teamsList, setTeamsList] = useState([]);
     const [matchesPlayed, setMatchesPlayed] = useState([]);
     const [physicalMetrics, setPhysicalMetrics] = useState(null);
     const [generatingSnapshot, setGeneratingSnapshot] = useState(false);
     const [snapshotMessage, setSnapshotMessage] = useState("");
+    const [downloadingCv, setDownloadingCv] = useState(false);
+    const [cvMessage, setCvMessage] = useState("");
+    const [cvMessageTone, setCvMessageTone] = useState("success");
+    const [insightLanguage, setInsightLanguage] = useState(
+      () => getPreferredInsightLanguage() || "en"
+    );
     const [refreshKey, setRefreshKey] = useState(0);
 
     const normalize = str =>
@@ -79,23 +115,37 @@ const PlayerProfile = () => {
         navigate("/login");
     };
     const handleGenerateSnapshot = async () => {
+        if (!isAdminUser) return;
         if (!statsData?._statsDocId) return;
         setGeneratingSnapshot(true);
         setSnapshotMessage("");
         try {
+            const idToken = await auth.currentUser?.getIdToken?.();
+            if (!idToken) {
+                throw new Error("Admin authentication required.");
+            }
             const res = await fetch(apiUrl("/admin/generate-scout-snapshot"), {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${idToken}`,
+                },
                 body: JSON.stringify({
                     statsDocId: statsData._statsDocId,
-                playerDocId: playerID,
+                    playerDocId: playerID,
+                    language: insightLanguage,
               }),
             });
             if (!res.ok) {
                 const text = await res.text();
                 throw new Error(text || "Snapshot generation failed.");
             }
-            await res.json();
+            const payload = await res.json();
+            const normalizedLanguage = normalizePlayerInsightLanguage(payload?.language);
+            if (normalizedLanguage) {
+                setInsightLanguage(normalizedLanguage);
+                setPreferredInsightLanguage(normalizedLanguage);
+            }
             setSnapshotMessage("Snapshot regenerated.");
             setRefreshKey((prev) => prev + 1);
         } catch (error) {
@@ -103,6 +153,39 @@ const PlayerProfile = () => {
             setSnapshotMessage(error.message || "Unable to regenerate snapshot.");
         } finally {
             setGeneratingSnapshot(false);
+        }
+    };
+    const handleDownloadCv = async () => {
+        if (!playerID || downloadingCv) return;
+        setDownloadingCv(true);
+        setCvMessage("");
+        try {
+            const idToken = await auth.currentUser?.getIdToken?.();
+            if (!idToken) {
+                throw new Error("Authentication required.");
+            }
+
+            const { blob, fileName } = await downloadPlayerCvPdf(playerID, {
+              idToken,
+              fallbackFileName: buildPdfFileName(playerData?.name),
+            });
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = downloadUrl;
+            link.download = fileName || "player-cv.pdf";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 250);
+
+            setCvMessageTone("success");
+            setCvMessage("Player CV downloaded.");
+        } catch (error) {
+            console.error("Player CV download failed:", error);
+            setCvMessageTone("error");
+            setCvMessage(error.message || "Unable to download player CV.");
+        } finally {
+            setDownloadingCv(false);
         }
     };
     const StatCard = ({ label, value }) => {
@@ -134,6 +217,22 @@ const PlayerProfile = () => {
         );
         };
 
+
+    useEffect(() => {
+        let cancelled = false;
+        getDocs(collection(db, "team"))
+          .then(snapshot => {
+            if (cancelled) return;
+            setTeamsList(snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() })));
+          })
+          .catch(error => {
+            console.error("Error fetching teams list for player chart:", error);
+          });
+
+        return () => {
+          cancelled = true;
+        };
+    }, []);
 
     useEffect(() => {
         if (!playerID || isBlocked) {
@@ -181,6 +280,14 @@ const PlayerProfile = () => {
                   };
 
                   setStatsData(statsWithGrade);
+                  const storedLanguage = normalizePlayerInsightLanguage(
+                    rawStats?.seasonGrade?.scoutSnapshotLanguage ||
+                    player?.insights?.scoutSnapshotLanguage
+                  );
+                  if (storedLanguage && !getPreferredInsightLanguage()) {
+                    setInsightLanguage(storedLanguage);
+                    setPreferredInsightLanguage(storedLanguage);
+                  }
                 }
                 else {
                     console.warn("No stats found for this player.");
@@ -249,13 +356,21 @@ const PlayerProfile = () => {
                         : player.teamName || teamData?.name || "";
 
                   let oppName = "";
+                  let oppTeamId = null;
                   if (entrySide === "home") {
                     oppName = awayTeamName;
+                    oppTeamId = awayId ?? null;
                   } else if (entrySide === "away") {
                     oppName = homeTeamName;
+                    oppTeamId = homeId ?? null;
                   } else if (playerTeamId && (homeId || awayId)) {
-                    if (homeId && String(playerTeamId) === String(homeId)) oppName = data.awayTeam;
-                    else if (awayId && String(playerTeamId) === String(awayId)) oppName = data.homeTeam;
+                    if (homeId && String(playerTeamId) === String(homeId)) {
+                      oppName = data.awayTeam;
+                      oppTeamId = awayId ?? null;
+                    } else if (awayId && String(playerTeamId) === String(awayId)) {
+                      oppName = data.homeTeam;
+                      oppTeamId = homeId ?? null;
+                    }
                   }
                   if (!oppName && playerTeamName) {
                     oppName = data.homeTeam === playerTeamName ? data.awayTeam : data.homeTeam;
@@ -269,6 +384,7 @@ const PlayerProfile = () => {
                     date: data.date || "",
                     minutes: Number(minutesVal) || 0,
                     position: positionVal,
+                    opponentTeamId: oppTeamId,
                     grade: gradeVal != null ? Number(gradeVal) : null
                   });
 
@@ -320,6 +436,14 @@ const PlayerProfile = () => {
     const accessDeniedMessage = isManagerMismatch
       ? "Managers can only view players from their own team."
       : "You are logged in as a player and can only see your own statistics. Contact an admin if you need a different profile linked.";
+    const playerRecentGradeSeries = useMemo(
+      () => buildPlayerRecentGradeSeries(matchesPlayed, 8, teamsList),
+      [matchesPlayed, teamsList]
+    );
+    const playerRecentGradeSummary = useMemo(
+      () => summarizePlayerGradeSeries(playerRecentGradeSeries),
+      [playerRecentGradeSeries]
+    );
 
     if (isBlocked) {
         return (
@@ -412,6 +536,34 @@ const PlayerProfile = () => {
                     <p>Playing for: {teamName}</p>
                     <p>Stats info: {statsInfoText}</p>
                     <p>Stats period: {statsPeriodText}</p>
+                    <button
+                      onClick={handleDownloadCv}
+                      disabled={downloadingCv}
+                      style={{
+                        marginTop: "8px",
+                        padding: "10px 14px",
+                        borderRadius: "10px",
+                        border: "1px solid #FF681F",
+                        backgroundColor: downloadingCv ? "#ffddcc" : "#FF681F",
+                        color: "#fff",
+                        fontWeight: 700,
+                        cursor: downloadingCv ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      {downloadingCv ? "Preparing PDF..." : "Download Player CV (PDF)"}
+                    </button>
+                    {cvMessage ? (
+                      <p
+                        style={{
+                          marginTop: "8px",
+                          marginBottom: 0,
+                          fontSize: "0.9rem",
+                          color: cvMessageTone === "error" ? "#B91C1C" : "#166534",
+                        }}
+                      >
+                        {cvMessage}
+                      </p>
+                    ) : null}
                 </div>
                 <img src={teamPhoto}
                     style={{width:"15vw", borderRadius:"20px", height:"15vw", objectFit:"cover", marginTop:"2vh"}}>
@@ -420,6 +572,46 @@ const PlayerProfile = () => {
 
             {statsAvailable ? (
               <>
+                <div
+                  style={{
+                    width: "90vw",
+                    margin: "0 auto 1vh auto",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <label htmlFor="player-insight-language" style={{ color: "#444", fontSize: 13, fontWeight: 600 }}>
+                    Prefered Language
+                  </label>
+                  <select
+                    id="player-insight-language"
+                    value={insightLanguage}
+                    onChange={(event) => {
+                      const normalized =
+                        normalizePlayerInsightLanguage(event.target.value) || "en";
+                      setInsightLanguage(normalized);
+                      setPreferredInsightLanguage(normalized);
+                    }}
+                    disabled={generatingSnapshot}
+                    style={{
+                      borderRadius: 999,
+                      border: "1px solid #d9d9d9",
+                      padding: "8px 12px",
+                      background: "#fff",
+                      color: "#111",
+                      fontSize: 13,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {Object.entries(PLAYER_INSIGHT_LANGUAGE_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <SeasonGradeCard
                   seasonGrade={statsData.seasonGrade}
                   statsDocId={statsData._statsDocId}
@@ -428,9 +620,80 @@ const PlayerProfile = () => {
                   onRegenerateSnapshot={handleGenerateSnapshot}
                   isAdmin={isAdminUser}
                   generatingSnapshot={generatingSnapshot}
+                  insightLanguage={insightLanguage}
                   snapshotMessage={snapshotMessage}
                   physicalMetrics={physicalMetrics}
                 />
+                <div style={{
+                  width: "90vw",
+                  margin: "2vh auto 0 auto",
+                  padding: "16px",
+                  borderRadius: "16px",
+                  backgroundColor: "#fff",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+                  border: "1px solid #f0dfd3",
+                }}>
+                  <div style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "#222",
+                    textTransform: "uppercase",
+                    letterSpacing: 0.35,
+                    marginBottom: 6,
+                  }}>
+                    Recent Player Form (Game Grades)
+                  </div>
+                  <p style={{ margin: "0 0 10px 0", color: "#666", fontSize: 13, lineHeight: 1.45 }}>
+                    Recent match grades for this player (1-10 scale).
+                  </p>
+                  <LineTrendChart
+                    points={playerRecentGradeSeries}
+                    height={180}
+                    minValue={1}
+                    maxValue={10}
+                    autoScale
+                    valueLabel="Grade"
+                    emptyLabel="No recent graded matches found for this player."
+                  />
+                  {playerRecentGradeSummary ? (
+                    <div style={{
+                      marginTop: 10,
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
+                      gap: 8,
+                    }}>
+                      {[
+                        ["Latest", playerRecentGradeSummary.latest.toFixed(1)],
+                        ["Average", playerRecentGradeSummary.average.toFixed(1)],
+                        ["Best", playerRecentGradeSummary.best.toFixed(1)],
+                        ["Games", String(playerRecentGradeSummary.games)],
+                      ].map(([label, value]) => (
+                        <div
+                          key={label}
+                          style={{
+                            borderRadius: 10,
+                            border: "1px solid #f0dfd3",
+                            background: "linear-gradient(180deg, #fff 0%, #fffaf6 100%)",
+                            padding: "8px 10px",
+                          }}
+                        >
+                          <div style={{
+                            fontSize: 11,
+                            color: "#666",
+                            textTransform: "uppercase",
+                            letterSpacing: 0.35,
+                            fontWeight: 600,
+                          }}>
+                            {label}
+                          </div>
+                          <div style={{ fontSize: 17, color: "#111827", fontWeight: 700, lineHeight: 1.2 }}>
+                            {value}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
                 <div style={{
                   width: "90vw",
                   margin: "3vh auto",

@@ -1,0 +1,390 @@
+.tactical-page {
+  min-height: 100vh;
+  width: 100%;
+  background: #f9fafb;
+}
+
+.tactical-content {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 24px 20px 36px;
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 20px;
+}
+
+.tactical-panel {
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  box-shadow: 0 16px 34px rgba(17, 24, 39, 0.08);
+  padding: 20px;
+}
+
+.tactical-panel h2,
+.tactical-panel h3,
+.tactical-panel h4 {
+  margin: 0 0 10px;
+  color: #111827;
+}
+
+.tactical-muted {
+  margin: 0 0 14px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.tactical-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.tactical-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #374151;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.tactical-fields input,
+.tactical-fields select,
+.tactical-lineup-row input,
+.tactical-lineup-row select {
+  border: 1px solid rgba(17, 24, 39, 0.15);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  color: #111827;
+  background: #fff;
+}
+
+.tactical-fields input:focus,
+.tactical-fields select:focus,
+.tactical-lineup-row input:focus,
+.tactical-lineup-row select:focus {
+  border-color: #ff681f;
+  box-shadow: 0 0 0 3px rgba(255, 104, 31, 0.14);
+}
+
+.tactical-lineup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.tactical-helper-row {
+  margin-bottom: 8px;
+}
+
+.tactical-helper-text {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.tactical-unavailable-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  padding-right: 4px;
+}
+
+.tactical-unavailable-item {
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+}
+
+.tactical-unavailable-item.checked {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: #fff5f5;
+}
+
+.tactical-unavailable-item input {
+  margin: 0;
+}
+
+.tactical-unavailable-item span {
+  color: #111827;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tactical-unavailable-item small {
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tactical-ghost-btn {
+  border: 1px solid rgba(255, 104, 31, 0.35);
+  background: #fff2e8;
+  color: #ff681f;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tactical-lineup-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.tactical-lineup-row {
+  display: grid;
+  grid-template-columns: 42px 1fr 96px;
+  gap: 8px;
+  align-items: center;
+}
+
+.tactical-row-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #fff2e8;
+  color: #ff681f;
+  font-weight: 900;
+  justify-self: center;
+}
+
+.tactical-submit-btn {
+  margin-top: 16px;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  background: #ff681f;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.tactical-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tactical-error {
+  margin-top: 12px;
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tactical-empty {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #6b7280;
+}
+
+.tactical-loading {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+}
+
+.tactical-result {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tactical-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tactical-summary-card {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 104, 31, 0.3);
+  background: #fff7f2;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tactical-summary-card span {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.tactical-summary-card strong {
+  color: #111827;
+  font-size: 20px;
+}
+
+.tactical-outcome-wrap {
+  border: 1px solid rgba(17, 24, 39, 0.1);
+  border-radius: 12px;
+  background: #fff;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tactical-outcome-bar {
+  height: 34px;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+}
+
+.tactical-outcome-segment {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 900;
+  color: #111827;
+  white-space: nowrap;
+}
+
+.tactical-outcome-segment--own {
+  background: #bbf7d0;
+}
+
+.tactical-outcome-segment--draw {
+  background: #fde68a;
+}
+
+.tactical-outcome-segment--opponent {
+  background: #fecaca;
+}
+
+.tactical-outcome-legend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.tactical-table-wrap {
+  border: 1px solid rgba(17, 24, 39, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.tactical-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tactical-table-wrap th,
+.tactical-table-wrap td {
+  border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+  padding: 10px 12px;
+  font-size: 13px;
+  text-align: left;
+  color: #111827;
+  white-space: nowrap;
+}
+
+.tactical-table-wrap th {
+  background: #fff2e8;
+  color: #7c2d12;
+  font-weight: 900;
+}
+
+.tactical-bench {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tactical-chip {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 104, 31, 0.3);
+  background: #fffaf5;
+  padding: 7px 10px;
+  font-size: 12px;
+  color: #7c2d12;
+  font-weight: 700;
+}
+
+.tactical-advice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tactical-advice-grid ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #374151;
+  font-size: 13px;
+}
+
+@media (max-width: 1080px) {
+  .tactical-content {
+    grid-template-columns: 1fr;
+  }
+
+  .tactical-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .tactical-content {
+    padding: 16px 12px 28px;
+  }
+
+  .tactical-panel {
+    border-radius: 14px;
+    padding: 14px;
+  }
+
+  .tactical-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tactical-advice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tactical-outcome-legend {
+    grid-template-columns: 1fr;
+  }
+
+  .tactical-lineup-row {
+    grid-template-columns: 34px 1fr 86px;
+  }
+
+  .tactical-unavailable-grid {
+    grid-template-columns: 1fr;
+  }
+}

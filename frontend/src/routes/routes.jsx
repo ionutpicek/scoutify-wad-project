@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '../pages/Login';
 import RegisterPage from '../pages/Register';
 import TeamsPage from '../pages/Teams';
-import DashboardRoute from '../pages/DashboardRoute';
 import PlayersPage from '../pages/Players';
 import ComparePlayers from '../pages/Compare';
 import TeamPlayers from '../pages/TeamPlayers';
@@ -19,6 +18,7 @@ import ForgotPassword from '../pages/ForgotPassword';
 import LeaderboardPage from '../pages/Leaderboard';
 import LandingPage from '../pages/LandingPage';
 import VerificationQueue from '../pages/VerificationQueue';
+import TacticalPlanner from '../pages/TacticalPlanner';
 import ResponsiveRoute from './ResponsiveRoute';
 import LandingPageMobile from '../pages/mobile/LandingPageMobile';
 import LoginMobile from '../pages/mobile/LoginMobile';
@@ -37,6 +37,11 @@ import MatchPageMobile from '../pages/mobile/MatchPageMobile';
 import LeaderboardMobile from '../pages/mobile/LeaderboardMobile';
 import VerificationQueueMobile from '../pages/mobile/VerificationQueueMobile';
 import { useIsMobile } from '../hooks/useIsMobile';
+import DashboardAccessGate from './DashboardAccessGate';
+import SubscriptionRequired from '../pages/SubscriptionRequired';
+import SubscriptionCheckout from '../pages/SubscriptionCheckout';
+import TermsAndConditions from '../pages/TermsAndConditions';
+import PrivacyPolicy from '../pages/PrivacyPolicy';
 
 const CompareDesktopOnly = () => {
   const isMobile = useIsMobile();
@@ -82,7 +87,43 @@ const AppRoutes = () => {
             />
           }
         />
-        <Route path="/dashboard" element={<DashboardRoute />} />
+        <Route path="/dashboard" element={<DashboardAccessGate />} />
+        <Route
+          path="/subscription-required"
+          element={
+            <ResponsiveRoute
+              Desktop={SubscriptionRequired}
+              Mobile={SubscriptionRequired}
+            />
+          }
+        />
+        <Route
+          path="/subscription-checkout"
+          element={
+            <ResponsiveRoute
+              Desktop={SubscriptionCheckout}
+              Mobile={SubscriptionCheckout}
+            />
+          }
+        />
+        <Route
+          path="/terms-and-conditions"
+          element={
+            <ResponsiveRoute
+              Desktop={TermsAndConditions}
+              Mobile={TermsAndConditions}
+            />
+          }
+        />
+        <Route
+          path="/privacy-policy"
+          element={
+            <ResponsiveRoute
+              Desktop={PrivacyPolicy}
+              Mobile={PrivacyPolicy}
+            />
+          }
+        />
         <Route
           path="/teams"
           element={
@@ -171,6 +212,15 @@ const AppRoutes = () => {
             <ResponsiveRoute
               Desktop={LeaderboardPage}
               Mobile={LeaderboardMobile}
+            />
+          }
+        />
+        <Route
+          path="/tactical-planner"
+          element={
+            <ResponsiveRoute
+              Desktop={TacticalPlanner}
+              Mobile={TacticalPlanner}
             />
           }
         />

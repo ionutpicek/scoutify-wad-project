@@ -144,10 +144,15 @@ export function processMatch({
             "duels",
             "groundDuels",
             "aerialDuels",
+            "looseBallDuels",
+            "slidingTackles",
             "losses",
+            "recoveries",
             "defensiveDuels",
             "offensiveDuels",
             "forwardPasses",
+            "backPasses",
+            "longPasses",
             "progressivePasses",
             "passesFinalThird",
             "throughPasses"
@@ -161,6 +166,9 @@ export function processMatch({
         case "passes":
           statsForDerived.passes = attempts;
           statsForDerived.accuratePasses = success;
+          if (val?.success != null) {
+            matchStatsFlat.accuratePasses = success;
+          }
           break;
         case "losses":
           statsForDerived.losses = attempts;
@@ -171,18 +179,30 @@ export function processMatch({
         case "crosses":
           statsForDerived.crosses = attempts;
           statsForDerived.crossesAccurate = success;
+          if (val?.success != null) {
+            matchStatsFlat.crossesAccurate = success;
+          }
           break;
         case "duels":
           statsForDerived.duels = attempts;
           statsForDerived.duelsWon = success;
+          if (val?.success != null) {
+            matchStatsFlat.duelsWon = success;
+          }
           break;
         case "defensiveDuels":
           statsForDerived.defensiveDuels = attempts;
           statsForDerived.defensiveDuelsWon = success;
+          if (val?.success != null) {
+            matchStatsFlat.defensiveDuelsWon = success;
+          }
           break;
         case "offensiveDuels":
           statsForDerived.offensiveDuels = attempts;
           statsForDerived.offensiveDuelsWon = success;
+          if (val?.success != null) {
+            matchStatsFlat.offensiveDuelsWon = success;
+          }
           break;
         case "groundDuels":
           statsForDerived.defensiveDuels = attempts;
@@ -195,10 +215,35 @@ export function processMatch({
         case "aerialDuels":
           statsForDerived.aerialDuels = attempts;
           statsForDerived.aerialDuelsWon = success;
+          if (val?.success != null) {
+            matchStatsFlat.aerialDuelsWon = success;
+          }
+          break;
+        case "looseBallDuels":
+          if (val?.success != null) {
+            matchStatsFlat.looseBallDuelsWon = success;
+          }
           break;
         case "forwardPasses":
           statsForDerived.forwardPasses = attempts;
           statsForDerived.forwardPassesAccurate = success;
+          if (val?.success != null) {
+            matchStatsFlat.forwardPassesAccurate = success;
+          }
+          break;
+        case "backPasses":
+          statsForDerived.backPasses = attempts;
+          statsForDerived.backPassesAccurate = success;
+          if (val?.success != null) {
+            matchStatsFlat.backPassesAccurate = success;
+          }
+          break;
+        case "longPasses":
+          statsForDerived.longPasses = attempts;
+          statsForDerived.longPassesAccurate = success;
+          if (val?.success != null) {
+            matchStatsFlat.longPassesAccurate = success;
+          }
           break;
         case "progressivePasses":
           statsForDerived.progressivePasses = attempts;
@@ -207,10 +252,16 @@ export function processMatch({
         case "passesFinalThird":
           statsForDerived.passesFinalThird = attempts;
           statsForDerived.passesFinalThirdAccurate = success;
+          if (val?.success != null) {
+            matchStatsFlat.passesFinalThirdAccurate = success;
+          }
           break;
         case "throughPasses":
           statsForDerived.throughPasses = attempts;
           statsForDerived.throughPassesAccurate = success;
+          if (val?.success != null) {
+            matchStatsFlat.throughPassesAccurate = success;
+          }
           break;
         case "keyPasses":
           statsForDerived.shotAssists = attempts;
@@ -229,12 +280,23 @@ export function processMatch({
           break;
         case "recoveries":
           statsForDerived.recoveries = attempts;
-          statsForDerived.recoveriesOppHalf = attempts;
+          if (val?.success != null) {
+            statsForDerived.recoveriesOppHalf = success;
+            matchStatsFlat.recoveriesOppHalf = success;
+          } else {
+            statsForDerived.recoveriesOppHalf = attempts;
+          }
           break;
         case "shots":
           statsForDerived.shots = attempts;
           if (val?.success != null) {
             statsForDerived.shotsOnTarget = success;
+            matchStatsFlat.shotsOnTarget = success;
+          }
+          break;
+        case "slidingTackles":
+          if (val?.success != null) {
+            matchStatsFlat.slidingTacklesSuccessful = success;
           }
           break;
         case "interceptions":

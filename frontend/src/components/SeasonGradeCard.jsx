@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useMemo } from "react";
+import { auth } from "../firebase.jsx";
 import { apiUrl } from "../config/api.js";
 
 const SCOUT_HEADINGS = [
@@ -113,6 +114,7 @@ export default function SeasonGradeCard({
   onRegenerateSnapshot,
   isAdmin,
   generatingSnapshot = false,
+  insightLanguage = "en",
   physicalMetrics = null,
 }) {
   if (!seasonGrade) return null;
@@ -175,11 +177,21 @@ export default function SeasonGradeCard({
   }, [snapshotData, gpsNarrative]);
 
   const generateVerdict = async () => {
+    if (!isAdmin) return;
     try {
       setLoadingAI(true);
+      const idToken = await auth.currentUser?.getIdToken?.();
+      if (!idToken) {
+        throw new Error("Admin authentication required.");
+      }
 
       const res = await fetch(apiUrl(`/ai/scout-verdict/${statsDocId}`), {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ language: insightLanguage }),
       });
 
       if (!res.ok) throw new Error("Request failed");

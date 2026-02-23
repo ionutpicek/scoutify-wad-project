@@ -18,7 +18,7 @@ export default function MatchesPage() {
   const pageSize = 6;
 
   const storedUser = React.useMemo(() => getCurrentUser(), []);
-  const isPlayerRole = storedUser?.role === "player";
+  const isAdminRole = String(storedUser?.role || "").toLowerCase() === "admin";
 
   const fetchMatches = async () => {
     setIsLoading(true);
@@ -100,7 +100,7 @@ export default function MatchesPage() {
 
       <div style={{ padding: "3vh 4vw", display: "flex", flexDirection: "column"}}>
       {/* Upload section */}
-      {!isPlayerRole && (
+      {isAdminRole && (
         <div
           style={{
             background: "#fff",
